@@ -29,6 +29,7 @@ struct Probe {
   const uint32_t boost_bonus;
   const uint32_t storage;
   const Type probe_type;
+  const uint32_t probe_level;
   const std::string shorthand;
   const std::string name;
 
@@ -39,6 +40,7 @@ struct Probe {
       uint32_t boost_bonus,
       uint32_t storage,
       Type probe_type,
+      uint32_t probe_level,
       std::string shorthand,
       std::string name);
 
