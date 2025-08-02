@@ -10,34 +10,34 @@ AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent) {
   auto* layout = new QVBoxLayout(this);
 
   // Icon
-  auto* iconLabel = new QLabel(this);
-  iconLabel->setPixmap(QPixmap(":/dataprobe.png"));
-  layout->addWidget(iconLabel, 0, Qt::AlignCenter);
+  auto* icon_label = new QLabel(this);
+  icon_label->setPixmap(QPixmap(":/dataprobe.png"));
+  layout->addWidget(icon_label, 0, Qt::AlignCenter);
 
   // Title
-  auto* titleLabel = new QLabel(
+  auto* title_label = new QLabel(
     QString("<b><big>%1</big></b>").arg(qApp->applicationDisplayName()),
     this);
-  layout->addWidget(titleLabel, 0, Qt::AlignCenter);
+  layout->addWidget(title_label, 0, Qt::AlignCenter);
 
   // Version
-  auto* versionLabel = new QLabel(qApp->applicationVersion(), this);
-  layout->addWidget(versionLabel, 0, Qt::AlignCenter);
+  auto* version_label = new QLabel(qApp->applicationVersion(), this);
+  layout->addWidget(version_label, 0, Qt::AlignCenter);
 
   // Github
-  auto* websiteLabel = new QLabel(
+  auto* website_label = new QLabel(
     QString("<a href=\"%1\">%1</a>").arg(config::kProjectHomepageUrl), this);
-  websiteLabel->setOpenExternalLinks(true);
-  layout->addWidget(websiteLabel, 0, Qt::AlignCenter);
+  website_label->setOpenExternalLinks(true);
+  layout->addWidget(website_label, 0, Qt::AlignCenter);
 
   // About Qt
-  auto* aboutQtLabel =
+  auto* about_qt_label =
     new QLabel(tr("<a href=\"aboutqt\">About Qt...</a>"), this);
-  connect(aboutQtLabel, &QLabel::linkActivated, qApp, &QApplication::aboutQt);
-  layout->addWidget(aboutQtLabel, 0, Qt::AlignCenter);
+  connect(about_qt_label, &QLabel::linkActivated, qApp, &QApplication::aboutQt);
+  layout->addWidget(about_qt_label, 0, Qt::AlignCenter);
 
   // Close button
-  auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
-  connect(buttonBox, &QDialogButtonBox::rejected, this, &AboutDialog::close);
-  layout->addWidget(buttonBox);
+  auto* button_box = new QDialogButtonBox(QDialogButtonBox::Close, this);
+  connect(button_box, &QDialogButtonBox::rejected, this, &AboutDialog::close);
+  layout->addWidget(button_box);
 }

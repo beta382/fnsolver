@@ -165,6 +165,27 @@ std::vector<ResolvedPlacement> resolve_placements(const std::vector<Placement> &
 
   return resolved_placements;
 }
+
+ResourceYield resolve_resource_yield(const std::vector<ResolvedPlacement>& resolved_placements) {
+  uint32_t production = 0;
+  uint32_t revenue = 0;
+  uint32_t storage = 6000;
+  std::array<uint32_t, precious_resource::count> precious_resource_quantities;
+  precious_resource_quantities.fill(0);
+  for (const ResolvedPlacement& resolved_placement : resolved_placements) {
+    const ResourceYield& site_resource_yield = resolved_placement.get_resource_yield();
+    production += site_resource_yield.get_production();
+    revenue += site_resource_yield.get_revenue();
+    storage += site_resource_yield.get_storage();
+    std::transform(
+      precious_resource_quantities.cbegin(),
+      precious_resource_quantities.cend(),
+      site_resource_yield.get_precious_resource_quantities().cbegin(),
+      precious_resource_quantities.begin(),
+      [](uint32_t lhs, uint32_t rhs) { return lhs + rhs; });
+  }
+  return ResourceYield(production, revenue, storage, std::move(precious_resource_quantities));
+}
 } // namespace
 
 // static
@@ -215,33 +236,38 @@ std::optional<Layout> Layout::from_frontier_nav_net_url(const std::string &url) 
 Layout::Layout(std::vector<Placement> placements)
     : placements(std::move(placements)),
       resolved_placements(resolve_placements(this->placements)),
-      resource_yield([this]() {
-        uint32_t production = 0;
-        uint32_t revenue = 0;
-        uint32_t storage = 6000;
-        std::array<uint32_t, precious_resource::count> precious_resource_quantities;
-        precious_resource_quantities.fill(0);
-        for (const ResolvedPlacement &resolved_placement : this->resolved_placements) {
-          const ResourceYield &site_resource_yield = resolved_placement.get_resource_yield();
-          production += site_resource_yield.get_production();
-          revenue += site_resource_yield.get_revenue();
-          storage += site_resource_yield.get_storage();
-          std::transform(
-              precious_resource_quantities.cbegin(),
-              precious_resource_quantities.cend(),
-              site_resource_yield.get_precious_resource_quantities().cbegin(),
-              precious_resource_quantities.begin(),
-              [](uint32_t lhs, uint32_t rhs) { return lhs + rhs; });
-        }
-        return ResourceYield(production, revenue, storage, std::move(precious_resource_quantities));
-      }()) {}
+    resource_yield(resolve_resource_yield(this->resolved_placements)) {}
 
 const std::vector<Placement> &Layout::get_placements() const {
   return placements;
 }
 
+const Probe* Layout::get_probe(const FnSite& site) const {
+  auto placement = std::ranges::find_if(placements, [&site](const Placement& placement) {
+    return placement.get_site().site_id == site.site_id;
+  });
+  return &placement->get_probe();
+}
+
+void Layout::set_probe(const FnSite& site, const Probe& probe) {
+  auto placement = std::ranges::find_if(placements, [&site](const Placement& placement) {
+    return placement.get_site().site_id == site.site_id;
+  });
+  *placement = Placement(site, probe);
+  // TODO: How (non-)performant is this? Can things be changed in place rather than recalculating everything?
+  resolved_placements = resolve_placements(placements);
+  resource_yield = resolve_resource_yield(resolved_placements);
+}
+
 const std::vector<ResolvedPlacement> &Layout::get_resolved_placements() const {
   return resolved_placements;
+}
+
+const ResolvedPlacement& Layout::get_resolved_placement(const FnSite& site) const {
+  auto placement = std::ranges::find_if(resolved_placements, [&site](const ResolvedPlacement& placement) {
+    return placement.get_site().site_id == site.site_id;
+  });
+  return *placement;
 }
 
 const ResourceYield &Layout::get_resource_yield() const {

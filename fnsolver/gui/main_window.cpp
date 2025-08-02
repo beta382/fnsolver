@@ -1,4 +1,5 @@
 #include "main_window.h"
+#include <thread>
 #include <QApplication>
 #include <QMenuBar>
 #include <QToolBar>
@@ -7,12 +8,47 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QVBoxLayout>
 
 #include "about_dialog.h"
 #include "settings.h"
 #include "fnsolver/fnsolver_config.h"
 
-MainWindow::MainWindow(QWidget* parent): QMainWindow(parent) {
+Options default_options() {
+  return {
+    false,
+    ScoreFunction::create_max_effective_mining(2),
+    ScoreFunction::create_max_mining(),
+    {},
+    {},
+    {},
+    {},
+    false,
+    {},
+    0,
+    0,
+    0,
+    1000,
+    0,
+    100,
+    200,
+    0.04,
+    50,
+    std::thread::hardware_concurrency()
+  };
+};
+
+Layout default_layout() {
+  std::vector<Placement> placements;
+  placements.reserve(FnSite::num_sites);
+  for (const auto& site : FnSite::sites) {
+    placements.emplace_back(site, Probe::probes.at(Probe::idx_for_shorthand.at("-")));
+  }
+  return {placements};
+}
+
+MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(default_options()),
+  layout_(default_layout()) {
   init_ui();
 }
 
@@ -67,6 +103,23 @@ void MainWindow::init_ui() {
   toolbar->addAction(actions.view_zoom_all);
   toolbar->addSeparator();
   toolbar->addAction(actions.run_simulation);
+
+  // Map
+  auto mapLayout = new QVBoxLayout(central);
+  widgets_.miraMap = new MiraMap(&layout_, central);
+  mapLayout->addWidget(widgets_.miraMap);
+  // Forces recalculation of geometry, otherwise map is zoomed in a strange way at startup.
+  widgets_.miraMap->show();
+  connect(widgets_.miraMap, &MiraMap::site_probe_map_changed, this,
+          &MainWindow::data_changed);
+  connect(widgets_.miraMap, &MiraMap::site_probe_map_changed, this,
+          &MainWindow::probe_map_changed);
+  connect(actions.view_zoom_in, &QAction::triggered, widgets_.miraMap,
+          &MiraMap::zoom_in);
+  connect(actions.view_zoom_out, &QAction::triggered, widgets_.miraMap,
+          &MiraMap::zoom_out);
+  connect(actions.view_zoom_all, &QAction::triggered, widgets_.miraMap,
+          &MiraMap::fit_all);
 }
 
 void MainWindow::init_actions() {

@@ -15,8 +15,18 @@ qt_add_executable(${TARGET} WIN32
     main.cpp
     about_dialog.h
     about_dialog.cpp
+    fn_site_widget.h
+    fn_site_widget.cpp
+    fnsite_ui.h
+    fnsite_ui.cpp
     main_window.h
     main_window.cpp
+    mira_map.h
+    mira_map.cpp
+    precious_resource_ui.h
+    precious_resource_ui.cpp
+    probe_ui.h
+    probe_ui.cpp
     settings.h
 )
 target_link_libraries(${TARGET} PRIVATE

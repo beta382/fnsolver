@@ -9,6 +9,9 @@
 #include <QTableView>
 #include <QProgressDialog>
 
+#include "mira_map.h"
+#include "fnsolver/solver/options.h"
+
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -36,7 +39,7 @@ private:
   Actions actions;
 
   struct Widgets {
-    // MiraMap *miraMap = nullptr;
+    MiraMap* miraMap = nullptr;
     QTableView* inventory_table = nullptr;
     // RunOptionsWidget *runOptions = nullptr;
     // SolutionWidget *solutionWidget = nullptr;
@@ -47,8 +50,8 @@ private:
   QProgressDialog* progress_dialog_ = nullptr;
   QElapsedTimer solver_stopwatch_;
   // SolverRunner *solverRunner_ = nullptr;
-  // ProbeOptimizer probeOptimizer_;
-  bool shown_for_first_time_ = false;
+  Options solver_options_;
+  Layout layout_;
 
   void init_ui();
   void init_actions();
