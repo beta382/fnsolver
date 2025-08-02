@@ -1,0 +1,76 @@
+#ifndef FNSOLVER_GUI_MAIN_WINDOW_H
+#define FNSOLVER_GUI_MAIN_WINDOW_H
+
+#include <QMainWindow>
+#include <QTabBar>
+#include <QAction>
+#include <QElapsedTimer>
+#include <QMenu>
+#include <QTableView>
+#include <QProgressDialog>
+
+class MainWindow : public QMainWindow {
+  Q_OBJECT
+
+public:
+  explicit MainWindow(QWidget* parent = nullptr);
+
+protected:
+  void closeEvent(QCloseEvent* event) override;
+
+private:
+  struct Actions {
+    QAction* file_open = nullptr;
+    QMenu* file_recent = nullptr;
+    QAction* file_save = nullptr;
+    QAction* file_save_as = nullptr;
+    QAction* file_exit = nullptr;
+    QAction* view_zoom_in = nullptr;
+    QAction* view_zoom_out = nullptr;
+    QAction* view_zoom_all = nullptr;
+    QAction* help_about = nullptr;
+    QAction* help_website = nullptr;
+    QAction* run_simulation = nullptr;
+  };
+
+  Actions actions;
+
+  struct Widgets {
+    // MiraMap *miraMap = nullptr;
+    QTableView* inventory_table = nullptr;
+    // RunOptionsWidget *runOptions = nullptr;
+    // SolutionWidget *solutionWidget = nullptr;
+  };
+
+  Widgets widgets_;
+  // InventoryModel *inventoryModel_;
+  QProgressDialog* progress_dialog_ = nullptr;
+  QElapsedTimer solver_stopwatch_;
+  // SolverRunner *solverRunner_ = nullptr;
+  // ProbeOptimizer probeOptimizer_;
+  bool shown_for_first_time_ = false;
+
+  void init_ui();
+  void init_actions();
+  void update_window_title();
+  void add_recent_document(const QString& path);
+  void update_recent_documents();
+  void open_from_path(const QString& path);
+  void save_to_path(const QString& path);
+  bool safe_to_close_file();
+
+private Q_SLOTS:
+  void file_open();
+  void file_save();
+  void file_save_as();
+  void help_about();
+  void help_website();
+  void data_changed();
+  void probe_map_changed();
+  void solve();
+  void progress(unsigned long iter, double bestScore, double worstScore,
+                unsigned long killed);
+  // void solved(ProbeArrangement probeArrangement);
+};
+
+#endif //FNSOLVER_GUI_MAIN_WINDOW_H
