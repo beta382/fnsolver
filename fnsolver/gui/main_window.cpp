@@ -49,6 +49,7 @@ void MainWindow::init_ui() {
   // Menubar
   // File menu
   auto* menuFile = menuBar()->addMenu(tr("&File"));
+  menuFile->addAction(actions.file_new);
   menuFile->addAction(actions.file_open);
   menuFile->addMenu(actions.file_recent);
   menuFile->addAction(actions.file_save);
@@ -68,6 +69,7 @@ void MainWindow::init_ui() {
   // Toolbar
   auto* toolbar = addToolBar(tr("Toolbar"));
   toolbar->setMovable(false);
+  toolbar->addAction(actions.file_new);
   toolbar->addAction(actions.file_open);
   toolbar->addAction(actions.file_save);
   toolbar->addAction(actions.file_save_as);
@@ -131,6 +133,10 @@ void MainWindow::init_ui() {
 
 void MainWindow::init_actions() {
   // File
+  // New
+  actions.file_new = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew), tr("&New"), this);;
+  actions.file_new->setShortcut(QKeySequence(QKeySequence::New));
+  connect(actions.file_new, &QAction::triggered, this, &MainWindow::file_new);
   // Open
   actions.file_open =
     new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen), tr("&Open"), this);
@@ -234,7 +240,6 @@ void MainWindow::update_recent_documents() {
 void MainWindow::open_from_path(const QString& path) {
   try {
     solver_options_ = options_loader::load_from_file(path.toStdString());
-    // TODO: Creating the layout gobbles infinite memory. Figure out why.
     layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
     update_seed();
     widgets_.mira_map->set_layout(&layout_);
@@ -331,6 +336,21 @@ Layout MainWindow::fill_layout(std::vector<Placement> seed, std::vector<Placemen
   });
 
   return {placements_sorted};
+}
+
+void MainWindow::file_new() {
+  if (!safe_to_close_file()) {
+    return;
+  }
+
+  solver_options_ = options_loader::default_options();
+  layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
+  update_seed();
+  widgets_.mira_map->set_layout(&layout_);
+
+  setWindowFilePath({});
+  setWindowModified(false);
+  update_window_title();
 }
 
 void MainWindow::file_open() {

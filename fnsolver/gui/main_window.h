@@ -25,6 +25,7 @@ protected:
 
 private:
   struct Actions {
+    QAction* file_new = nullptr;
     QAction* file_open = nullptr;
     QMenu* file_recent = nullptr;
     QAction* file_save = nullptr;
@@ -64,6 +65,7 @@ private:
   static Layout fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites);
 
 private Q_SLOTS:
+  void file_new();
   void file_open();
   void file_save();
   void file_save_as();
