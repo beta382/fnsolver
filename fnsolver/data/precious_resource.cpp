@@ -21,6 +21,16 @@ const std::unordered_map<std::string, precious_resource::Type> precious_resource
   {"bonjelium", Type::bonjelium}
 };
 
+const std::unordered_map<precious_resource::Type, std::string> precious_resource::str_for_type = []() {
+  std::unordered_map<Type, std::string> rev_map;
+  rev_map.reserve(type_for_str.size());
+  for (const auto& [a,b] : type_for_str) {
+    rev_map.emplace(b,a);
+  }
+
+  return rev_map;
+}();
+
 const std::unordered_map<precious_resource::Type, std::string> precious_resource::name_for_type = {
   {Type::arc_sand_ore, "Arc Sand Ore"},
   {Type::aurorite, "Aurorite"},

@@ -13,44 +13,14 @@
 #include <QDockWidget>
 
 #include "about_dialog.h"
+#include "options_loader.h"
 #include "settings.h"
 #include "fnsolver/fnsolver_config.h"
 
-Options default_options() {
-  return {
-    false,
-    ScoreFunction::create_max_effective_mining(2),
-    ScoreFunction::create_max_mining(),
-    {},
-    {},
-    {},
-    {},
-    false,
-    {},
-    0,
-    0,
-    0,
-    1000,
-    0,
-    100,
-    200,
-    0.04,
-    50,
-    std::thread::hardware_concurrency()
-  };
-};
-
-Layout default_layout() {
-  std::vector<Placement> placements;
-  placements.reserve(FnSite::num_sites);
-  for (const auto& site : FnSite::sites) {
-    placements.emplace_back(site, Probe::probes.at(Probe::idx_for_shorthand.at("-")));
-  }
-  return {placements};
-}
-
-MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(default_options()),
-  layout_(default_layout()) {
+MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(options_loader::default_options()),
+  layout_(solver_options_.get_seed()) {
+  fill_layout();
+  update_seed();
   init_ui();
 }
 
@@ -264,7 +234,19 @@ void MainWindow::open_from_path(const QString& path) {
 }
 
 void MainWindow::save_to_path(const QString& path) {
-  // TODO: Implement.
+  try {
+    options_loader::save_to_file(path.toStdString(), solver_options_);
+  }
+  catch (const std::exception& e) {
+    QMessageBox::critical(this, tr("Error saving file"),
+                          tr("The file could not be opened for writing."));
+    return;
+  }
+
+  setWindowFilePath(path);
+  setWindowModified(false);
+  update_window_title();
+  add_recent_document(path);
 }
 
 bool MainWindow::safe_to_close_file() {
@@ -293,6 +275,36 @@ bool MainWindow::safe_to_close_file() {
   // Either no need to save or discard changes and close.
 
   return true;
+}
+
+void MainWindow::update_seed() {
+  std::vector<Placement> locked_sites;
+  std::vector<Placement> seed;
+  for (const auto& placement : layout_.get_placements()) {
+    if (placement.get_probe().probe_type == Probe::Type::none) {
+      locked_sites.emplace_back(placement);
+    }
+    else if (placement.get_probe().probe_type != Probe::Type::basic) {
+      seed.emplace_back(placement);
+    }
+  }
+  solver_options_.set_locked_sites(locked_sites);
+  solver_options_.set_seed(seed);
+}
+
+void MainWindow::fill_layout() {
+  // Which sites are seeded?
+  std::unordered_set<FnSite::id_t> seeded_sites;
+  for (const auto& placement : layout_.get_placements()) {
+    seeded_sites.insert(placement.get_site().site_id);
+  }
+
+  // Add a basic probe to any site not seeded.
+  for (const auto& site : FnSite::sites) {
+    if (!seeded_sites.contains(site.site_id)) {
+      layout_.set_probe(site, Probe::probes.at(Probe::idx_for_shorthand.at("-")));
+    }
+  }
 }
 
 void MainWindow::file_open() {
@@ -361,6 +373,7 @@ void MainWindow::data_changed() {
 void MainWindow::probe_map_changed() {
   inventory_model_->reset();
   widgets_.solution_widget->set_layout(layout_);
+  update_seed();
 }
 
 void MainWindow::solve() {

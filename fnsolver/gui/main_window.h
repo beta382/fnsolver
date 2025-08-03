@@ -59,6 +59,9 @@ private:
   void open_from_path(const QString& path);
   void save_to_path(const QString& path);
   bool safe_to_close_file();
+  void update_seed();
+  /** Put a basic probe on any site not included in the layout. */
+  void fill_layout();
 
 private Q_SLOTS:
   void file_open();

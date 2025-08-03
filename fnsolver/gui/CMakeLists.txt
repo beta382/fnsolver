@@ -9,6 +9,13 @@ find_package(Qt6 6.8 REQUIRED COMPONENTS
     Svg
     Widgets
 )
+include(FetchContent)
+FetchContent_Declare(
+    tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
 
 qt_add_executable(${TARGET} WIN32
     about_dialog.cpp
@@ -24,6 +31,8 @@ qt_add_executable(${TARGET} WIN32
     main_window.h
     mira_map.cpp
     mira_map.h
+    options_loader.cpp
+    options_loader.h
     precious_resource_ui.cpp
     precious_resource_ui.h
     probe_ui.cpp
@@ -41,5 +50,6 @@ target_link_libraries(${TARGET} PRIVATE
     Qt::Core
     Qt::Widgets
     Qt::Svg
+    tomlplusplus::tomlplusplus
 )
 target_compile_definitions(${TARGET} PRIVATE QT_NO_KEYWORDS)

@@ -253,7 +253,11 @@ void Layout::set_probe(const FnSite& site, const Probe& probe) {
   auto placement = std::ranges::find_if(placements, [&site](const Placement& placement) {
     return placement.get_site().site_id == site.site_id;
   });
-  *placement = Placement(site, probe);
+  if (placement != placements.end()) {
+    *placement = Placement(site, probe);
+  } else {
+    placements.emplace_back(site, probe);
+  }
   // TODO: How (non-)performant is this? Can things be changed in place rather than recalculating everything?
   resolved_placements = resolve_placements(placements);
   resource_yield = resolve_resource_yield(resolved_placements);
