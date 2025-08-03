@@ -11,6 +11,7 @@
 
 #include "inventory_model.h"
 #include "mira_map.h"
+#include "solution_widget.h"
 #include "fnsolver/solver/options.h"
 
 class MainWindow : public QMainWindow {
@@ -40,17 +41,13 @@ private:
   Actions actions;
 
   struct Widgets {
-    MiraMap* miraMap = nullptr;
+    MiraMap* mira_map = nullptr;
     QTableView* inventory_table = nullptr;
-    // RunOptionsWidget *runOptions = nullptr;
-    // SolutionWidget *solutionWidget = nullptr;
+    SolutionWidget* solution_widget = nullptr;
   };
 
   Widgets widgets_;
   InventoryModel* inventory_model_ = nullptr;
-  QProgressDialog* progress_dialog_ = nullptr;
-  QElapsedTimer solver_stopwatch_;
-  // SolverRunner *solverRunner_ = nullptr;
   Options solver_options_;
   Layout layout_;
 
@@ -72,8 +69,6 @@ private Q_SLOTS:
   void data_changed();
   void probe_map_changed();
   void solve();
-  void progress(unsigned long iter, double bestScore, double worstScore,
-                unsigned long killed);
   // void solved(ProbeArrangement probeArrangement);
 };
 

@@ -108,19 +108,19 @@ void MainWindow::init_ui() {
 
   // Map
   auto mapLayout = new QVBoxLayout(central);
-  widgets_.miraMap = new MiraMap(&layout_, central);
-  mapLayout->addWidget(widgets_.miraMap);
+  widgets_.mira_map = new MiraMap(&layout_, central);
+  mapLayout->addWidget(widgets_.mira_map);
   // Forces recalculation of geometry, otherwise map is zoomed in a strange way at startup.
-  widgets_.miraMap->show();
-  connect(widgets_.miraMap, &MiraMap::site_probe_map_changed, this,
+  widgets_.mira_map->show();
+  connect(widgets_.mira_map, &MiraMap::site_probe_map_changed, this,
           &MainWindow::data_changed);
-  connect(widgets_.miraMap, &MiraMap::site_probe_map_changed, this,
+  connect(widgets_.mira_map, &MiraMap::site_probe_map_changed, this,
           &MainWindow::probe_map_changed);
-  connect(actions.view_zoom_in, &QAction::triggered, widgets_.miraMap,
+  connect(actions.view_zoom_in, &QAction::triggered, widgets_.mira_map,
           &MiraMap::zoom_in);
-  connect(actions.view_zoom_out, &QAction::triggered, widgets_.miraMap,
+  connect(actions.view_zoom_out, &QAction::triggered, widgets_.mira_map,
           &MiraMap::zoom_out);
-  connect(actions.view_zoom_all, &QAction::triggered, widgets_.miraMap,
+  connect(actions.view_zoom_all, &QAction::triggered, widgets_.mira_map,
           &MiraMap::fit_all);
 
   // Config pane
@@ -138,6 +138,23 @@ void MainWindow::init_ui() {
     QDockWidget::DockWidgetFloatable);
   inventory_dock_widget->setWidget(widgets_.inventory_table);
   addDockWidget(Qt::RightDockWidgetArea, inventory_dock_widget);
+
+  // Current solution
+  auto* solution_scroll_area = new QScrollArea(this);
+  widgets_.solution_widget = new SolutionWidget(solution_scroll_area);
+  widgets_.solution_widget->setMinimumWidth(
+    widgets_.inventory_table->minimumWidth());
+  widgets_.solution_widget->set_layout(layout_);
+  solution_scroll_area->setWidget(widgets_.solution_widget);
+  solution_scroll_area->setWidgetResizable(true);
+  solution_scroll_area->setSizeAdjustPolicy(QScrollArea::AdjustToContents);
+  solution_scroll_area->setSizePolicy(QSizePolicy::MinimumExpanding,
+                                      QSizePolicy::Preferred);
+  auto* resultsDockWidget = new QDockWidget(tr("Results"), this);
+  resultsDockWidget->setFeatures(QDockWidget::DockWidgetMovable |
+    QDockWidget::DockWidgetFloatable);
+  resultsDockWidget->setWidget(solution_scroll_area);
+  addDockWidget(Qt::RightDockWidgetArea, resultsDockWidget);
 }
 
 void MainWindow::init_actions() {
@@ -343,12 +360,9 @@ void MainWindow::data_changed() {
 
 void MainWindow::probe_map_changed() {
   inventory_model_->reset();
+  widgets_.solution_widget->set_layout(layout_);
 }
 
 void MainWindow::solve() {
-  // TODO: Implement.
-}
-
-void MainWindow::progress(unsigned long iter, double bestScore, double worstScore, unsigned long killed) {
   // TODO: Implement.
 }

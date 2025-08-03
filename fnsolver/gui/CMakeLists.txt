@@ -29,6 +29,8 @@ qt_add_executable(${TARGET} WIN32
     probe_ui.cpp
     probe_ui.h
     settings.h
+    solution_widget.cpp
+    solution_widget.h
     resources/resources.qrc
 )
 target_link_libraries(${TARGET} PRIVATE

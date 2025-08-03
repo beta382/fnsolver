@@ -58,7 +58,7 @@ void FnSiteWidget::paintEvent(QPaintEvent* event) {
 
 void FnSiteWidget::update_tooltip_text() {
   QStringList precious_resource_strings;
-  for (auto resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
+  for (std::size_t resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
     const auto quantity = site_->precious_resource_quantities.at(resource_ix);
     if (quantity > 0) {
       precious_resource_strings.append(
