@@ -11,23 +11,25 @@ find_package(Qt6 6.8 REQUIRED COMPONENTS
 )
 
 qt_add_executable(${TARGET} WIN32
-    resources/resources.qrc
-    main.cpp
-    about_dialog.h
     about_dialog.cpp
-    fn_site_widget.h
+    about_dialog.h
     fn_site_widget.cpp
-    fnsite_ui.h
+    fn_site_widget.h
     fnsite_ui.cpp
-    main_window.h
+    fnsite_ui.h
+    inventory_model.cpp
+    inventory_model.h
+    main.cpp
     main_window.cpp
-    mira_map.h
+    main_window.h
     mira_map.cpp
-    precious_resource_ui.h
+    mira_map.h
     precious_resource_ui.cpp
-    probe_ui.h
+    precious_resource_ui.h
     probe_ui.cpp
+    probe_ui.h
     settings.h
+    resources/resources.qrc
 )
 target_link_libraries(${TARGET} PRIVATE
     data

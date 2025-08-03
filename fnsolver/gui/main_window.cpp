@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QVBoxLayout>
+#include <QHeaderView>
+#include <QDockWidget>
 
 #include "about_dialog.h"
 #include "settings.h"
@@ -120,6 +122,22 @@ void MainWindow::init_ui() {
           &MiraMap::zoom_out);
   connect(actions.view_zoom_all, &QAction::triggered, widgets_.miraMap,
           &MiraMap::fit_all);
+
+  // Config pane
+  // Inventory
+  inventory_model_ = new InventoryModel(&solver_options_, &layout_, this);
+  widgets_.inventory_table = new QTableView(this);
+  widgets_.inventory_table->setModel(inventory_model_);
+  widgets_.inventory_table->verticalHeader()->hide();
+  widgets_.inventory_table->resizeColumnsToContents();
+  widgets_.inventory_table->setSizeAdjustPolicy(QTableView::AdjustToContents);
+  widgets_.inventory_table->setSizePolicy(QSizePolicy::MinimumExpanding,
+                                          QSizePolicy::Preferred);
+  auto* inventory_dock_widget = new QDockWidget(tr("Inventory"), this);
+  inventory_dock_widget->setFeatures(QDockWidget::DockWidgetMovable |
+    QDockWidget::DockWidgetFloatable);
+  inventory_dock_widget->setWidget(widgets_.inventory_table);
+  addDockWidget(Qt::RightDockWidgetArea, inventory_dock_widget);
 }
 
 void MainWindow::init_actions() {
@@ -324,7 +342,7 @@ void MainWindow::data_changed() {
 }
 
 void MainWindow::probe_map_changed() {
-  // TODO: Implement.
+  inventory_model_->reset();
 }
 
 void MainWindow::solve() {

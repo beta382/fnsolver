@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QProgressDialog>
 
+#include "inventory_model.h"
 #include "mira_map.h"
 #include "fnsolver/solver/options.h"
 
@@ -46,7 +47,7 @@ private:
   };
 
   Widgets widgets_;
-  // InventoryModel *inventoryModel_;
+  InventoryModel* inventory_model_ = nullptr;
   QProgressDialog* progress_dialog_ = nullptr;
   QElapsedTimer solver_stopwatch_;
   // SolverRunner *solverRunner_ = nullptr;
