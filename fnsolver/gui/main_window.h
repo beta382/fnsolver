@@ -61,7 +61,7 @@ private:
   bool safe_to_close_file();
   void update_seed();
   /** Put a basic probe on any site not included in the layout. */
-  void fill_layout();
+  static Layout fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites);
 
 private Q_SLOTS:
   void file_open();

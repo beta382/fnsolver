@@ -57,6 +57,7 @@ MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout
 void MiraMap::set_layout(Layout* layout) {
   layout_ = layout;
   calculate_site_widgets();
+  Q_EMIT(site_probe_map_changed());
 }
 
 void MiraMap::fit_all() {

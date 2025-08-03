@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "fnsite.h"
+
 const std::unordered_map<std::string, precious_resource::Type> precious_resource::type_for_str = {
   {"arc_sand_ore", Type::arc_sand_ore},
   {"aurorite", Type::aurorite},
@@ -25,7 +27,7 @@ const std::unordered_map<precious_resource::Type, std::string> precious_resource
   std::unordered_map<Type, std::string> rev_map;
   rev_map.reserve(type_for_str.size());
   for (const auto& [a,b] : type_for_str) {
-    rev_map.emplace(b,a);
+    rev_map.emplace(b, a);
   }
 
   return rev_map;
@@ -49,3 +51,22 @@ const std::unordered_map<precious_resource::Type, std::string> precious_resource
   {Type::bonjelium, "Bonjelium"}
 };
 
+unsigned int precious_resource::max_resource_quantity(Type precious_resource) {
+  // Init inside function to workaround static initialization order.
+  static const std::unordered_map<Type, unsigned int> max_resource_quantities = []() {
+    std::unordered_map<Type, unsigned int> map;
+    map.reserve(count);
+    for (int resource_ix = 0; resource_ix < count; ++resource_ix) {
+      const auto resource = static_cast<Type>(resource_ix);
+      unsigned int max_quantity = 0;
+      for (const FnSite& site : FnSite::sites) {
+        max_quantity += site.precious_resource_quantities.at(resource_ix);
+      }
+      map.emplace(resource, max_quantity);
+    }
+
+    return map;
+  }();
+
+  return max_resource_quantities.at(precious_resource);
+}

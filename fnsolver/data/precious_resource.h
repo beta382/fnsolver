@@ -29,6 +29,8 @@ extern const std::unordered_map<std::string, Type> type_for_str;
 extern const std::unordered_map<Type, std::string> str_for_type;
 extern const std::unordered_map<Type, std::string> name_for_type;
 
+unsigned int max_resource_quantity(Type precious_resource);
+
 }
 
 #endif // FNSOLVER_DATA_PRECIOUS_RESOURCE_H

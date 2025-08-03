@@ -30,13 +30,8 @@ void SolutionWidget::set_layout(const Layout& layout) {
   QStringList precious_resource_rows;
   for (std::size_t resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
     const auto quantity = yield.get_precious_resource_quantities().at(resource_ix);
-    const auto max_quantity = [resource_ix]() {
-      unsigned int max_quantity = 0;
-      for (const FnSite& site : FnSite::sites) {
-        max_quantity += site.precious_resource_quantities.at(resource_ix);
-      }
-      return max_quantity;
-    }();
+    const auto max_quantity = precious_resource::max_resource_quantity(
+      static_cast<precious_resource::Type>(resource_ix));
     precious_resource_rows.append(
       QString("<tr><td>%1</td><td>%2</td><td>%3</td></tr>")
       .arg(precious_resource_display_name(static_cast<precious_resource::Type>(resource_ix)))

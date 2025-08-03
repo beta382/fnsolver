@@ -1,4 +1,6 @@
 #include "main_window.h"
+
+#include <iostream>
 #include <thread>
 #include <QApplication>
 #include <QMenuBar>
@@ -11,6 +13,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QDockWidget>
+#include <ranges>
 
 #include "about_dialog.h"
 #include "options_loader.h"
@@ -18,8 +21,7 @@
 #include "fnsolver/fnsolver_config.h"
 
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(options_loader::default_options()),
-  layout_(solver_options_.get_seed()) {
-  fill_layout();
+  layout_(fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites())) {
   update_seed();
   init_ui();
 }
@@ -230,7 +232,22 @@ void MainWindow::update_recent_documents() {
 }
 
 void MainWindow::open_from_path(const QString& path) {
-  // TODO: Implement.
+  try {
+    solver_options_ = options_loader::load_from_file(path.toStdString());
+    // TODO: Creating the layout gobbles infinite memory. Figure out why.
+    layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
+    update_seed();
+    widgets_.mira_map->set_layout(&layout_);
+
+    setWindowFilePath(path);
+    setWindowModified(false);
+    update_window_title();
+    add_recent_document(path);
+  }
+  catch (const std::exception& e) {
+    QMessageBox::critical(this, tr("Error opening file"),
+                          tr("%1 is not valid.").arg(path));
+  }
 }
 
 void MainWindow::save_to_path(const QString& path) {
@@ -292,19 +309,28 @@ void MainWindow::update_seed() {
   solver_options_.set_seed(seed);
 }
 
-void MainWindow::fill_layout() {
-  // Which sites are seeded?
-  std::unordered_set<FnSite::id_t> seeded_sites;
-  for (const auto& placement : layout_.get_placements()) {
-    seeded_sites.insert(placement.get_site().site_id);
+Layout MainWindow::fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites) {
+  // Start full of basic probes.
+  std::unordered_map<FnSite::id_t, Placement> placements;
+  for (const auto& site : FnSite::sites) {
+    placements.emplace(site.site_id, Placement(site, Probe::probes.at(Probe::idx_for_shorthand.at("-"))));
   }
 
-  // Add a basic probe to any site not seeded.
-  for (const auto& site : FnSite::sites) {
-    if (!seeded_sites.contains(site.site_id)) {
-      layout_.set_probe(site, Probe::probes.at(Probe::idx_for_shorthand.at("-")));
+  // Apply seed and locked_sites.
+  for (const auto& placement_list : {seed, locked_sites}) {
+    for (const auto& placement : placement_list) {
+      placements.insert_or_assign(placement.get_site().site_id, placement);
     }
   }
+
+  // Layout ctor requires that placements is sorted.
+  const auto placements_view = placements | std::views::values;
+  std::vector<Placement> placements_sorted(placements_view.begin(), placements_view.end());
+  std::ranges::sort(placements_sorted, [](const Placement& lhs, const Placement& rhs) {
+    return lhs.get_site().site_id < rhs.get_site().site_id;
+  });
+
+  return {placements_sorted};
 }
 
 void MainWindow::file_open() {
