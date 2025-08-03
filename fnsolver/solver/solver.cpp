@@ -57,7 +57,7 @@ ScoreFunction create_constrained_score_function(const Options &options) {
 
         return options.get_score_function()(layout);
       },
-      options.get_score_function().get_details_str());
+      options.get_score_function().get_name(), options.get_score_function().get_args());
 }
 
 std::vector<Placement> merge_locked_sites_and_seed(const Options &options) {

@@ -10,6 +10,8 @@
 class ScoreFunction {
   public:
     using func_t = std::function<double(const Layout &)>;
+    // For serialization.
+    using args_t = std::vector<std::pair<std::string, double>>;
 
     enum class Type {
       max_mining,
@@ -28,19 +30,23 @@ class ScoreFunction {
     static ScoreFunction create_max_storage();
     static ScoreFunction create_ratio(double mining_factor, double revenue_factor, double storage_factor);
     static ScoreFunction create_weights(double mining_weight, double revenue_weight, double storage_weight);
-
-    ScoreFunction(func_t score_function, std::string details_str);
+    ScoreFunction(func_t score_function, std::string name, args_t args = {});
 
     ScoreFunction(const ScoreFunction &other) = delete;
     ScoreFunction(ScoreFunction &&other) = default;
     ScoreFunction &operator=(const ScoreFunction &other) = delete;
     ScoreFunction &operator=(ScoreFunction &&other) = default;
 
-    const std::string &get_details_str() const; // just used for info output
+    const std::string &get_name() const { return name; }
+    const args_t &get_args() const { return args; }
+    std::string get_details_str() const; // just used for info output
     double operator()(const Layout &layout) const;
   private:
     func_t score_function;
-    std::string details_str;
+    // For serialization.
+    std::string name;
+    // For serialization.
+    args_t args;
 };
 
 #endif // FNSOLVER_SOLVER_SCORE_FUNCTION_H
