@@ -1,4 +1,6 @@
 #include "mira_map.h"
+#include <set>
+#include <unordered_set>
 #include <QApplication>
 #include <QWheelEvent>
 #include <QMenu>

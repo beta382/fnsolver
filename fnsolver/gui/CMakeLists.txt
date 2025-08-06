@@ -53,3 +53,22 @@ target_link_libraries(${TARGET} PRIVATE
     tomlplusplus::tomlplusplus
 )
 target_compile_definitions(${TARGET} PRIVATE QT_NO_KEYWORDS)
+
+install(
+    TARGETS ${TARGET}
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(
+    FILES "$<TARGET_RUNTIME_DLLS:${TARGET}>"
+    TYPE BIN
+)
+
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    qt_generate_deploy_app_script(
+        TARGET ${TARGET}
+        OUTPUT_SCRIPT DEPLOY_SCRIPT
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT ${DEPLOY_SCRIPT})
+endif ()
