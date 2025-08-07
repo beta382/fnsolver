@@ -78,6 +78,8 @@ const std::unordered_map<std::string, const probe_quantity_map*> special_probe_l
   {"no_duplicator", &probes_no_duplicator},
 };
 
+const std::string confirm_opt_str = "auto-confirm";
+
 const std::string score_function_opt_str = "score-function";
 const std::string tiebreaker_function_opt_str = "tiebreaker";
 
@@ -112,6 +114,11 @@ Options options_loader::load_from_file(const std::string& filename) {
   const auto tbl = toml::parse_file(filename);
 
   auto options = default_options();
+
+  // Auto-confirm
+  if (tbl.contains(confirm_opt_str)) {
+    options.set_auto_confirm(tbl.at(confirm_opt_str).as_boolean());
+  }
 
   // Score function
   if (tbl.contains(score_function_opt_str)) {
@@ -342,6 +349,9 @@ Options options_loader::load_from_file(const std::string& filename) {
 
 void options_loader::save_to_file(const std::string& filename, const Options& options) {
   toml::table tbl;
+
+  // Auto-confirm
+  tbl.emplace(confirm_opt_str, options.get_auto_confirm());
 
   // Score function
   {
