@@ -11,6 +11,7 @@
 
 #include "inventory_model.h"
 #include "mira_map.h"
+#include "run_dialog.h"
 #include "solution_widget.h"
 #include "fnsolver/solver/options.h"
 

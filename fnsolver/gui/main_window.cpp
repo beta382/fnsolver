@@ -17,6 +17,7 @@
 
 #include "about_dialog.h"
 #include "options_loader.h"
+#include "run_dialog.h"
 #include "settings.h"
 #include "fnsolver/fnsolver_config.h"
 
@@ -423,5 +424,10 @@ void MainWindow::probe_map_changed() {
 }
 
 void MainWindow::solve() {
-  // TODO: Implement.
+  auto* run_dialog = new RunDialog(&solver_options_, this);
+  connect(run_dialog, &RunDialog::finished, [run_dialog]() { run_dialog->deleteLater(); });
+  connect(run_dialog, &RunDialog::options_changed, this, &MainWindow::data_changed);
+  // Doing this instead of exec() means we can track changes to run options while the dialog is open.
+  run_dialog->setModal(true);
+  run_dialog->show();
 }

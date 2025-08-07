@@ -37,6 +37,10 @@ qt_add_executable(${TARGET} WIN32
     precious_resource_ui.h
     probe_ui.cpp
     probe_ui.h
+    run_dialog.cpp
+    run_dialog.h
+    score_function_widget.cpp
+    score_function_widget.h
     settings.h
     solution_widget.cpp
     solution_widget.h

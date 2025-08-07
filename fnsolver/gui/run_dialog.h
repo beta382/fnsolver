@@ -1,0 +1,29 @@
+#ifndef FNSOLVER_GUI_RUN_DIALOG_H
+#define FNSOLVER_GUI_RUN_DIALOG_H
+
+#include <QDialog>
+
+#include "score_function_widget.h"
+#include "fnsolver/solver/options.h"
+
+class RunDialog : public QDialog {
+  Q_OBJECT
+
+public:
+  explicit RunDialog(Options* solver_options, QWidget* parent = nullptr);
+
+Q_SIGNALS:
+  void options_changed();
+
+private:
+  struct Widgets {
+    ScoreFunctionWidget* scorefunction = nullptr;
+    ScoreFunctionWidget* tiebreaker = nullptr;
+  };
+
+  Widgets widgets_;
+  Options* solver_options_;
+};
+
+
+#endif //FNSOLVER_GUI_RUN_DIALOG_H
