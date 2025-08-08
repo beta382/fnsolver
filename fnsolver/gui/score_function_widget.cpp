@@ -1,7 +1,7 @@
 #include "score_function_widget.h"
 #include <QButtonGroup>
-
-#include "about_dialog.h"
+#include <QApplication>
+#include <qstyle.h>
 
 namespace detail::score_function {
 ScoreFunctionSelectWidget::ScoreFunctionSelectWidget(QWidget* parent): QWidget(parent),
@@ -13,8 +13,16 @@ ScoreFunctionSelectWidget::ScoreFunctionSelectWidget(QWidget* parent): QWidget(p
   layout->addWidget(description_);
   description_->setTextFormat(Qt::MarkdownText);
   description_->setWordWrap(true);
+  // Will be shown if a description is set.
+  description_->setVisible(false);
   layout->addLayout(form_);
-  form_->setContentsMargins(30, 0, 0, 0);
+
+  // Calculate where the left edge of the radio button's label will be and indent the form by that amount.
+  const auto* style = qApp->style();
+  form_->setContentsMargins(
+    style->pixelMetric(QStyle::PM_ExclusiveIndicatorWidth) + style->pixelMetric(QStyle::PM_RadioButtonLabelSpacing),
+    0, 0, 0
+  );
 
   connect(radio_, &QRadioButton::toggled, this, &ScoreFunctionSelectWidget::toggled);
 }
@@ -34,6 +42,7 @@ void ScoreFunctionSelectWidget::set_name(const QString& name) {
 
 void ScoreFunctionSelectWidget::set_description(const QString& description) {
   description_->setText(description);
+  description_->setVisible(!description.isEmpty());
 }
 
 void ScoreFunctionSelectWidget::toggled(bool checked) {
@@ -41,12 +50,11 @@ void ScoreFunctionSelectWidget::toggled(bool checked) {
   for (int item_ix = 0; item_ix < form_->count(); ++item_ix) {
     auto* item = form_->itemAt(item_ix);
     assert(item);
-    auto* widget_ptr = item->widget();
-    if (widget_ptr == nullptr) {
+    auto* widget = item->widget();
+    if (widget == nullptr) {
       // Not a widget.
       continue;
     }
-    auto* widget = static_cast<QWidget*>(widget_ptr);
     widget->setEnabled(checked);
   }
 }
@@ -161,7 +169,6 @@ std::optional<ScoreFunction> WeightsWidget::get_score_function() const {
 ScoreFunctionWidget::ScoreFunctionWidget(QWidget* parent): QWidget(parent), layout_(new QVBoxLayout(this)),
   button_group_(new QButtonGroup(this)) {
   set_allowed({});
-  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
 void ScoreFunctionWidget::set_required(bool required) {
