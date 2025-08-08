@@ -3,6 +3,7 @@
 
 #include <QDialog>
 
+#include "constraints_widget.h"
 #include "score_function_widget.h"
 #include "fnsolver/solver/options.h"
 
@@ -19,6 +20,7 @@ private:
   struct Widgets {
     ScoreFunctionWidget* scorefunction = nullptr;
     ScoreFunctionWidget* tiebreaker = nullptr;
+    ConstraintsWidget* constraints = nullptr;
   };
 
   Widgets widgets_;

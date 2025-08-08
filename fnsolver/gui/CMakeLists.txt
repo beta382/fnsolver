@@ -20,6 +20,8 @@ FetchContent_MakeAvailable(tomlplusplus)
 qt_add_executable(${TARGET} WIN32
     about_dialog.cpp
     about_dialog.h
+    constraints_widget.cpp
+    constraints_widget.h
     fn_site_widget.cpp
     fn_site_widget.h
     fnsite_ui.cpp
