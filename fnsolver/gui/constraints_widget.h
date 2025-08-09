@@ -42,6 +42,7 @@ private:
   void set_type(Type type);
 
   void update_value_spinbox_range();
+
 private Q_SLOTS:
   void constraint_type_changed(int index);
 };
@@ -60,9 +61,17 @@ private:
     std::unordered_map<precious_resource::Type, std::unique_ptr<
                          detail::PreciousResourceConstraintWidget, QObjectDeleter>>
     precious_resource_constraint_vals;
+    QCheckBox* min_mining_;
+    QSpinBox* min_mining_val_;
+    QCheckBox* min_revenue_;
+    QSpinBox* min_revenue_val_;
+    QCheckBox* min_storage_;
+    QSpinBox* min_storage_val_;
   };
 
   Widgets widgets_;
+
+  void init_min_yield_widget(QCheckBox** checkbox, QSpinBox** spinbox, const QString& label, uint32_t value);
 };
 
 
