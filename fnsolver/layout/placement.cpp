@@ -13,3 +13,7 @@ const FnSite &Placement::get_site() const {
 const Probe &Placement::get_probe() const {
   return *probe;
 }
+
+bool operator==(const Placement& lhs, const Placement& rhs) {
+  return *lhs.site == *rhs.site && *lhs.probe == *rhs.probe;
+}

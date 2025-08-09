@@ -129,7 +129,8 @@ void PreciousResourceConstraintWidget::constraint_type_changed(int index) {
 }
 } // namespace detail
 
-ConstraintsWidget::ConstraintsWidget(const Options* solver_options, QWidget* parent): QWidget(parent) {
+ConstraintsWidget::ConstraintsWidget(const Options* solver_options, QWidget* parent):
+  AbstractSolverOptionsWidget(parent) {
   auto* layout = new QVBoxLayout(this);
 
   // Precious Resources.

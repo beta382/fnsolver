@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(tomlplusplus)
 qt_add_executable(${TARGET} WIN32
     about_dialog.cpp
     about_dialog.h
+    abstract_solver_options_widget.h
     constraints_widget.cpp
     constraints_widget.h
     description_widget.cpp
@@ -43,6 +44,8 @@ qt_add_executable(${TARGET} WIN32
     probe_ui.h
     run_dialog.cpp
     run_dialog.h
+    run_progress_dialog.cpp
+    run_progress_dialog.h
     score_function_widget.cpp
     score_function_widget.h
     settings.h
@@ -50,6 +53,8 @@ qt_add_executable(${TARGET} WIN32
     solution_widget.h
     solver_params_widget.cpp
     solver_params_widget.h
+    solver_runner.cpp
+    solver_runner.h
     resources/resources.qrc
 )
 target_link_libraries(${TARGET} PRIVATE

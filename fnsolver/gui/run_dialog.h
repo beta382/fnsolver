@@ -15,7 +15,8 @@ public:
   explicit RunDialog(Options* solver_options, QWidget* parent = nullptr);
 
 Q_SIGNALS:
-  void options_changed();
+  void options_changed(const Options& options);
+  void solved(Layout layout);
 
 private:
   struct Widgets {
@@ -27,6 +28,9 @@ private:
 
   Widgets widgets_;
   Options* solver_options_;
+
+private Q_SLOTS:
+  void solve();
 };
 
 

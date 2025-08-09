@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstdint>
 #include <format>
 #include <limits>
@@ -104,6 +105,56 @@ ScoreFunction ScoreFunction::create_weights(double mining_weight, double revenue
 ScoreFunction::ScoreFunction(func_t score_function, std::string name, args_t args)
     : score_function(std::move(score_function)),
       name(std::move(name)), args(std::move(args)) {}
+
+ScoreFunction::ScoreFunction(const ScoreFunction& other) {
+  *this = other;
+}
+
+ScoreFunction& ScoreFunction::operator=(const ScoreFunction& other) {
+  return *this = from_name_and_args(other.name, other.args);
+}
+
+ScoreFunction::args_t::value_type::second_type find_arg(const ScoreFunction::args_t& args, const std::string& arg) {
+  return std::ranges::find_if(args, [&arg](const ScoreFunction::args_t::value_type& check) {
+    return check.first == arg;
+  })->second;
+}
+
+ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const args_t& args) {
+  switch (type_for_str.at(name)) {
+    case Type::max_mining:
+      return create_max_mining();
+    case Type::max_effective_mining:
+      return create_max_effective_mining(find_arg(args, "storage_factor"));
+    case Type::max_revenue:
+      return create_max_revenue();
+    case Type::max_storage:
+      return create_max_storage();
+    case Type::ratio:
+      return create_ratio(find_arg(args, "mining"), find_arg(args, "revenue"), find_arg(args, "storage"));
+    case Type::weights:
+      return create_weights(find_arg(args, "mining"), find_arg(args, "revenue"), find_arg(args, "storage"));
+  }
+  assert(false);
+}
+
+ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const std::vector<double>& args) {
+  switch (type_for_str.at(name)) {
+    case Type::max_mining:
+      return create_max_mining();
+    case Type::max_effective_mining:
+      return create_max_effective_mining(args.at(0));
+    case Type::max_revenue:
+      return create_max_revenue();
+    case Type::max_storage:
+      return create_max_storage();
+    case Type::ratio:
+      return create_ratio(args.at(0), args.at(1), args.at(2));
+    case Type::weights:
+      return create_weights(args.at(0), args.at(1), args.at(2));
+  }
+  assert(false);
+}
 
 std::string ScoreFunction::get_details_str() const {
   if (args.empty()) {

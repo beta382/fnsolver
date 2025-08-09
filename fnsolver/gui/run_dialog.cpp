@@ -6,8 +6,12 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QPushButton>
 #include <QScrollArea>
 #include <qstyle.h>
+
+#include "options_loader.h"
+#include "run_progress_dialog.h"
 
 RunDialog::RunDialog(Options* solver_options, QWidget* parent): QDialog(parent), solver_options_(solver_options) {
   resize(640, 480);
@@ -68,6 +72,11 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
     ScoreFunction::Type::max_revenue,
     ScoreFunction::Type::max_storage,
   });
+  if (solver_options_->get_maybe_tiebreaker_function().has_value()) {
+    widgets_.tiebreaker->set_selection(
+      ScoreFunction::type_for_str.at(solver_options_->get_maybe_tiebreaker_function()->get_name())
+    );
+  }
 
   // Constraints
   widgets_.constraints = new ConstraintsWidget(solver_options_, this);
@@ -87,7 +96,32 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
   auto* buttons = new QDialogButtonBox(this);
   layout->addWidget(buttons);
   buttons->addButton(QDialogButtonBox::Cancel);
+  buttons->addButton(tr("Solve"), QDialogButtonBox::AcceptRole);
   // TODO: Make this do run the simulation.
-  connect(buttons, &QDialogButtonBox::accepted, this, &RunDialog::accept);
+  connect(buttons, &QDialogButtonBox::accepted, this, &RunDialog::solve);
   connect(buttons, &QDialogButtonBox::rejected, this, &RunDialog::reject);
+}
+
+void RunDialog::solve() {
+  // Create options instance.
+  Options solver_options = *solver_options_;
+
+  // None isn't allowed on scorefunction, so assume it has a value.
+  solver_options.set_score_function(widgets_.scorefunction->get_score_function().value());
+  solver_options.set_maybe_tiebreaker_function(widgets_.tiebreaker->get_score_function());
+  widgets_.constraints->apply_to_options(&solver_options);
+  widgets_.solver_params->apply_to_options(&solver_options);
+  if (!widgets_.solver_params->get_seed()) {
+    solver_options.set_seed({});
+    solver_options.set_force_seed(false);
+  }
+
+  if (solver_options != *solver_options_) {
+    Q_EMIT options_changed(solver_options);
+  }
+
+  auto* run_progress = new RunProgressDialog(solver_options, this);
+  connect(run_progress, &RunProgressDialog::solved, this, &RunDialog::solved);
+  connect(run_progress, &RunProgressDialog::solved, this, &RunDialog::accept);
+  run_progress->show();
 }

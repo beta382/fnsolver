@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
   }
 
   const Solver solver(std::move(options));
-  auto progress_callback = [&options](Solver::IterationStatus iteration_status) {
+  auto progress_callback = [&options](const Solver::IterationStatus &iteration_status) {
     const std::string last_improvement_str = [=]() {
       const uint32_t iterations_ago = iteration_status.iteration - iteration_status.last_improvement;
       if (iterations_ago == 0) {
@@ -337,11 +337,11 @@ int main(int argc, char **argv) {
     }();
     std::cout << std::format("Finished iteration {}/{}:", iteration_status.iteration, options.get_iterations())
     << std::endl;
-    std::cout << std::format("  Overall best score: {}", iteration_status.best_solution.get_score()) << std::endl;
+    std::cout << std::format("  Overall best score: {}", iteration_status.best_score) << std::endl;
     std::cout << std::format("  Solutions killed:   {}", iteration_status.num_killed) << std::endl;
     std::cout << std::format("  Last improvement:   {}", last_improvement_str) << std::endl;
     std::cout << std::format("  Yield for best score:") << std::endl;
-    iteration_status.best_solution.get_layout().output_report(std::cout, 4, false, true, false, false);
+    iteration_status.best_layout.output_report(std::cout, 4, false, true, false, false);
   };
   std::signal(SIGINT, [](int) { should_stop = true; });
   auto stop_callback = []() { return should_stop; };

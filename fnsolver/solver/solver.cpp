@@ -168,9 +168,10 @@ Solution Solver::run(ProgressCallback progress_callback, StopCallback stop_callb
 
     progress_callback({
       .iteration = iteration,
-      .best_solution = best_solution,
+      .best_score = best_solution.get_score(),
       .num_killed = num_killed,
-      .last_improvement = last_improvement_iteration
+      .last_improvement = last_improvement_iteration,
+      .best_layout = best_solution.get_layout(),
     });
   }
   while (!stop_callback()

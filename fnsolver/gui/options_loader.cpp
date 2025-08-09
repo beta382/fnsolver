@@ -130,36 +130,7 @@ Options options_loader::load_from_file(const std::string& filename) {
         throw std::runtime_error("Invalid value for score function argument");
       }
     }
-    switch (ScoreFunction::type_for_str.at(score_function->front().as_string()->get())) {
-      case ScoreFunction::Type::max_mining:
-        options.set_score_function(ScoreFunction::create_max_mining());
-        break;
-      case ScoreFunction::Type::max_effective_mining:
-        options.set_score_function(ScoreFunction::create_max_effective_mining(
-            args.at(0))
-        );
-        break;
-      case ScoreFunction::Type::max_revenue:
-        options.set_score_function(ScoreFunction::create_max_revenue());
-        break;
-      case ScoreFunction::Type::max_storage:
-        options.set_score_function(ScoreFunction::create_max_storage());
-        break;
-      case ScoreFunction::Type::ratio:
-        options.set_score_function(ScoreFunction::create_ratio(
-          args.at(0),
-          args.at(1),
-          args.at(2)
-        ));
-        break;
-      case ScoreFunction::Type::weights:
-        options.set_score_function(ScoreFunction::create_weights(
-          args.at(0),
-          args.at(1),
-          args.at(2)
-        ));
-        break;
-    }
+    options.set_score_function(ScoreFunction::from_name_and_args(score_function->front().as_string()->get(), args));
   }
 
   // Tiebreaker

@@ -8,8 +8,14 @@
 #include <unordered_map>
 
 class ScoreFunction {
-  public:
-    using func_t = std::function<double(const Layout &)>;
+  friend bool operator==(const ScoreFunction& lhs, const ScoreFunction& rhs) {
+    return
+      lhs.name == rhs.name
+      && lhs.args == rhs.args;
+  }
+
+public:
+  using func_t = std::function<double(const Layout &)>;
     // For serialization.
     using args_t = std::vector<std::pair<std::string, double>>;
 
@@ -32,9 +38,11 @@ class ScoreFunction {
     static ScoreFunction create_weights(double mining_weight, double revenue_weight, double storage_weight);
     ScoreFunction(func_t score_function, std::string name, args_t args = {});
 
-    ScoreFunction(const ScoreFunction &other) = delete;
+    static ScoreFunction from_name_and_args(const std::string& name, const args_t& args);
+    static ScoreFunction from_name_and_args(const std::string& name, const std::vector<double>& args);
+    ScoreFunction(const ScoreFunction &other);
     ScoreFunction(ScoreFunction &&other) = default;
-    ScoreFunction &operator=(const ScoreFunction &other) = delete;
+    ScoreFunction &operator=(const ScoreFunction &other);
     ScoreFunction &operator=(ScoreFunction &&other) = default;
 
     const std::string &get_name() const { return name; }

@@ -8,6 +8,8 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
+
+#include "abstract_solver_options_widget.h"
 #include "QObjectDeleter.h"
 #include "fnsolver/solver/options.h"
 
@@ -48,13 +50,13 @@ private Q_SLOTS:
 };
 } // namespace detail
 
-class ConstraintsWidget : public QWidget {
+class ConstraintsWidget : public AbstractSolverOptionsWidget {
   Q_OBJECT
 
 public:
   explicit ConstraintsWidget(const Options* solver_options, QWidget* parent = nullptr);
 
-  void apply_to_options(Options* options) const;
+  void apply_to_options(Options* options) const override;
 
 private:
   struct Widgets {

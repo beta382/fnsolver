@@ -23,7 +23,7 @@
 
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(options_loader::default_options()),
   layout_(fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites())) {
-  update_seed();
+  update_options_seed();
   init_ui();
 }
 
@@ -101,6 +101,7 @@ void MainWindow::init_ui() {
   // Config pane
   // Inventory
   inventory_model_ = new InventoryModel(&solver_options_, &layout_, this);
+  connect(inventory_model_, &InventoryModel::dataChanged, this, &MainWindow::data_changed);
   widgets_.inventory_table = new QTableView(this);
   widgets_.inventory_table->setModel(inventory_model_);
   widgets_.inventory_table->verticalHeader()->hide();
@@ -242,7 +243,7 @@ void MainWindow::open_from_path(const QString& path) {
   try {
     solver_options_ = options_loader::load_from_file(path.toStdString());
     layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
-    update_seed();
+    update_options_seed();
     widgets_.mira_map->set_layout(&layout_);
 
     setWindowFilePath(path);
@@ -300,7 +301,7 @@ bool MainWindow::safe_to_close_file() {
   return true;
 }
 
-void MainWindow::update_seed() {
+void MainWindow::update_options_seed() {
   std::vector<Placement> locked_sites;
   std::vector<Placement> seed;
   for (const auto& placement : layout_.get_placements()) {
@@ -346,7 +347,7 @@ void MainWindow::file_new() {
 
   solver_options_ = options_loader::default_options();
   layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
-  update_seed();
+  update_options_seed();
   widgets_.mira_map->set_layout(&layout_);
 
   setWindowFilePath({});
@@ -420,14 +421,27 @@ void MainWindow::data_changed() {
 void MainWindow::probe_map_changed() {
   inventory_model_->reset();
   widgets_.solution_widget->set_layout(layout_);
-  update_seed();
+  update_options_seed();
+}
+
+void MainWindow::options_changed(const Options& options) {
+  solver_options_ = options;
+  // This only affects run parameters, not layout, inventory, etc, so don't need to force-update the rest of the UI.
 }
 
 void MainWindow::solve() {
   auto* run_dialog = new RunDialog(&solver_options_, this);
+  connect(run_dialog, &RunDialog::solved, this, &MainWindow::solved);
   connect(run_dialog, &RunDialog::finished, [run_dialog]() { run_dialog->deleteLater(); });
   connect(run_dialog, &RunDialog::options_changed, this, &MainWindow::data_changed);
+  connect(run_dialog, &RunDialog::options_changed, this, &MainWindow::options_changed);
   // Doing this instead of exec() means we can track changes to run options while the dialog is open.
   run_dialog->setModal(true);
   run_dialog->show();
+}
+
+void MainWindow::solved(const Layout& layout) {
+  layout_ = layout;
+  widgets_.mira_map->set_layout(&layout_);
+  data_changed();
 }

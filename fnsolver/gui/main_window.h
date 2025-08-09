@@ -61,7 +61,7 @@ private:
   void open_from_path(const QString& path);
   void save_to_path(const QString& path);
   bool safe_to_close_file();
-  void update_seed();
+  void update_options_seed();
   /** Put a basic probe on any site not included in the layout. */
   static Layout fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites);
 
@@ -74,8 +74,9 @@ private Q_SLOTS:
   void help_website();
   void data_changed();
   void probe_map_changed();
+  void options_changed(const Options& options);
   void solve();
-  // void solved(ProbeArrangement probeArrangement);
+  void solved(const Layout &layout);
 };
 
 #endif //FNSOLVER_GUI_MAIN_WINDOW_H

@@ -15,7 +15,9 @@
 #include <vector>
 
 class Options {
-  public:
+    friend bool operator==(const Options&, const Options&) = default;
+
+public:
     Options(
         bool auto_confirm,
         ScoreFunction score_function,
@@ -37,9 +39,9 @@ class Options {
         uint32_t max_age,
         uint32_t num_threads);
 
-    Options(const Options &other) = delete;
+    Options(const Options &other) = default;
     Options(Options &&other) = default;
-    Options &operator=(const Options &other) = delete;
+    Options &operator=(const Options &other) = default;
     Options &operator=(Options &&other) = default;
 
     bool get_auto_confirm() const;

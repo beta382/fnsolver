@@ -57,7 +57,7 @@ void ScoreFunctionSelectWidget::toggled(bool checked) {
   }
 }
 
-NoneWidget::NoneWidget(QWidget* parent) {
+NoneWidget::NoneWidget(QWidget* parent): ScoreFunctionSelectWidget(parent) {
   set_name(tr("None"));
 }
 

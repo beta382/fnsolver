@@ -19,9 +19,10 @@ class Solver {
   public:
     struct IterationStatus {
       uint32_t iteration;
-      const Solution& best_solution;
+      double best_score;
       std::size_t num_killed;
       uint32_t last_improvement;
+      Layout best_layout;
     };
     using ProgressCallback = std::function<void(IterationStatus)>;
     using StopCallback = std::function<bool()>;

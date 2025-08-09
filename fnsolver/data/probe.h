@@ -7,6 +7,8 @@
 #include <unordered_map>
 
 struct Probe {
+  friend bool operator==(const Probe&, const Probe&) = default;
+
   enum class Type {
     none,
     basic,

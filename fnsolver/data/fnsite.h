@@ -10,6 +10,8 @@
 #include <vector>
 
 struct FnSite {
+  friend bool operator==(const FnSite&, const FnSite&) = default;
+
   using id_t = uint32_t;
 
   static constexpr size_t num_sites = 104;
