@@ -1,0 +1,166 @@
+#include "solver_params_widget.h"
+#include <QFormLayout>
+#include <QPushButton>
+#include "description_widget.h"
+#include "options_loader.h"
+
+SolverParamsWidget::SolverParamsWidget(const Options* solver_options, QWidget* parent): QWidget(parent) {
+  auto* layout = new QFormLayout(this);
+
+  // TODO: Find a better way to display help.
+  auto* desc = new DescriptionWidget(tr(R"(
+The FnSolver algorithm can be simplified as follows:
+
+- `<population>` number of random FronterNav layouts are generated
+- For `<iterations>` loops:
+  - Each FronterNav layout in the population creates `<offspring>` number of mutations from itself:
+    - A mutation is created by randomly (according to `<mutation rate>`) swapping or not swapping around probes in the
+      FronterNav layout
+    - The best offspring (if it is an improvement upon its parent) replaces its parent in the population
+    - If no offspring are an improvement upon the parent (and the parent is not the best FronterNav layout in the
+      population), the parent is instead aged
+    - If the parent's age reaches `<max age>`, it is replaced by a random FronterNav layout
+
+The total runtime of FnSolver will scale roughly linearly with `iterations * population * offspring`.
+
+The options below control the various named parameters from the description above.
+)"), this);
+  layout->addRow(desc);
+
+  // Iterations
+  widgets_.iterations = new QSpinBox(this);
+  widgets_.iterations->setMinimum(0);
+  widgets_.iterations->setMaximum(999999);
+  widgets_.iterations->setValue(solver_options->get_iterations());
+  layout->addRow(tr("Iterations"), widgets_.iterations);
+  auto* iterations_desc = new DescriptionWidget(tr(R"(
+Increasing this will give FnSolver more time to discover and improve upon FronterNav layouts. You may end FnSolver
+prematurely at any time by pressing Cancel , which will stop FnSolver and present the best FronterNav layout after the
+current iteration concludes.
+)"), this);
+  layout->addRow(iterations_desc);
+
+  // Bonus iterations
+  widgets_.bonus_iterations = new QSpinBox(this);
+  widgets_.bonus_iterations->setMinimum(0);
+  widgets_.bonus_iterations->setMaximum(999999);
+  widgets_.bonus_iterations->setValue(solver_options->get_bonus_iterations());
+  layout->addRow(tr("Bonus Iterations"), widgets_.bonus_iterations);
+  auto* bonus_iterations_desc = new DescriptionWidget(tr(R"(
+Sets the maximum number of additional iterations FnSolver will run for if an improvement to the best FrontierNav layout
+is found.
+
+Setting this option to a non-zero value allows for the number of iterations set in `iterations` to be exceeded, in the
+event that a better FrontierNav layout is found shortly before FnSolver would normally terminate. The bonus iterations
+are not cumulative, but do reset if better FrontierNav layouts continue to be found. Put another way, FnSolver will only
+terminate if at least `iterations` iterations have run, AND at least `bonus iterations` iterations have passed since the
+last improvement occurred.
+)"), this);
+  layout->addRow(bonus_iterations_desc);
+
+  // Population
+  widgets_.population = new QSpinBox(this);
+  widgets_.population->setMinimum(0);
+  widgets_.population->setMaximum(999999);
+  widgets_.population->setValue(solver_options->get_population_size());
+  layout->addRow(tr("Population"), widgets_.population);
+  auto* population_desc = new DescriptionWidget(tr(R"(
+Increasing this will give FnSolver more opportunities to find potentially-optimal FronterNav layouts that are
+substantially different from one another. One weakness of the FnSolver algorithm is that offspring are generally very
+similar to their parents, and therefore a FronterNav layout lineage can reach a point where it can no longer be
+trivially improved upon, despite not being truly optimal (this is known as a Local Maximum). A larger population can
+help mitigate this.
+)"), this);
+  layout->addRow(population_desc);
+
+  // Offspring
+  widgets_.offspring = new QSpinBox(this);
+  widgets_.offspring->setMinimum(0);
+  widgets_.offspring->setMaximum(999999);
+  widgets_.offspring->setValue(solver_options->get_num_offspring());
+  layout->addRow(tr("Offspring"), widgets_.offspring);
+  auto* offspring_desc = new DescriptionWidget(tr(R"(
+Increasing this will give FnSolver more opportunities to find mutations that improve upon a given FronterNav layout. One
+weakness of the FnSolver algorithm is that the "threshold" nature of chains make them difficult to discover when only
+swapping around a small number of probes. Additionally, very specific mutations can be difficult to randomly happen
+upon. A larger number of offspring can help mitigate this (but for very complex mutations, like swapping a chain with a
+different chain elsewhere, there is no good solution).
+)"), this);
+  layout->addRow(offspring_desc);
+
+  // Mutation Rate
+  widgets_.mutation_rate = new QDoubleSpinBox(this);
+  widgets_.mutation_rate->setMinimum(0);
+  widgets_.mutation_rate->setMaximum(1);
+  widgets_.mutation_rate->setSingleStep(0.01);
+  widgets_.mutation_rate->setValue(solver_options->get_mutation_rate());
+  layout->addRow(tr("Mutation rate"), widgets_.mutation_rate);
+  auto* mutation_rate_desc = new DescriptionWidget(tr(R"(
+Sets the degree by which a FronterNav layout will mutate when generating offspring.
+
+This rate represents the chance that a probe in a given FrontierNav site placement will be swapped with a probe in
+another FrontierNav site placement. Because swaps are two-sided (and further complicated by potentially swapping a probe
+with an identical probe, or re-swapping a previously swapped probe), the real chance that a given FrontierNav site
+placement will undergo a meaningful probe swap is approximately 1.67 times the mutation rate. This will decrease
+slightly if you have any locked/undiscovered sites or a forced layout seed.
+
+Tuning this can be somewhat difficult: too low makes it hard to find improvements that require complex mutations, while
+too high makes it hard to retain the core features of a particular FronterNav layout that make it potentially-optimal
+(and also makes it hard to find very simple mutations). A rate between ~0.03 and ~0.08 is generally recommended.
+)"), this);
+  layout->addRow(mutation_rate_desc);
+
+  // Max Age
+  widgets_.max_age = new QSpinBox(this);
+  widgets_.max_age->setMinimum(0);
+  widgets_.max_age->setMaximum(999999);
+  widgets_.max_age->setValue(solver_options->get_max_age());
+  layout->addRow(tr("Max Age"), widgets_.max_age);
+  auto* max_age_desc = new DescriptionWidget(tr(R"(
+Sets the maximum number of iterations a FrontierNav layout lineage can go without improvement before it is killed.
+
+Increasing this will give FronterNav layout lineages that are not the best FrontierNav layout more time to find complex
+or precise improvements, which might make them become the best FrontierNav layout. However, setting this too high will
+prevent FrontierNav layouts truly stuck in a sub-optimal Local Maximum from being removed and restarted. Generally, you
+should increase or decrease this roughly proportional to your `iterations`.
+
+A FrontierNav layout lineage that has a score of zero (namely, it fails to meet constraints) will be aged at 5x speed.
+)"), this);
+  layout->addRow(max_age_desc);
+
+  // Threads
+  auto* threads_layout = new QHBoxLayout();
+  widgets_.threads = new QSpinBox(this);
+  widgets_.threads->setMinimum(1);
+  widgets_.threads->setMaximum(99);
+  widgets_.threads->setValue(solver_options->get_num_threads());
+  threads_layout->addWidget(widgets_.threads);
+  auto* default_threads = new QPushButton(tr("Use Default"), this);
+  threads_layout->addWidget(default_threads);
+  connect(default_threads, &QPushButton::clicked, this, &SolverParamsWidget::use_default_threads);
+  layout->addRow(tr("Threads"), threads_layout);
+  auto* threads_desc = new DescriptionWidget(tr(R"(
+Sets the number of threads to execute FnSolver in parallel with.
+
+FnSolver tries to determine the number of logical processors on your computer to use as the default. If it cannot do
+this, the default will be 1, and you must manually set this option. It is recommended you set this to exactly the number
+of logical processors on your computer. Any less will result in worse performance due to unused system resources (though
+you may intentionally desire this), while any more will not yield better performance due to already using all system
+resources.
+)"), this);
+  layout->addRow(threads_desc);
+}
+
+void SolverParamsWidget::apply_to_options(Options* options) const {
+  options->set_iterations(widgets_.iterations->value());
+  options->set_bonus_iterations(widgets_.bonus_iterations->value());
+  options->set_population_size(widgets_.population->value());
+  options->set_num_offspring(widgets_.offspring->value());
+  options->set_mutation_rate(widgets_.mutation_rate->value());
+  options->set_max_age(widgets_.max_age->value());
+  options->set_num_threads(widgets_.threads->value());
+}
+
+void SolverParamsWidget::use_default_threads() {
+  widgets_.threads->setValue(static_cast<int>(options_loader::default_options().get_num_threads()));
+}

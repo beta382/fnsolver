@@ -2,8 +2,8 @@
 
 #include <complex>
 #include <format>
-#include <thread>
 #include <toml++/toml.hpp>
+#include <QThread>
 
 Options options_loader::default_options() {
   return {
@@ -33,7 +33,7 @@ Options options_loader::default_options() {
     200,
     0.04,
     50,
-    std::thread::hardware_concurrency()
+    static_cast<uint32_t>(QThread::idealThreadCount())
   };
 }
 
@@ -124,7 +124,7 @@ Options options_loader::load_from_file(const std::string& filename) {
   if (tbl.contains(score_function_opt_str)) {
     const auto score_function = tbl.at(score_function_opt_str).as_array();
     std::vector<double> args;
-    for (auto args_it = score_function->cbegin()+1; args_it != score_function->cend(); ++args_it) {
+    for (auto args_it = score_function->cbegin() + 1; args_it != score_function->cend(); ++args_it) {
       args.push_back(args_it->as_floating_point()->get());
       if (args.back() < 0) {
         throw std::runtime_error("Invalid value for score function argument");

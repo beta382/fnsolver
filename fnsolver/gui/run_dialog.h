@@ -5,6 +5,7 @@
 
 #include "constraints_widget.h"
 #include "score_function_widget.h"
+#include "solver_params_widget.h"
 #include "fnsolver/solver/options.h"
 
 class RunDialog : public QDialog {
@@ -21,6 +22,7 @@ private:
     ScoreFunctionWidget* scorefunction = nullptr;
     ScoreFunctionWidget* tiebreaker = nullptr;
     ConstraintsWidget* constraints = nullptr;
+    SolverParamsWidget* solver_params = nullptr;
   };
 
   Widgets widgets_;

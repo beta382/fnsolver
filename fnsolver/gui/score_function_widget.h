@@ -5,11 +5,11 @@
 #include <vector>
 #include <unordered_set>
 #include <QFormLayout>
-#include <QLabel>
 #include <QWidget>
 #include <QRadioButton>
 #include <QDoubleSpinBox>
 #include <QButtonGroup>
+#include "description_widget.h"
 #include "QObjectDeleter.h"
 #include "fnsolver/solver/score_function.h"
 
@@ -38,7 +38,7 @@ protected:
 
 private:
   QRadioButton* radio_;
-  QLabel* description_;
+  DescriptionWidget* description_;
 
 private Q_SLOTS:
   void toggled(bool checked);

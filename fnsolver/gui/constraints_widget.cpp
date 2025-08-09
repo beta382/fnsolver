@@ -1,6 +1,8 @@
 #include "constraints_widget.h"
 #include <QFormLayout>
 #include <QGroupBox>
+
+#include "description_widget.h"
 #include "precious_resource_ui.h"
 
 namespace detail {
@@ -135,7 +137,7 @@ ConstraintsWidget::ConstraintsWidget(const Options* solver_options, QWidget* par
   layout->addWidget(resources);
   auto* resources_layout = new QFormLayout();
   resources->setLayout(resources_layout);
-  auto* resources_desc = new QLabel(tr(R"(
+  auto* resources_desc = new DescriptionWidget(tr(R"(
 Requires that a generated FrontierNav layout yield at least the specified quantity of Precious Resources (on average).
 
 A given FrontierNav site distributes precious resources with per-site rates, and per-site roll counts. You may consult
@@ -144,10 +146,6 @@ site may have greatly different expected drop counts for a given Precious Resour
 constrain by "number of sites that are yielding Precious Resources". As such, the constraints provided here are based on
 "average expected drop count".
 )"), this);
-  resources_desc->setTextFormat(Qt::MarkdownText);
-  resources_desc->setWordWrap(true);
-  resources_desc->setOpenExternalLinks(true);
-  resources_desc->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   resources_layout->addRow(resources_desc);
   for (int resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
     const auto resource = static_cast<precious_resource::Type>(resource_ix);
@@ -170,7 +168,7 @@ constrain by "number of sites that are yielding Precious Resources". As such, th
   layout->addWidget(yields);
   auto* yields_layout = new QFormLayout();
   yields->setLayout(yields_layout);
-  auto* yields_desc = new QLabel(tr(R"(
+  auto* yields_desc = new DescriptionWidget(tr(R"(
   Requires that a generated FrontierNav layout yield at least the specified Miranium, Revenue, and/or Storage.
 
   **Use of this option is discouraged**. Even seemingly small values can make it unreasonably difficult for the FnSolver
@@ -178,9 +176,6 @@ constrain by "number of sites that are yielding Precious Resources". As such, th
   the curious.
   )"), this);
   yields_layout->addRow(yields_desc);
-  yields_desc->setTextFormat(Qt::MarkdownText);
-  yields_desc->setWordWrap(true);
-  yields_desc->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   init_min_yield_widget(&widgets_.min_mining_, &widgets_.min_mining_val_, tr("Min. Mining"),
                         solver_options->get_production_minimum());
   yields_layout->addRow(widgets_.min_mining_, widgets_.min_mining_val_);
@@ -190,6 +185,34 @@ constrain by "number of sites that are yielding Precious Resources". As such, th
   init_min_yield_widget(&widgets_.min_storage_, &widgets_.min_storage_val_, tr("Min. Storage"),
                         solver_options->get_storage_minimum());
   yields_layout->addRow(widgets_.min_storage_, widgets_.min_storage_val_);
+}
+
+uint32_t resolve_yield(const QCheckBox* checkbox, const QSpinBox* spinbox) {
+  if (checkbox->isChecked()) {
+    return spinbox->value();
+  }
+  return 0;
+}
+
+void ConstraintsWidget::apply_to_options(Options* options) const {
+  // Precious Resources.
+  std::array<uint32_t, precious_resource::count> precious_resource_minimums{};
+  for (const auto& [precious_resource, checkbox] : widgets_.precious_resource_constraints) {
+    auto& precious_resource_minimum = precious_resource_minimums.at(static_cast<uint32_t>(precious_resource));
+    if (checkbox->isChecked()) {
+      const auto& value_widget = widgets_.precious_resource_constraint_vals.at(precious_resource);
+      precious_resource_minimum = value_widget->get_value();
+    }
+    else {
+      precious_resource_minimum = 0;
+    }
+  }
+  options->set_precious_resource_minimums(precious_resource_minimums);
+
+  // Yields.
+  options->set_production_minimum(resolve_yield(widgets_.min_mining_, widgets_.min_mining_val_));
+  options->set_revenue_minimum(resolve_yield(widgets_.min_revenue_, widgets_.min_revenue_val_));
+  options->set_storage_minimum(resolve_yield(widgets_.min_storage_, widgets_.min_storage_val_));
 }
 
 void ConstraintsWidget::

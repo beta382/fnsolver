@@ -76,6 +76,13 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
   constraints_scroll->setWidgetResizable(true);
   tabs->addTab(constraints_scroll, tr("Constraints"));
 
+  // Solver Params
+  widgets_.solver_params = new SolverParamsWidget(solver_options_, this);
+  auto* solver_params_scroll = new QScrollArea(this);
+  solver_params_scroll->setWidget(widgets_.solver_params);
+  solver_params_scroll->setWidgetResizable(true);
+  tabs->addTab(solver_params_scroll, tr("Solver Parameters"));
+
   // Buttons.
   auto* buttons = new QDialogButtonBox(this);
   layout->addWidget(buttons);

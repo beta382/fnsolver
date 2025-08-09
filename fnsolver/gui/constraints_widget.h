@@ -54,6 +54,8 @@ class ConstraintsWidget : public QWidget {
 public:
   explicit ConstraintsWidget(const Options* solver_options, QWidget* parent = nullptr);
 
+  void apply_to_options(Options* options) const;
+
 private:
   struct Widgets {
     std::unordered_map<precious_resource::Type, std::unique_ptr<QCheckBox, QObjectDeleter>>

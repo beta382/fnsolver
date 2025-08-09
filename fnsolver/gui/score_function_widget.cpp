@@ -7,12 +7,10 @@ namespace detail::score_function {
 ScoreFunctionSelectWidget::ScoreFunctionSelectWidget(QWidget* parent): QWidget(parent),
   form_(new QFormLayout),
   radio_(new QRadioButton(this)),
-  description_(new QLabel(this)) {
+  description_(new DescriptionWidget(this)) {
   auto* layout = new QVBoxLayout(this);
   layout->addWidget(radio_);
   layout->addWidget(description_);
-  description_->setTextFormat(Qt::MarkdownText);
-  description_->setWordWrap(true);
   // Will be shown if a description is set.
   description_->setVisible(false);
   layout->addLayout(form_);
@@ -41,7 +39,7 @@ void ScoreFunctionSelectWidget::set_name(const QString& name) {
 }
 
 void ScoreFunctionSelectWidget::set_description(const QString& description) {
-  description_->setText(description);
+  description_->set_text(description);
   description_->setVisible(!description.isEmpty());
 }
 

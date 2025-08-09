@@ -22,6 +22,8 @@ qt_add_executable(${TARGET} WIN32
     about_dialog.h
     constraints_widget.cpp
     constraints_widget.h
+    description_widget.cpp
+    description_widget.h
     fn_site_widget.cpp
     fn_site_widget.h
     fnsite_ui.cpp
@@ -46,6 +48,8 @@ qt_add_executable(${TARGET} WIN32
     settings.h
     solution_widget.cpp
     solution_widget.h
+    solver_params_widget.cpp
+    solver_params_widget.h
     resources/resources.qrc
 )
 target_link_libraries(${TARGET} PRIVATE
