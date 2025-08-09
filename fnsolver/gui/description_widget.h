@@ -25,6 +25,12 @@ private:
   QLabel* label_;
 };
 
+/**
+ * Apply a tooltop written with Markdown to @p widget.
+ *
+ * @param widget
+ * @param text
+ */
 void set_markdown_tooltip(QWidget* widget, const QString& text);
 
 #endif //FNSOLVER_GUI_DESCRIPTION_WIDGET_H

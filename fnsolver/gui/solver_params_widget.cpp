@@ -33,12 +33,13 @@ The options below control the various named parameters from the description abov
   widgets_.iterations->setMaximum(999999);
   widgets_.iterations->setValue(solver_options->get_iterations());
   layout->addRow(tr("Iterations"), widgets_.iterations);
-  auto* iterations_desc = new DescriptionWidget(tr(R"(
+  const auto iterations_desc = tr(R"(
 Increasing this will give FnSolver more time to discover and improve upon FronterNav layouts. You may end FnSolver
 prematurely at any time by pressing Cancel , which will stop FnSolver and present the best FronterNav layout after the
 current iteration concludes.
-)"), this);
-  layout->addRow(iterations_desc);
+)");
+  set_markdown_tooltip(widgets_.iterations, iterations_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.iterations), iterations_desc);
 
   // Bonus iterations
   widgets_.bonus_iterations = new QSpinBox(this);
@@ -46,7 +47,7 @@ current iteration concludes.
   widgets_.bonus_iterations->setMaximum(999999);
   widgets_.bonus_iterations->setValue(solver_options->get_bonus_iterations());
   layout->addRow(tr("Bonus Iterations"), widgets_.bonus_iterations);
-  auto* bonus_iterations_desc = new DescriptionWidget(tr(R"(
+  const auto bonus_iterations_desc = tr(R"(
 Sets the maximum number of additional iterations FnSolver will run for if an improvement to the best FrontierNav layout
 is found.
 
@@ -55,8 +56,9 @@ event that a better FrontierNav layout is found shortly before FnSolver would no
 are not cumulative, but do reset if better FrontierNav layouts continue to be found. Put another way, FnSolver will only
 terminate if at least `iterations` iterations have run, AND at least `bonus iterations` iterations have passed since the
 last improvement occurred.
-)"), this);
-  layout->addRow(bonus_iterations_desc);
+)");
+  set_markdown_tooltip(widgets_.bonus_iterations, bonus_iterations_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.bonus_iterations), bonus_iterations_desc);
 
   // Population
   widgets_.population = new QSpinBox(this);
@@ -64,14 +66,15 @@ last improvement occurred.
   widgets_.population->setMaximum(999999);
   widgets_.population->setValue(solver_options->get_population_size());
   layout->addRow(tr("Population"), widgets_.population);
-  auto* population_desc = new DescriptionWidget(tr(R"(
+  const auto population_desc = tr(R"(
 Increasing this will give FnSolver more opportunities to find potentially-optimal FronterNav layouts that are
 substantially different from one another. One weakness of the FnSolver algorithm is that offspring are generally very
 similar to their parents, and therefore a FronterNav layout lineage can reach a point where it can no longer be
 trivially improved upon, despite not being truly optimal (this is known as a Local Maximum). A larger population can
 help mitigate this.
-)"), this);
-  layout->addRow(population_desc);
+)");
+  set_markdown_tooltip(widgets_.population, population_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.population), population_desc);
 
   // Offspring
   widgets_.offspring = new QSpinBox(this);
@@ -79,14 +82,15 @@ help mitigate this.
   widgets_.offspring->setMaximum(999999);
   widgets_.offspring->setValue(solver_options->get_num_offspring());
   layout->addRow(tr("Offspring"), widgets_.offspring);
-  auto* offspring_desc = new DescriptionWidget(tr(R"(
+  const auto offspring_desc = tr(R"(
 Increasing this will give FnSolver more opportunities to find mutations that improve upon a given FronterNav layout. One
 weakness of the FnSolver algorithm is that the "threshold" nature of chains make them difficult to discover when only
 swapping around a small number of probes. Additionally, very specific mutations can be difficult to randomly happen
 upon. A larger number of offspring can help mitigate this (but for very complex mutations, like swapping a chain with a
 different chain elsewhere, there is no good solution).
-)"), this);
-  layout->addRow(offspring_desc);
+)");
+  set_markdown_tooltip(widgets_.offspring, offspring_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.offspring), offspring_desc);
 
   // Mutation Rate
   widgets_.mutation_rate = new QDoubleSpinBox(this);
@@ -95,7 +99,7 @@ different chain elsewhere, there is no good solution).
   widgets_.mutation_rate->setSingleStep(0.01);
   widgets_.mutation_rate->setValue(solver_options->get_mutation_rate());
   layout->addRow(tr("Mutation rate"), widgets_.mutation_rate);
-  auto* mutation_rate_desc = new DescriptionWidget(tr(R"(
+  const auto mutation_rate_desc = tr(R"(
 Sets the degree by which a FronterNav layout will mutate when generating offspring.
 
 This rate represents the chance that a probe in a given FrontierNav site placement will be swapped with a probe in
@@ -107,8 +111,9 @@ slightly if you have any locked/undiscovered sites or a forced layout seed.
 Tuning this can be somewhat difficult: too low makes it hard to find improvements that require complex mutations, while
 too high makes it hard to retain the core features of a particular FronterNav layout that make it potentially-optimal
 (and also makes it hard to find very simple mutations). A rate between ~0.03 and ~0.08 is generally recommended.
-)"), this);
-  layout->addRow(mutation_rate_desc);
+)");
+  set_markdown_tooltip(widgets_.mutation_rate, mutation_rate_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.mutation_rate), mutation_rate_desc);
 
   // Max Age
   widgets_.max_age = new QSpinBox(this);
@@ -116,7 +121,7 @@ too high makes it hard to retain the core features of a particular FronterNav la
   widgets_.max_age->setMaximum(999999);
   widgets_.max_age->setValue(solver_options->get_max_age());
   layout->addRow(tr("Max Age"), widgets_.max_age);
-  auto* max_age_desc = new DescriptionWidget(tr(R"(
+  const auto max_age_desc = tr(R"(
 Sets the maximum number of iterations a FrontierNav layout lineage can go without improvement before it is killed.
 
 Increasing this will give FronterNav layout lineages that are not the best FrontierNav layout more time to find complex
@@ -125,8 +130,9 @@ prevent FrontierNav layouts truly stuck in a sub-optimal Local Maximum from bein
 should increase or decrease this roughly proportional to your `iterations`.
 
 A FrontierNav layout lineage that has a score of zero (namely, it fails to meet constraints) will be aged at 5x speed.
-)"), this);
-  layout->addRow(max_age_desc);
+)");
+  set_markdown_tooltip(widgets_.max_age, max_age_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.max_age), max_age_desc);
 
   // Threads
   auto* threads_layout = new QHBoxLayout();
@@ -139,7 +145,7 @@ A FrontierNav layout lineage that has a score of zero (namely, it fails to meet 
   threads_layout->addWidget(default_threads);
   connect(default_threads, &QPushButton::clicked, this, &SolverParamsWidget::use_default_threads);
   layout->addRow(tr("Threads"), threads_layout);
-  auto* threads_desc = new DescriptionWidget(tr(R"(
+  const auto threads_desc = tr(R"(
 Sets the number of threads to execute FnSolver in parallel with.
 
 FnSolver tries to determine the number of logical processors on your computer to use as the default. If it cannot do
@@ -147,8 +153,10 @@ this, the default will be 1, and you must manually set this option. It is recomm
 of logical processors on your computer. Any less will result in worse performance due to unused system resources (though
 you may intentionally desire this), while any more will not yield better performance due to already using all system
 resources.
-)"), this);
-  layout->addRow(threads_desc);
+)");
+  set_markdown_tooltip(widgets_.threads, threads_desc);
+  set_markdown_tooltip(default_threads, threads_desc);
+  set_markdown_tooltip(layout->labelForField(threads_layout), threads_desc);
 }
 
 void SolverParamsWidget::apply_to_options(Options* options) const {

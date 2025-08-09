@@ -17,6 +17,10 @@ void DescriptionWidget::set_text(const QString& text) {
 }
 
 void set_markdown_tooltip(QWidget* widget, const QString& text) {
+  if (widget == nullptr) {
+    return;
+  }
+
   QTextDocument doc;
   doc.setMarkdown(text);
   widget->setToolTip(doc.toHtml());
