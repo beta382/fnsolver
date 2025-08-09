@@ -176,7 +176,7 @@ void ScoreFunctionWidget::set_required(bool required) {
   set_allowed(allowed_);
 }
 
-void ScoreFunctionWidget::set_allowed(std::unordered_set<ScoreFunction::Type> allowed) {
+void ScoreFunctionWidget::set_allowed(const std::unordered_set<ScoreFunction::Type>& allowed) {
   allowed_ = allowed;
 
   // Reset the button group.
@@ -198,39 +198,22 @@ void ScoreFunctionWidget::set_allowed(std::unordered_set<ScoreFunction::Type> al
   }
 
   if (allowed.contains(ScoreFunction::Type::max_mining)) {
-    auto& max_mining = widgets_.emplace_back(new detail::score_function::MaxMiningWidget());
-    button_group_->addButton(max_mining->radio_button());
-    layout_->addWidget(max_mining.get());
+    init_scorefunction_select_widget<detail::score_function::MaxMiningWidget>();
   }
-
   if (allowed.contains(ScoreFunction::Type::max_effective_mining)) {
-    auto& max_effective_mining = widgets_.emplace_back(new detail::score_function::MaxEffectiveMiningWidget());
-    button_group_->addButton(max_effective_mining->radio_button());
-    layout_->addWidget(max_effective_mining.get());
+    init_scorefunction_select_widget<detail::score_function::MaxEffectiveMiningWidget>();
   }
-
   if (allowed.contains(ScoreFunction::Type::max_revenue)) {
-    auto& max_revenue = widgets_.emplace_back(new detail::score_function::MaxRevenueWidget());
-    button_group_->addButton(max_revenue->radio_button());
-    layout_->addWidget(max_revenue.get());
+    init_scorefunction_select_widget<detail::score_function::MaxRevenueWidget>();
   }
-
   if (allowed.contains(ScoreFunction::Type::max_storage)) {
-    auto& max_storage = widgets_.emplace_back(new detail::score_function::MaxStorageWidget());
-    button_group_->addButton(max_storage->radio_button());
-    layout_->addWidget(max_storage.get());
+    init_scorefunction_select_widget<detail::score_function::MaxStorageWidget>();
   }
-
   if (allowed.contains(ScoreFunction::Type::ratio)) {
-    auto& ratio = widgets_.emplace_back(new detail::score_function::RatioWidget());
-    button_group_->addButton(ratio->radio_button());
-    layout_->addWidget(ratio.get());
+    init_scorefunction_select_widget<detail::score_function::RatioWidget>();
   }
-
   if (allowed.contains(ScoreFunction::Type::weights)) {
-    auto& weights = widgets_.emplace_back(new detail::score_function::WeightsWidget());
-    button_group_->addButton(weights->radio_button());
-    layout_->addWidget(weights.get());
+    init_scorefunction_select_widget<detail::score_function::WeightsWidget>();
   }
 
   // Adding a stretch at the end makes the items stack like a list.

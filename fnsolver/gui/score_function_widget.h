@@ -9,6 +9,7 @@
 #include <QWidget>
 #include <QRadioButton>
 #include <QDoubleSpinBox>
+#include <QButtonGroup>
 #include "QObjectDeleter.h"
 #include "fnsolver/solver/score_function.h"
 
@@ -141,6 +142,9 @@ private:
 };
 } // namespace detail
 
+template <class T>
+concept ScoreFunctionSelectWidget = std::derived_from<T, detail::score_function::ScoreFunctionSelectWidget>;
+
 class ScoreFunctionWidget : public QWidget {
   Q_OBJECT
 
@@ -149,7 +153,7 @@ public:
 
   void set_required(bool required);
 
-  void set_allowed(std::unordered_set<ScoreFunction::Type> allowed);
+  void set_allowed(const std::unordered_set<ScoreFunction::Type>& allowed);
 
   void set_selection(std::optional<ScoreFunction::Type> selection);
 
@@ -164,6 +168,14 @@ private:
   bool required_ = false;
   std::unordered_set<ScoreFunction::Type> allowed_;
   std::vector<std::unique_ptr<detail::score_function::ScoreFunctionSelectWidget, QObjectDeleter>> widgets_;
+
+  template <ScoreFunctionSelectWidget Widget_T>
+  void init_scorefunction_select_widget() {
+    // These widgets all have no parent as the custom deleter takes care of memory management.
+    auto& widget = widgets_.emplace_back(new Widget_T());
+    button_group_->addButton(widget->radio_button());
+    layout_->addWidget(widget.get());
+  }
 };
 
 #endif //FNSOLVER_GUI_SCORE_FUNCTION_WIDGET_H
