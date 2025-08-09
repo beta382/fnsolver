@@ -9,6 +9,7 @@
 #include <fnsolver/util/output.hpp>
 
 #include <array>
+#include <csignal>
 #include <format>
 #include <iostream>
 #include <map>
@@ -278,6 +279,8 @@ void output_options_report(const Options &options) {
 }
 } // namespace
 
+bool should_stop = false;
+
 int main(int argc, char **argv) {
   std::optional<Options> maybe_options;
   try {
@@ -319,7 +322,34 @@ int main(int argc, char **argv) {
   }
 
   const Solver solver(std::move(options));
-  const Solution solution = solver.run(std::cout);
+  auto progress_callback = [&options](Solver::IterationStatus iteration_status) {
+    const std::string last_improvement_str = [=]() {
+      const uint32_t iterations_ago = iteration_status.iteration - iteration_status.last_improvement;
+      if (iterations_ago == 0) {
+        return std::string("This iteration");
+      }
+      else if (iterations_ago == 1) {
+        return std::format("1 iteration ago");
+      }
+      else {
+        return std::format("{} iterations ago", iterations_ago);
+      }
+    }();
+    std::cout << std::format("Finished iteration {}/{}:", iteration_status.iteration, options.get_iterations())
+    << std::endl;
+    std::cout << std::format("  Overall best score: {}", iteration_status.best_solution.get_score()) << std::endl;
+    std::cout << std::format("  Solutions killed:   {}", iteration_status.num_killed) << std::endl;
+    std::cout << std::format("  Last improvement:   {}", last_improvement_str) << std::endl;
+    std::cout << std::format("  Yield for best score:") << std::endl;
+    iteration_status.best_solution.get_layout().output_report(std::cout, 4, false, true, false, false);
+  };
+  std::signal(SIGINT, [](int) { should_stop = true; });
+  auto stop_callback = []() { return should_stop; };
+  const Solution solution = solver.run(progress_callback, stop_callback);
+  std::signal(SIGINT, SIG_DFL);
+  if (should_stop) {
+    std::cout << "Solver terminated early by user input" << std::endl;
+  }
 
   std::cout << std::endl;
   std::cout << "Best Layout:" << std::endl;

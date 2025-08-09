@@ -17,6 +17,15 @@
 
 class Solver {
   public:
+    struct IterationStatus {
+      uint32_t iteration;
+      const Solution& best_solution;
+      std::size_t num_killed;
+      uint32_t last_improvement;
+    };
+    using ProgressCallback = std::function<void(IterationStatus)>;
+    using StopCallback = std::function<bool()>;
+
     Solver(Options options);
 
     Solver(const Solver &other) = delete;
@@ -24,7 +33,8 @@ class Solver {
     Solver &operator=(const Solver &other) = delete;
     Solver &operator=(Solver &&other) = delete;
 
-    Solution run(std::ostream &out) const;
+    Solution run(ProgressCallback progress_callback, StopCallback stop_callback) const;
+
   private:
     Options options;
 
