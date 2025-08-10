@@ -56,7 +56,7 @@ unsigned int precious_resource::max_resource_quantity(Type precious_resource) {
   static const std::unordered_map<Type, unsigned int> max_resource_quantities = []() {
     std::unordered_map<Type, unsigned int> map;
     map.reserve(count);
-    for (int resource_ix = 0; resource_ix < count; ++resource_ix) {
+    for (std::size_t resource_ix = 0; resource_ix < count; ++resource_ix) {
       const auto resource = static_cast<Type>(resource_ix);
       unsigned int max_quantity = 0;
       for (const FnSite& site : FnSite::sites) {

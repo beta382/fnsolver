@@ -19,7 +19,7 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent)
   // Discovered territories.
   if (site->max_territories > 0) {
     QActionGroup* territories_group = new QActionGroup(this);
-    for (int num_territories = 0; num_territories <= site->max_territories; ++num_territories) {
+    for (uint32_t num_territories = 0; num_territories <= site->max_territories; ++num_territories) {
       auto* action = territory_actions_.emplace_back(new QAction(tr("%n territories", "", num_territories), this));
       action->setCheckable(true);
       territories_group->addAction(action);

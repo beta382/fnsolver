@@ -37,7 +37,7 @@ uint32_t PreciousResourceConstraintWidget::get_value() const {
   if (type_ == Type::Any) {
     return 1;
   }
-  return std::ceil(widgets_.constraint_value->value() * 100.0);
+  return std::ceill(widgets_.constraint_value->value() * 100.0);
 }
 
 void PreciousResourceConstraintWidget::set_value(uint32_t value) {
@@ -148,7 +148,7 @@ constrain by "number of sites that are yielding Precious Resources". As such, th
 "average expected drop count".
 )"), this);
   resources_layout->addRow(resources_desc);
-  for (int resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
+  for (std::size_t resource_ix = 0; resource_ix < precious_resource::count; ++resource_ix) {
     const auto resource = static_cast<precious_resource::Type>(resource_ix);
     const auto current_minimum = solver_options->get_precious_resource_minimums().at(resource_ix);
     auto& checkbox = widgets_.precious_resource_constraints.emplace(

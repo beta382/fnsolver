@@ -210,7 +210,7 @@ Options options_loader::load_from_file(const std::string& filename) {
         throw std::runtime_error("Invalid override description");
       }
       const auto site_id = std::stoi(override.substr(0, split_pos));
-      const auto num_territories = std::stoi(override.substr(split_pos + 1));
+      const uint32_t num_territories = std::stoi(override.substr(split_pos + 1));
       if (num_territories > FnSite::sites.at(FnSite::idx_for_id.at(site_id)).max_territories) {
         throw std::runtime_error("Override is greater than territory count");
       }

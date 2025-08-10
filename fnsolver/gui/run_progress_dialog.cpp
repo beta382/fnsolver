@@ -60,7 +60,9 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
 
   // Time estimation
   const auto time_format = QStringLiteral("HH:mm:ss");
-  const auto time_elapsed = QTime::fromMSecsSinceStartOfDay(solver_stopwatch_.elapsed());
+  const auto time_elapsed = QTime::fromMSecsSinceStartOfDay(
+    static_cast<int>(std::min(solver_stopwatch_.elapsed(), static_cast<qint64>(std::numeric_limits<int>::max())))
+  );
   const auto total_time_required = QTime::fromMSecsSinceStartOfDay(
     (time_elapsed.msecsSinceStartOfDay() / iteration_status.iteration) * solver_options_.get_iterations());
   const auto time_remaining = QTime::fromMSecsSinceStartOfDay(
