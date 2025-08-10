@@ -20,12 +20,15 @@ struct FnSite {
   static const std::array<FnSite, num_sites> &sites;
 
   static void override_territories(id_t site_id, uint32_t territories);
+  /** Mark all territories as found */
+  static void reset_territories();
 
   const id_t site_id;
   const uint32_t production;
   const uint32_t revenue;
   const char combat; // Not used in calculation, but helpful for user display.
   uint32_t territories; // non-const to allow override
+  const uint32_t max_territories;
   const std::vector<size_t> neighbor_idxs;
   const std::array<uint32_t, precious_resource::count> precious_resource_quantities;
 

@@ -299,6 +299,12 @@ void FnSite::override_territories(id_t site_id, uint32_t territories) {
   sites_mutable[idx_for_id.at(site_id)].territories = territories;
 }
 
+void FnSite::reset_territories() {
+  for (auto& site : sites_mutable) {
+    site.territories = site.max_territories;
+  }
+}
+
 FnSite::FnSite(
     id_t site_id,
     uint32_t production,
@@ -312,6 +318,7 @@ FnSite::FnSite(
       revenue(revenue),
       combat(combat),
       territories(territories),
+      max_territories(territories),
       neighbor_idxs([&]() {
         std::vector<size_t> neighbor_idxs;
         for (const id_t neighbor_id : neighbor_ids) {

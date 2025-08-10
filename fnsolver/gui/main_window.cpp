@@ -243,6 +243,10 @@ void MainWindow::open_from_path(const QString& path) {
   try {
     solver_options_ = options_loader::load_from_file(path.toStdString());
     layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
+    FnSite::reset_territories();
+    for (const auto &[site_id, territories] : solver_options_.get_territory_overrides()) {
+      FnSite::override_territories(site_id, territories);
+    }
     update_options_seed();
     widgets_.mira_map->set_layout(&layout_);
 
@@ -316,6 +320,16 @@ void MainWindow::update_options_seed() {
   solver_options_.set_seed(seed);
 }
 
+void MainWindow::update_options_territories() {
+  std::map<FnSite::id_t, uint32_t> territory_overrides;
+  for (const auto& site : FnSite::sites) {
+    if (site.territories < site.max_territories) {
+      territory_overrides.emplace(site.site_id, site.territories);
+    }
+  }
+  solver_options_.set_territory_overrides(territory_overrides);
+}
+
 Layout MainWindow::fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites) {
   // Start full of basic probes.
   std::unordered_map<FnSite::id_t, Placement> placements;
@@ -346,6 +360,7 @@ void MainWindow::file_new() {
   }
 
   solver_options_ = options_loader::default_options();
+  FnSite::reset_territories();
   layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
   update_options_seed();
   widgets_.mira_map->set_layout(&layout_);
@@ -419,9 +434,12 @@ void MainWindow::data_changed() {
 }
 
 void MainWindow::probe_map_changed() {
+  // Force update of resolved placements.
+  layout_ = Layout(layout_.get_placements());
   inventory_model_->reset();
   widgets_.solution_widget->set_layout(layout_);
   update_options_seed();
+  update_options_territories();
 }
 
 void MainWindow::options_changed(const Options& options) {

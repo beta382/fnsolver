@@ -200,8 +200,24 @@ Options options_loader::load_from_file(const std::string& filename) {
     options.set_probe_quantities(inventory);
   }
 
-  // TODO: Support overriding discovered territories.
-  // const auto territories = tbl.at("territories").as_array();
+  if (tbl.contains(territory_overrides_opt_str)) {
+    const auto territories = tbl.at(territory_overrides_opt_str).as_array();
+    std::map<FnSite::id_t, uint32_t> territory_overrides;
+    for (const auto& override_str : *territories) {
+      const auto override = override_str.as_string()->get();
+      const std::string::size_type split_pos = override.find(':');
+      if (split_pos == std::string::npos || split_pos == 0 || split_pos == override.size() - 1) {
+        throw std::runtime_error("Invalid override description");
+      }
+      const auto site_id = std::stoi(override.substr(0, split_pos));
+      const auto num_territories = std::stoi(override.substr(split_pos + 1));
+      if (num_territories > FnSite::sites.at(FnSite::idx_for_id.at(site_id)).max_territories) {
+        throw std::runtime_error("Override is greater than territory count");
+      }
+      territory_overrides.insert_or_assign(site_id, num_territories);
+    }
+    options.set_territory_overrides(territory_overrides);
+  }
 
   // Locked (i.e. not discovered) sites
   // TODO: Support frontiernav.net URLs here.
@@ -381,8 +397,15 @@ void options_loader::save_to_file(const std::string& filename, const Options& op
     tbl.emplace(probe_quantities_opt_str, inventory);
   }
 
-  // TODO: Support overriding discovered territories.
-  // tbl.emplace("territories", toml::array{});
+  {
+    toml::array territories;
+    for (const auto& [site_id, num_territories] : options.get_territory_overrides()) {
+      territories.emplace_back(std::format("{}:{}", site_id, num_territories));
+    }
+    if (!territories.empty()) {
+      tbl.emplace(territory_overrides_opt_str, territories);
+    }
+  }
 
   // Locked (i.e. not discovered) sites
   {

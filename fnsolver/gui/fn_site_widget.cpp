@@ -1,8 +1,12 @@
 #include "fn_site_widget.h"
+
 #include <QLocale>
+#include <QMenu>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QSvgRenderer>
+#include <QActionGroup>
+
 #include "precious_resource_ui.h"
 #include "probe_ui.h"
 
@@ -12,13 +16,32 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent)
   setAttribute(Qt::WA_NoSystemBackground, true);
   update_tooltip_text();
 
+  // Discovered territories.
+  if (site->max_territories > 0) {
+    QActionGroup* territories_group = new QActionGroup(this);
+    for (int num_territories = 0; num_territories <= site->max_territories; ++num_territories) {
+      auto* action = territory_actions_.emplace_back(new QAction(tr("%n territories", "", num_territories), this));
+      action->setCheckable(true);
+      territories_group->addAction(action);
+      action->setChecked(site->territories == num_territories);
+      connect(action, &QAction::triggered, this, [this, num_territories] {
+        set_num_territories(num_territories);
+        Q_EMIT(territories_changed());
+      });
+      addAction(action);
+    }
+  }
+
   // Actions to change probe.
   auto sep = new QAction(this);
   sep->setSeparator(true);
   addAction(sep);
-  set_probes_actions_.reserve(Probe::probes.size());
+  auto* probes_action_group = new QActionGroup(this);
   for (const auto& probe : Probe::probes) {
-    auto* action = new QAction(this);
+    auto* action = probe_actions_.emplace(probe.probe_id, new QAction(this)).first->second;
+    action->setCheckable(true);
+    probes_action_group->addAction(action);
+    action->setChecked(data_probe_->probe_id == probe.probe_id);
     action->setIcon(QIcon(probe_image(&probe)));
     action->setText(probe_display_name(&probe));
     connect(action, &QAction::triggered, [this, &probe]() {
@@ -26,13 +49,22 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent)
       Q_EMIT(data_probe_changed(&probe));
     });
     addAction(action);
-    set_probes_actions_.push_back(action);
   }
 }
 
-void FnSiteWidget::set_data_probe(const Probe* dataProbe) {
-  data_probe_ = dataProbe;
+void FnSiteWidget::set_data_probe(const Probe* probe) {
+  data_probe_ = probe;
+  probe_actions_.at(data_probe_->probe_id)->setChecked(true);
   update();
+  update_tooltip_text();
+}
+
+void FnSiteWidget::set_num_territories(uint32_t num_territories) {
+  if (territory_actions_.empty()) {
+    return;
+  }
+  FnSite::override_territories(site_->site_id, num_territories);
+  territory_actions_.at(num_territories)->setChecked(true);
   update_tooltip_text();
 }
 
@@ -66,22 +98,35 @@ void FnSiteWidget::update_tooltip_text() {
     }
   }
   setToolTip(
-    tr(
-      // @formatter:off
-      "<strong>FN%1</strong><br>"
-      "%2<br>"
-      "<table>"
-      "<tr><th align=\"right\">Production:</th><td align=\"left\">%3</td></tr>"
-      "<tr><th align=\"right\">Revenue:</th><td align=\"left\">%4</td></tr>"
-      "<tr><th align=\"right\">Combat:</th><td align=\"left\">%5</td></tr>"
-      "<tr><th align=\"right\">Ore:</th><td align=\"left\">%6</td></tr>"
-      "</table>"
-      // @formatter:on
-    )
+    tr(R"(
+<strong>FN%1</strong><br>
+%2<br>
+%3 of %4 territories found<br>
+<table>
+  <tr>
+    <th align="right">Production:</th>
+    <td align="left">%5</td>
+  </tr>
+  <tr>
+    <th align="right">Revenue:</th>
+    <td align="left">%6</td>
+  </tr>
+  <tr>
+    <th align="right">Combat:</th>
+    <td align="left">%7</td>
+  </tr>
+  <tr>
+    <th align="right">Ore:</th>
+    <td align="left">%8</td>
+  </tr>
+</table>
+    )")
     .arg(site_->site_id)
     .arg(data_probe() == nullptr
            ? tr("No probe")
            : probe_display_name(data_probe()))
+    .arg(site_->territories)
+    .arg(site_->max_territories)
     .arg(site_->production_grade())
     .arg(site_->revenue_grade())
     .arg(site_->combat)

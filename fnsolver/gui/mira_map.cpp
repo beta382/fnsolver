@@ -44,6 +44,7 @@ MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout
               calculate_links();
               Q_EMIT(site_probe_map_changed());
             });
+    connect(siteWidget, &FnSiteWidget::territories_changed, this, &MiraMap::site_probe_map_changed);
     auto& siteButton =
       site_widgets_.emplace_back(map_scene_.addWidget(siteWidget));
     // Site data stores the center point, so we need to half it to get the
@@ -121,9 +122,10 @@ void MiraMap::calculate_site_widgets() {
     auto* fn_site_widget = dynamic_cast<FnSiteWidget*>(
       dynamic_cast<QGraphicsProxyWidget*>(widget.get())->widget());
 
-    const auto site = fn_site_widget->site();
-    const auto probe = layout_->get_probe(*site);
+    const auto* site = fn_site_widget->site();
+    const auto* probe = layout_->get_probe(*site);
     fn_site_widget->set_data_probe(probe);
+    fn_site_widget->set_num_territories(site->territories);
   }
 
   calculate_links();

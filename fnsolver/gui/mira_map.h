@@ -27,6 +27,7 @@ protected:
 
 private:
   using GraphicsItemPtr = std::unique_ptr<QGraphicsItem, QGraphicsItemDeleter>;
+  // These values came from trial-and-error to feel best.
   static constexpr auto zoom_factor = 0.25;
   static constexpr auto z_sites = 0;
   static constexpr auto z_combo = -5;

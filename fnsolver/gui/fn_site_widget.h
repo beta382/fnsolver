@@ -26,10 +26,12 @@ public:
     return data_probe_;
   }
 
-  void set_data_probe(const Probe* dataProbe);
+  void set_data_probe(const Probe* probe);
+  void set_num_territories(uint32_t num_territories);
 
 Q_SIGNALS:
   void data_probe_changed(const Probe* dataProbe);
+  void territories_changed();
 
 protected:
   void paintEvent(QPaintEvent* event) override;
@@ -37,8 +39,9 @@ protected:
 private:
   const FnSite* site_;
   bool tooltip_shown_ = false;
-  std::vector<QAction*> set_probes_actions_;
   const Probe* data_probe_;
+  std::unordered_map<uint32_t, QAction*> probe_actions_;
+  std::vector<QAction*> territory_actions_;
 
   void update_tooltip_text();
 };

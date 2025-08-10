@@ -62,6 +62,7 @@ private:
   void save_to_path(const QString& path);
   bool safe_to_close_file();
   void update_options_seed();
+  void update_options_territories();
   /** Put a basic probe on any site not included in the layout. */
   static Layout fill_layout(std::vector<Placement> seed, std::vector<Placement> locked_sites);
 
