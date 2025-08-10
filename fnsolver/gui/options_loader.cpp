@@ -220,38 +220,61 @@ Options options_loader::load_from_file(const std::string& filename) {
   }
 
   // Locked (i.e. not discovered) sites
-  // TODO: Support frontiernav.net URLs here.
   if (tbl.contains(locked_sites_opt_str)) {
     const auto locked_sites = tbl.at(locked_sites_opt_str).as_array();
     std::vector<Placement> placements;
-    placements.reserve(locked_sites->size());
-    for (const auto& site_id : *locked_sites) {
-      placements.emplace_back(
-        FnSite::sites.at(FnSite::idx_for_id.at(site_id.as_integer()->get())),
-        Probe::probes.at(Probe::idx_for_shorthand.at("X"))
-      );
+    // Try fronteirnav.net URL first.
+    std::string frontiernav_url;
+    std::optional<Layout> maybe_layout;
+    if (!locked_sites->empty()
+      && locked_sites->front().is_string()
+      && (maybe_layout = Layout::from_frontier_nav_net_url(locked_sites->front().as_string()->get()))) {
+      placements = maybe_layout->get_placements();
+      std::erase_if(placements, [](const Placement& placement) {
+        return placement.get_probe().probe_type != Probe::Type::none;
+      });
+    }
+    else {
+      placements.reserve(locked_sites->size());
+      for (const auto& site_id : *locked_sites) {
+        placements.emplace_back(
+          FnSite::sites.at(FnSite::idx_for_id.at(site_id.as_integer()->get())),
+          Probe::probes.at(Probe::idx_for_shorthand.at("X"))
+        );
+      }
     }
     options.set_locked_sites(placements);
   }
 
   // Seed (i.e. initial layout)
-  // TODO: Support frontiernav.net URLs here.
   if (tbl.contains(seed_opt_str)) {
     const auto seed = tbl.at(seed_opt_str).as_array();
     std::vector<Placement> placements;
-    placements.reserve(seed->size());
-    for (const auto& placement_str : *seed) {
-      const auto placement = placement_str.as_string()->get();
-      const std::string::size_type split_pos = placement.find(':');
-      if (split_pos == std::string::npos || split_pos == 0 || split_pos == placement.size() - 1) {
-        throw std::runtime_error("Invalid placement description");
+    // Try fronteirnav.net URL first.
+    std::optional<Layout> maybe_layout;
+    if (!seed->empty()
+      && seed->front().is_string()
+      && (maybe_layout = Layout::from_frontier_nav_net_url(seed->front().as_string()->get()))) {
+      placements = maybe_layout->get_placements();
+      std::erase_if(placements, [](const Placement& placement) {
+        return placement.get_probe().probe_type == Probe::Type::none;
+      });
+    }
+    else {
+      placements.reserve(seed->size());
+      for (const auto& placement_str : *seed) {
+        const auto placement = placement_str.as_string()->get();
+        const std::string::size_type split_pos = placement.find(':');
+        if (split_pos == std::string::npos || split_pos == 0 || split_pos == placement.size() - 1) {
+          throw std::runtime_error("Invalid placement description");
+        }
+        const auto site_id = std::stoi(placement.substr(0, split_pos));
+        const auto shorthand = placement.substr(split_pos + 1);
+        placements.emplace_back(
+          FnSite::sites.at(FnSite::idx_for_id.at(site_id)),
+          Probe::probes.at(Probe::idx_for_shorthand.at(shorthand))
+        );
       }
-      const auto site_id = std::stoi(placement.substr(0, split_pos));
-      const auto shorthand = placement.substr(split_pos + 1);
-      placements.emplace_back(
-        FnSite::sites.at(FnSite::idx_for_id.at(site_id)),
-        Probe::probes.at(Probe::idx_for_shorthand.at(shorthand))
-      );
     }
     options.set_seed(placements);
   }

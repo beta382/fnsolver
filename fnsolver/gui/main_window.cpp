@@ -56,6 +56,8 @@ void MainWindow::init_ui() {
   menuFile->addAction(actions.file_save);
   menuFile->addAction(actions.file_save_as);
   menuFile->addSeparator();
+  menuFile->addAction(actions.file_frontiernav_url);
+  menuFile->addSeparator();
   menuFile->addAction(actions.file_exit);
   // View menu
   auto* menuView = menuBar()->addMenu(tr("&View"));
@@ -159,6 +161,10 @@ void MainWindow::init_actions() {
   actions.file_save_as->setShortcut(QKeySequence::SaveAs);
   connect(actions.file_save_as, &QAction::triggered, this,
           &MainWindow::file_save_as);
+  // Open FrontierNav URL
+  actions.file_frontiernav_url = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpFaq),
+                                             tr("Open in FrontierNav.net..."), this);
+  connect(actions.file_frontiernav_url, &QAction::triggered, this, &MainWindow::file_frontiernav_url);
   // Exit
   actions.file_exit = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ApplicationExit),
                                   tr("E&xit"), this);
@@ -244,7 +250,7 @@ void MainWindow::open_from_path(const QString& path) {
     solver_options_ = options_loader::load_from_file(path.toStdString());
     layout_ = fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites());
     FnSite::reset_territories();
-    for (const auto &[site_id, territories] : solver_options_.get_territory_overrides()) {
+    for (const auto& [site_id, territories] : solver_options_.get_territory_overrides()) {
       FnSite::override_territories(site_id, territories);
     }
     update_options_seed();
@@ -416,6 +422,11 @@ void MainWindow::file_save_as() {
   const QFileInfo file_info(filenames.at(0));
   save_to_path(file_info.filePath());
   settings::set_last_file_dialog_path(file_info.absoluteDir().path());
+}
+
+void MainWindow::file_frontiernav_url() {
+  const QUrl url(QString::fromStdString(layout_.to_frontier_nav_net_url()), QUrl::TolerantMode);
+  QDesktopServices::openUrl(url);
 }
 
 void MainWindow::help_about() {

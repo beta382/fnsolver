@@ -31,6 +31,7 @@ private:
     QMenu* file_recent = nullptr;
     QAction* file_save = nullptr;
     QAction* file_save_as = nullptr;
+    QAction* file_frontiernav_url = nullptr;
     QAction* file_exit = nullptr;
     QAction* view_zoom_in = nullptr;
     QAction* view_zoom_out = nullptr;
@@ -71,13 +72,14 @@ private Q_SLOTS:
   void file_open();
   void file_save();
   void file_save_as();
+  void file_frontiernav_url();
   void help_about();
   void help_website();
   void data_changed();
   void probe_map_changed();
   void options_changed(const Options& options);
   void solve();
-  void solved(const Layout &layout);
+  void solved(const Layout& layout);
 };
 
 #endif //FNSOLVER_GUI_MAIN_WINDOW_H
