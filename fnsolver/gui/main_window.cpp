@@ -162,8 +162,7 @@ void MainWindow::init_actions() {
   connect(actions.file_save_as, &QAction::triggered, this,
           &MainWindow::file_save_as);
   // Open FrontierNav URL
-  actions.file_frontiernav_url = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpFaq),
-                                             tr("Open in FrontierNav.net..."), this);
+  actions.file_frontiernav_url = new QAction(tr("Open in FrontierNav.net..."), this);
   connect(actions.file_frontiernav_url, &QAction::triggered, this, &MainWindow::file_frontiernav_url);
   // Exit
   actions.file_exit = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ApplicationExit),
