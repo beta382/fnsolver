@@ -36,9 +36,10 @@ void SolutionWidget::set_layout(const Layout& layout) {
       QString("<tr><td>%1</td><td>%2</td><td>%3</td></tr>")
       .arg(precious_resource_display_name(static_cast<precious_resource::Type>(resource_ix)))
       .arg(tr("%1/%2")
-           .arg(QLocale().toString(static_cast<double>(quantity) / 100.0))
-           .arg(QLocale().toString(static_cast<double>(max_quantity) / 100.0)))
-      .arg(tr("%1%").arg(static_cast<double>(quantity) / static_cast<double>(max_quantity) * 100.0))
+           .arg(QLocale().toString(static_cast<double>(quantity) / 100.0, 'g', 3))
+           .arg(QLocale().toString(static_cast<double>(max_quantity) / 100.0, 'g', 3)))
+      .arg(tr("%1%")
+        .arg(QLocale().toString(static_cast<double>(quantity) / static_cast<double>(max_quantity) * 100.0, 'g', 4)))
     );
   }
   resources_label_->setText(
