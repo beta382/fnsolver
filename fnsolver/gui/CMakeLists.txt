@@ -6,8 +6,12 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 6.8 REQUIRED COMPONENTS
     Core
+    LinguistTools
     Svg
     Widgets
+)
+qt_standard_project_setup(
+    I18N_SOURCE_LANGUAGE en_US
 )
 include(FetchContent)
 FetchContent_Declare(
@@ -68,6 +72,11 @@ target_link_libraries(${TARGET} PRIVATE
     tomlplusplus::tomlplusplus
 )
 target_compile_definitions(${TARGET} PRIVATE QT_NO_KEYWORDS)
+
+qt_add_translations(${TARGET}
+    TS_FILE_DIR translations
+    PLURALS_TS_FILE translations/${PROJECT_NAME}_en_US.ts
+)
 
 install(
     TARGETS ${TARGET}

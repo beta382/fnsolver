@@ -78,8 +78,10 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
   // Status
   widgets_.best_score->setText(locale.toString(iteration_status.best_score));
   widgets_.killed->setText(locale.toString(iteration_status.num_killed));
-  widgets_.last_improvement->setText(tr("%n iteration(s) ago", "",
-                                        iteration_status.iteration - iteration_status.last_improvement));
+  const auto last_improvement_iteration = iteration_status.iteration - iteration_status.last_improvement;
+  widgets_.last_improvement->setText(last_improvement_iteration == 0
+                                       ? tr("This iteration")
+                                       : tr("%n iteration(s) ago", "", last_improvement_iteration));
 
   // Yields
   const auto resource_yield = iteration_status.best_layout.get_resource_yield();
