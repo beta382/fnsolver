@@ -89,6 +89,10 @@ MaxEffectiveMiningWidget::MaxEffectiveMiningWidget(QWidget* parent): ScoreFuncti
   storage_factor_->setMinimum(0);
 }
 
+void MaxEffectiveMiningWidget::set_args(const ScoreFunction::args_map_t& args) {
+  storage_factor_->setValue(args.at("storage_factor"));
+}
+
 std::optional<ScoreFunction> MaxEffectiveMiningWidget::get_score_function() const {
   return ScoreFunction::create_max_effective_mining(storage_factor_->value());
 }
@@ -135,6 +139,12 @@ RatioWidget::RatioWidget(QWidget* parent): ScoreFunctionSelectWidget(parent),
   storage_factor_->setMinimum(0);
 }
 
+void RatioWidget::set_args(const ScoreFunction::args_map_t& args) {
+  mining_factor_->setValue(args.at("mining"));
+  revenue_factor_->setValue(args.at("revenue"));
+  storage_factor_->setValue(args.at("storage"));
+}
+
 std::optional<ScoreFunction> RatioWidget::get_score_function() const {
   return ScoreFunction::create_ratio(mining_factor_->value(), revenue_factor_->value(), storage_factor_->value());
 }
@@ -157,6 +167,12 @@ WeightsWidget::WeightsWidget(QWidget* parent): ScoreFunctionSelectWidget(parent)
   revenue_weight_->setMinimum(0);
   form_->addRow(tr("Storage Weight"), storage_weight_);
   storage_weight_->setMinimum(0);
+}
+
+void WeightsWidget::set_args(const ScoreFunction::args_map_t& args) {
+  mining_weight_->setValue(args.at("mining"));
+  revenue_weight_->setValue(args.at("revenue"));
+  storage_weight_->setValue(args.at("storage"));
 }
 
 std::optional<ScoreFunction> WeightsWidget::get_score_function() const {
@@ -227,8 +243,16 @@ std::optional<ScoreFunction> ScoreFunctionWidget::get_score_function() const {
   return {};
 }
 
-void ScoreFunctionWidget::set_selection(std::optional<ScoreFunction::Type> selection) {
+void ScoreFunctionWidget::set_selection(const std::optional<ScoreFunction>& selection) {
   for (const auto& widget : widgets_) {
-    widget->set_selected(widget->get_score_function_type() == selection);
+    // Either both the widget and selection have no value or they have matching types.
+    const auto selected = (
+      widget->get_score_function_type().has_value() == false && selection.has_value() == false
+    ) || (widget->get_score_function_type().has_value() == true && selection.has_value() == true
+      && widget->get_score_function_type().value() == ScoreFunction::type_for_str.at(selection->get_name()));
+    widget->set_selected(selected);
+    if (selected && selection.has_value()) {
+      widget->set_args(selection->get_args_map());
+    }
   }
 }

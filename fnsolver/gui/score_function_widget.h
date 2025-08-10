@@ -23,6 +23,9 @@ class ScoreFunctionSelectWidget : public QWidget {
 public:
   explicit ScoreFunctionSelectWidget(QWidget* parent = nullptr);
   void set_selected(bool selected);
+
+  virtual void set_args(const ScoreFunction::args_map_t&) {}
+
   bool is_selected() const;
   [[nodiscard]] virtual std::optional<ScoreFunction> get_score_function() const = 0;
   virtual std::optional<ScoreFunction::Type> get_score_function_type() const = 0;
@@ -73,6 +76,7 @@ class MaxEffectiveMiningWidget : public ScoreFunctionSelectWidget {
 
 public:
   explicit MaxEffectiveMiningWidget(QWidget* parent = nullptr);
+  void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -112,6 +116,7 @@ class RatioWidget : public ScoreFunctionSelectWidget {
 
 public:
   explicit RatioWidget(QWidget* parent = nullptr);
+  void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -129,6 +134,7 @@ class WeightsWidget : public ScoreFunctionSelectWidget {
 
 public:
   explicit WeightsWidget(QWidget* parent = nullptr);
+  void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -155,7 +161,7 @@ public:
 
   void set_allowed(const std::unordered_set<ScoreFunction::Type>& allowed);
 
-  void set_selection(std::optional<ScoreFunction::Type> selection);
+  void set_selection(const std::optional<ScoreFunction>& selection);
 
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const;
 

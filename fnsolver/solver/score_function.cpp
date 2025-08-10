@@ -111,29 +111,23 @@ ScoreFunction::ScoreFunction(const ScoreFunction& other) {
 }
 
 ScoreFunction& ScoreFunction::operator=(const ScoreFunction& other) {
-  return *this = from_name_and_args(other.name, other.args);
+  return *this = from_name_and_args(other.name, other.get_args_map());
 }
 
-ScoreFunction::args_t::value_type::second_type find_arg(const ScoreFunction::args_t& args, const std::string& arg) {
-  return std::ranges::find_if(args, [&arg](const ScoreFunction::args_t::value_type& check) {
-    return check.first == arg;
-  })->second;
-}
-
-ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const args_t& args) {
+ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const args_map_t& args) {
   switch (type_for_str.at(name)) {
     case Type::max_mining:
       return create_max_mining();
     case Type::max_effective_mining:
-      return create_max_effective_mining(find_arg(args, "storage_factor"));
+      return create_max_effective_mining(args.at("storage_factor"));
     case Type::max_revenue:
       return create_max_revenue();
     case Type::max_storage:
       return create_max_storage();
     case Type::ratio:
-      return create_ratio(find_arg(args, "mining"), find_arg(args, "revenue"), find_arg(args, "storage"));
+      return create_ratio(args.at("mining"), args.at("revenue"), args.at("storage"));
     case Type::weights:
-      return create_weights(find_arg(args, "mining"), find_arg(args, "revenue"), find_arg(args, "storage"));
+      return create_weights(args.at("mining"), args.at("revenue"), args.at("storage"));
   }
   assert(false);
 }
@@ -154,6 +148,10 @@ ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const s
       return create_weights(args.at(0), args.at(1), args.at(2));
   }
   assert(false);
+}
+
+ScoreFunction::args_map_t ScoreFunction::get_args_map() const {
+  return args_map_t(args.cbegin(), args.cend());
 }
 
 std::string ScoreFunction::get_details_str() const {

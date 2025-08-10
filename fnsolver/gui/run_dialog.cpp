@@ -35,9 +35,7 @@ RunDialog::RunDialog(Options* solver_options, QWidget* parent): QDialog(parent),
     ScoreFunction::Type::ratio,
     ScoreFunction::Type::weights,
   });
-  widgets_.scorefunction->set_selection(
-    ScoreFunction::type_for_str.at(solver_options_->get_score_function().get_name())
-  );
+  widgets_.scorefunction->set_selection(solver_options_->get_score_function());
 
   // Tiebreaker
   auto* tiebreaker_container = new QWidget(this);
@@ -73,9 +71,7 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
     ScoreFunction::Type::max_storage,
   });
   if (solver_options_->get_maybe_tiebreaker_function().has_value()) {
-    widgets_.tiebreaker->set_selection(
-      ScoreFunction::type_for_str.at(solver_options_->get_maybe_tiebreaker_function()->get_name())
-    );
+    widgets_.tiebreaker->set_selection(solver_options_->get_maybe_tiebreaker_function());
   }
 
   // Constraints
