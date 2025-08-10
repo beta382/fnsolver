@@ -37,7 +37,7 @@ uint32_t PreciousResourceConstraintWidget::get_value() const {
   if (type_ == Type::Any) {
     return 1;
   }
-  return std::ceill(widgets_.constraint_value->value() * 100.0);
+  return static_cast<uint32_t>(std::ceil(widgets_.constraint_value->value() * 100.0));
 }
 
 void PreciousResourceConstraintWidget::set_value(uint32_t value) {

@@ -4,7 +4,13 @@
 
 namespace options_loader {
 Options default_options();
+
+/**
+ *
+ * @throws std::runtime_error If the file cannot be loaded or is invalid.
+ */
 Options load_from_file(const std::string& filename);
+
 void save_to_file(const std::string& filename, const Options& options);
 }
 

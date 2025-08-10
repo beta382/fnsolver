@@ -109,6 +109,27 @@ const std::string mutation_rate_opt_str = "mutation-rate";
 const std::string max_age_opt_str = "max-age";
 const std::string num_threads_opt_str = "threads";
 
+/**
+ * Helper to retrieve values of type @p T from a toml table.
+ * @throws std::runtime_error if the node is not of type @p T.
+ */
+template <typename T, std::enable_if_t<toml::is_value<T> || toml::is_container<T>, bool>  = true>
+const T& coerce_toml_node(const toml::node& node) {
+  if (!node.is<T>()) {
+    throw std::runtime_error("Incorrect type");
+  }
+  return node.ref<T>();
+}
+
+template <typename T,
+          std::enable_if_t<std::is_integral_v<T>
+                           && !std::is_same_v<T, int64_t>
+                           && !std::is_same_v<T, bool>
+                           , bool>  = true>
+T coerce_toml_node(const toml::node& node) {
+  return static_cast<T>(coerce_toml_node<int64_t>(node));
+}
+
 void merge_probe_list(probe_quantity_map& a, const probe_quantity_map& b) {
   for (const auto& [k,v] : b) {
     a.insert_or_assign(k, v);
@@ -116,32 +137,37 @@ void merge_probe_list(probe_quantity_map& a, const probe_quantity_map& b) {
 }
 
 Options options_loader::load_from_file(const std::string& filename) {
-  // May throw on invalid, let caller handle it.
+  // There are many things that throw in here. Anything thrown is caught by the caller.
+
   const auto tbl = toml::parse_file(filename);
 
   auto options = default_options();
 
   // Auto-confirm
   if (tbl.contains(confirm_opt_str)) {
-    options.set_auto_confirm(tbl.at(confirm_opt_str).as_boolean());
+    options.set_auto_confirm(coerce_toml_node<bool>(tbl.at(confirm_opt_str)));
   }
 
   // Score function
   if (tbl.contains(score_function_opt_str)) {
-    const auto score_function = tbl.at(score_function_opt_str).as_array();
-    std::vector<double> args;
-    for (auto args_it = score_function->cbegin() + 1; args_it != score_function->cend(); ++args_it) {
-      args.push_back(args_it->as_floating_point()->get());
-      if (args.back() < 0) {
-        throw std::runtime_error("Invalid value for score function argument");
+    const auto& score_function = coerce_toml_node<toml::array>(tbl.at(score_function_opt_str));
+    if (!score_function.empty()) {
+      std::vector<double> args;
+      for (auto args_it = score_function.cbegin() + 1; args_it != score_function.cend(); ++args_it) {
+        args.push_back(coerce_toml_node<double>(*args_it));
+        if (args.back() < 0) {
+          throw std::runtime_error("Invalid value for score function argument");
+        }
       }
+      options.set_score_function(
+        ScoreFunction::from_name_and_args(coerce_toml_node<std::string>(score_function.front()), args)
+      );
     }
-    options.set_score_function(ScoreFunction::from_name_and_args(score_function->front().as_string()->get(), args));
   }
 
   // Tiebreaker
   if (tbl.contains(tiebreaker_function_opt_str)) {
-    const auto tiebreaker = tbl.at(tiebreaker_function_opt_str).as_string()->get();
+    const auto tiebreaker = coerce_toml_node<std::string>(tbl.at(tiebreaker_function_opt_str));
     if (tiebreaker.empty()) {
       options.set_maybe_tiebreaker_function({});
     }
@@ -168,8 +194,8 @@ Options options_loader::load_from_file(const std::string& filename) {
     for (const auto& probe : Probe::probes) {
       working_inventory.emplace(probe.shorthand, 0);
     }
-    for (const auto& entry : *(tbl.at(probe_quantities_opt_str).as_array())) {
-      const auto& item = entry.as_string()->get();
+    for (const auto& entry : coerce_toml_node<toml::array>(tbl.at(probe_quantities_opt_str))) {
+      const auto& item = coerce_toml_node<std::string>(entry);
       // Check for specials.
       const auto probe_list = special_probe_lists.find(item);
       if (probe_list != special_probe_lists.end()) {
@@ -201,10 +227,10 @@ Options options_loader::load_from_file(const std::string& filename) {
   }
 
   if (tbl.contains(territory_overrides_opt_str)) {
-    const auto territories = tbl.at(territory_overrides_opt_str).as_array();
+    const auto& territories = coerce_toml_node<toml::array>(tbl.at(territory_overrides_opt_str));
     std::map<FnSite::id_t, uint32_t> territory_overrides;
-    for (const auto& override_str : *territories) {
-      const auto override = override_str.as_string()->get();
+    for (const auto& override_str : territories) {
+      const auto& override = coerce_toml_node<std::string>(override_str);
       const std::string::size_type split_pos = override.find(':');
       if (split_pos == std::string::npos || split_pos == 0 || split_pos == override.size() - 1) {
         throw std::runtime_error("Invalid override description");
@@ -221,24 +247,24 @@ Options options_loader::load_from_file(const std::string& filename) {
 
   // Locked (i.e. not discovered) sites
   if (tbl.contains(locked_sites_opt_str)) {
-    const auto locked_sites = tbl.at(locked_sites_opt_str).as_array();
+    const auto& locked_sites = coerce_toml_node<toml::array>(tbl.at(locked_sites_opt_str));
     std::vector<Placement> placements;
     // Try fronteirnav.net URL first.
     std::string frontiernav_url;
     std::optional<Layout> maybe_layout;
-    if (!locked_sites->empty()
-      && locked_sites->front().is_string()
-      && (maybe_layout = Layout::from_frontier_nav_net_url(locked_sites->front().as_string()->get()))) {
+    if (!locked_sites.empty()
+      && locked_sites.front().is_string()
+      && (maybe_layout = Layout::from_frontier_nav_net_url(coerce_toml_node<std::string>(locked_sites.front())))) {
       placements = maybe_layout->get_placements();
       std::erase_if(placements, [](const Placement& placement) {
         return placement.get_probe().probe_type != Probe::Type::none;
       });
     }
     else {
-      placements.reserve(locked_sites->size());
-      for (const auto& site_id : *locked_sites) {
+      placements.reserve(locked_sites.size());
+      for (const auto& site_id : locked_sites) {
         placements.emplace_back(
-          FnSite::sites.at(FnSite::idx_for_id.at(site_id.as_integer()->get())),
+          FnSite::sites.at(FnSite::idx_for_id.at(coerce_toml_node<FnSite::id_t>(site_id))),
           Probe::probes.at(Probe::idx_for_shorthand.at("X"))
         );
       }
@@ -248,22 +274,22 @@ Options options_loader::load_from_file(const std::string& filename) {
 
   // Seed (i.e. initial layout)
   if (tbl.contains(seed_opt_str)) {
-    const auto seed = tbl.at(seed_opt_str).as_array();
+    const auto& seed = coerce_toml_node<toml::array>(tbl.at(seed_opt_str));
     std::vector<Placement> placements;
     // Try fronteirnav.net URL first.
     std::optional<Layout> maybe_layout;
-    if (!seed->empty()
-      && seed->front().is_string()
-      && (maybe_layout = Layout::from_frontier_nav_net_url(seed->front().as_string()->get()))) {
+    if (!seed.empty()
+      && seed.front().is_string()
+      && (maybe_layout = Layout::from_frontier_nav_net_url(coerce_toml_node<std::string>(seed.front())))) {
       placements = maybe_layout->get_placements();
       std::erase_if(placements, [](const Placement& placement) {
         return placement.get_probe().probe_type == Probe::Type::none;
       });
     }
     else {
-      placements.reserve(seed->size());
-      for (const auto& placement_str : *seed) {
-        const auto placement = placement_str.as_string()->get();
+      placements.reserve(seed.size());
+      for (const auto& placement_str : seed) {
+        const auto& placement = coerce_toml_node<std::string>(placement_str);
         const std::string::size_type split_pos = placement.find(':');
         if (split_pos == std::string::npos || split_pos == 0 || split_pos == placement.size() - 1) {
           throw std::runtime_error("Invalid placement description");
@@ -281,15 +307,15 @@ Options options_loader::load_from_file(const std::string& filename) {
 
   // Force seed
   if (tbl.contains(force_seed_opt_str)) {
-    options.set_force_seed(tbl.at(force_seed_opt_str).as_boolean()->get());
+    options.set_force_seed(coerce_toml_node<bool>(tbl.at(force_seed_opt_str)));
   }
 
   // Precious resources
   if (tbl.contains(precious_resources_opt_str)) {
-    const auto precious_resources = tbl.at(precious_resources_opt_str).as_array();
+    const auto& precious_resources = coerce_toml_node<toml::array>(tbl.at(precious_resources_opt_str));
     std::array<uint32_t, precious_resource::count> working_minimums{};
-    for (const auto& entry : *precious_resources) {
-      const auto& item = entry.as_string()->get();
+    for (const auto& entry : precious_resources) {
+      const auto& item = coerce_toml_node<std::string>(entry);
       const std::string::size_type split_pos = item.find(':');
       if (split_pos == std::string::npos || split_pos == 0 || split_pos == item.size() - 1) {
         throw std::runtime_error("Invalid precious resource description");
@@ -328,36 +354,36 @@ Options options_loader::load_from_file(const std::string& filename) {
 
   // Yield minimums
   if (tbl.contains(production_minimum_opt_str)) {
-    options.set_production_minimum(tbl.at(production_minimum_opt_str).as_integer()->get());
+    options.set_production_minimum(coerce_toml_node<uint32_t>(tbl.at(production_minimum_opt_str)));
   }
   if (tbl.contains(revenue_minimum_opt_str)) {
-    options.set_revenue_minimum(tbl.at(revenue_minimum_opt_str).as_integer()->get());
+    options.set_revenue_minimum(coerce_toml_node<uint32_t>(tbl.at(revenue_minimum_opt_str)));
   }
   if (tbl.contains(storage_minimum_opt_str)) {
-    options.set_storage_minimum(tbl.at(storage_minimum_opt_str).as_integer()->get());
+    options.set_storage_minimum(coerce_toml_node<uint32_t>(tbl.at(storage_minimum_opt_str)));
   }
 
   // Solver params
   if (tbl.contains(iterations_opt_str)) {
-    options.set_iterations(tbl.at(iterations_opt_str).as_integer()->get());
+    options.set_iterations(coerce_toml_node<uint32_t>(tbl.at(iterations_opt_str)));
   }
   if (tbl.contains(bonus_iterations_opt_str)) {
-    options.set_bonus_iterations(tbl.at(bonus_iterations_opt_str).as_integer()->get());
+    options.set_bonus_iterations(coerce_toml_node<uint32_t>(tbl.at(bonus_iterations_opt_str)));
   }
   if (tbl.contains(population_size_opt_str)) {
-    options.set_population_size(tbl.at(population_size_opt_str).as_integer()->get());
+    options.set_population_size(coerce_toml_node<uint32_t>(tbl.at(population_size_opt_str)));
   }
   if (tbl.contains(num_offspring_opt_str)) {
-    options.set_num_offspring(tbl.at(num_offspring_opt_str).as_integer()->get());
+    options.set_num_offspring(coerce_toml_node<uint32_t>(tbl.at(num_offspring_opt_str)));
   }
   if (tbl.contains(mutation_rate_opt_str)) {
-    options.set_mutation_rate(tbl.at(mutation_rate_opt_str).as_floating_point()->get());
+    options.set_mutation_rate(coerce_toml_node<double>(tbl.at(mutation_rate_opt_str)));
   }
   if (tbl.contains(max_age_opt_str)) {
-    options.set_max_age(tbl.at(max_age_opt_str).as_integer()->get());
+    options.set_max_age(coerce_toml_node<uint32_t>(tbl.at(max_age_opt_str)));
   }
   if (tbl.contains(num_threads_opt_str)) {
-    options.set_num_threads(tbl.at(num_threads_opt_str).as_integer()->get());
+    options.set_num_threads(coerce_toml_node<uint32_t>(tbl.at(num_threads_opt_str)));
   }
 
   return options;
