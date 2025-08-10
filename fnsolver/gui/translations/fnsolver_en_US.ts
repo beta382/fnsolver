@@ -15,7 +15,7 @@
 <context>
     <name>RunProgressDialog</name>
     <message numerus="yes">
-        <location filename="../../fnsolver/gui/run_progress_dialog.cpp" line="84"/>
+        <location filename="../../fnsolver/gui/run_progress_dialog.cpp" line="86"/>
         <source>%n iteration(s) ago</source>
         <translation>
             <numerusform>1 iteration ago</numerusform>

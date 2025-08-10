@@ -129,7 +129,7 @@ ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const a
     case Type::weights:
       return create_weights(args.at("mining"), args.at("revenue"), args.at("storage"));
   }
-  assert(false);
+  throw std::logic_error("Unknown score function type");
 }
 
 ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const std::vector<double>& args) {
@@ -147,7 +147,7 @@ ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const s
     case Type::weights:
       return create_weights(args.at(0), args.at(1), args.at(2));
   }
-  assert(false);
+  throw std::logic_error("Unknown score function type");
 }
 
 ScoreFunction::args_map_t ScoreFunction::get_args_map() const {
