@@ -93,7 +93,6 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
   layout->addWidget(buttons);
   buttons->addButton(QDialogButtonBox::Cancel);
   buttons->addButton(tr("Solve"), QDialogButtonBox::AcceptRole);
-  // TODO: Make this do run the simulation.
   connect(buttons, &QDialogButtonBox::accepted, this, &RunDialog::solve);
   connect(buttons, &QDialogButtonBox::rejected, this, &RunDialog::reject);
 }

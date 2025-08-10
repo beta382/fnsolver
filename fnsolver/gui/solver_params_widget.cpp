@@ -8,7 +8,6 @@ SolverParamsWidget::SolverParamsWidget(const Options* solver_options, QWidget* p
   AbstractSolverOptionsWidget(parent) {
   auto* layout = new QFormLayout(this);
 
-  // TODO: Find a better way to display help.
   auto* desc = new DescriptionWidget(tr(R"(
 The FnSolver algorithm can be simplified as follows:
 
