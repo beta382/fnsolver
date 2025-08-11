@@ -9,6 +9,7 @@
 #include <fnsolver/util/output.hpp>
 
 #include <array>
+#include <atomic>
 #include <csignal>
 #include <format>
 #include <iostream>
@@ -279,7 +280,7 @@ void output_options_report(const Options &options) {
 }
 } // namespace
 
-bool should_stop = false;
+std::atomic<bool> should_stop = false;
 
 int main(int argc, char **argv) {
   std::optional<Options> maybe_options;
@@ -322,6 +323,7 @@ int main(int argc, char **argv) {
   }
 
   const Solver solver(std::move(options));
+
   auto progress_callback = [&options](const Solver::IterationStatus &iteration_status) {
     const std::string last_improvement_str = [=]() {
       const uint32_t iterations_ago = iteration_status.iteration - iteration_status.last_improvement;
@@ -343,10 +345,12 @@ int main(int argc, char **argv) {
     std::cout << std::format("  Yield for best score:") << std::endl;
     iteration_status.best_layout.output_report(std::cout, 4, false, true, false, false);
   };
+  auto stop_callback = []() { return should_stop.load(); };
+
   std::signal(SIGINT, [](int) { should_stop = true; });
-  auto stop_callback = []() { return should_stop; };
   const Solution solution = solver.run(progress_callback, stop_callback);
   std::signal(SIGINT, SIG_DFL);
+
   if (should_stop) {
     std::cout << "Solver terminated early by user input" << std::endl;
   }

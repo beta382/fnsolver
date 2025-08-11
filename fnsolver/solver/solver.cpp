@@ -24,8 +24,6 @@
 #include <vector>
 
 namespace {
-std::atomic<bool> should_stop;
-
 ScoreFunction create_constrained_score_function(const Options &options) {
   const std::vector<size_t> nonzero_precious_resource_minimum_idxs = [&]() {
     std::vector<size_t> nonzero_precious_resource_minimum_idxs;
@@ -99,7 +97,7 @@ Solver::Solver(Options options)
         return inventory;
       }()) {}
 
-Solution Solver::run(ProgressCallback progress_callback, StopCallback stop_callback) const {
+Solution Solver::run(const ProgressCallback& progress_callback, const StopCallback& stop_callback) const {
   std::mt19937 mt_engine(std::random_device{}());
   std::vector<Solution> population;
   for (uint32_t i = 0; i < options.get_population_size(); ++i) {

@@ -34,7 +34,7 @@ class Solver {
     Solver &operator=(const Solver &other) = delete;
     Solver &operator=(Solver &&other) = delete;
 
-    Solution run(ProgressCallback progress_callback, StopCallback stop_callback) const;
+    Solution run(const ProgressCallback& progress_callback, const StopCallback& stop_callback) const;
 
   private:
     Options options;
