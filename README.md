@@ -7,6 +7,8 @@ This software is inspired by [XenoProbes](https://github.com/minneyar/xenoprobes
 This software uses the following third-party libraries; see [3rd-party-licenses](3rd-party-licenses) for their licenses:
 
 - [CLI11](https://github.com/CLIUtils/CLI11)
+- [Qt](https://www.qt.io)
+- [Toml++](https://github.com/marzer/tomlplusplus)
 
 ## Table of Contents
 
@@ -62,13 +64,11 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
   - Considers additional probes in the inventory when generating mutations (instead of a solution lineage being stuck with only the initially selected subset of the inventory)
   - More uniformly generates mutations (XenoProbes has a bias towards mutating later FrontierNav sites)
 - \+ ~60-80% faster (tested across various option combinations)
-- \- No GUI
-
 
 
 ## Running
 
-FnSolver is a Command Line Interface (CLI) application.
+FnSolver is available in both graphical and command-line variants. The instructions below apply to the command-line variant.
 
 If you're a Windows user who downloaded the [pre-built executable](https://github.com/beta382/fnsolver/releases) (and you aren't familiar with running CLI applications):
 
@@ -513,13 +513,15 @@ These examples use the pre-built Windows executable to demonstrate.
 
 ## Building
 
-FnSolver does not require any external libraries. You only need a need a C++ toolchain that supports C++20, and a relatively up-to-date version of CMake.
+FnSolver requires a C++ toolchain that supports C++20, Qt 6.8 or higher, and CMake 3.28 or higher.
 
 If you are building on Linux, it is recommended to configure and build from the provided CMake presets, which are:
 
 - `debug` (GCC Debug build)
 - `release` (GCC Release build with optimizations)
 - `release-win` (mingw-w64 GCC cross-compile for Windows Release build with optimizations; requires mingw-w64)
+- `debug-win-msvc` (MSVC Windows Debug build)
+- `release-win-msvc` (MSVC Windows Release build with optimizations)
 
 Run the following commands:
 
