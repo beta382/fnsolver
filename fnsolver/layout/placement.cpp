@@ -15,5 +15,5 @@ const Probe &Placement::get_probe() const {
 }
 
 bool operator==(const Placement& lhs, const Placement& rhs) {
-  return *lhs.site == *rhs.site && *lhs.probe == *rhs.probe;
+  return lhs.site == rhs.site && lhs.probe == rhs.probe;
 }
