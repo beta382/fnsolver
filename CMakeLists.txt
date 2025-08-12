@@ -6,7 +6,8 @@ project(fnsolver
     HOMEPAGE_URL "https://github.com/beta382/fnsolver"
 )
 set(PROJECT_DISPLAY_NAME "FnSolver")
-set(PROJECT_ORGANIZATION_NAME "beta382")
+set(PROJECT_AUTHOR "beta382")
+set(PROJECT_ORGANIZATION_NAME "${PROJECT_AUTHOR}")
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
