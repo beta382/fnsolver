@@ -4,7 +4,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS
+find_package(Qt6 6.4 REQUIRED COMPONENTS
     Core
     LinguistTools
     Svg
@@ -46,6 +46,8 @@ qt_add_executable(${TARGET} WIN32
     precious_resource_ui.h
     probe_ui.cpp
     probe_ui.h
+    qicon_from_theme.cpp
+    qicon_from_theme.h
     run_dialog.cpp
     run_dialog.h
     run_progress_dialog.cpp
