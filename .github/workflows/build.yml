@@ -62,9 +62,6 @@ jobs:
       - name: Build
         run: cmake --build "${BUILD_DIR}"
 
-      - name: Install
-        run: cmake --install "${BUILD_DIR}"
-
       #######################
       # PACKAGE
       #######################

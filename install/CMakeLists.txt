@@ -43,8 +43,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CPACK_NSIS_PACKAGE_NAME "${PROJECT_DISPLAY_NAME}")
   set(CPACK_NSIS_IGNORE_LICENSE_PAGE On)
   set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL On)
-  set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
-  include(InstallRequiredSystemLibraries)
 endif ()
 
 include(CPack)
+
+cpack_add_component(cli
+    DISPLAY_NAME "Command-Line Interface"
+    DESCRIPTION "Command-Line Interface"
+)
+cpack_add_component(gui
+    DISPLAY_NAME "Graphical Interface"
+    DESCRIPTION "Graphical Interface"
+)
