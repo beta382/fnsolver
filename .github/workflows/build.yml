@@ -55,7 +55,7 @@ jobs:
           cmake
           -S "${{github.workspace}}"
           -B "${BUILD_DIR}"
-          -preset=${{matrix.system.cmake_preset}}
+          --preset=${{matrix.system.cmake_preset}}
           -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install_root"
           -DBUILD_PACKAGE=On
 
