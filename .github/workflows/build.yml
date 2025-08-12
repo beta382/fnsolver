@@ -54,6 +54,7 @@ jobs:
       - name: Configure CMake
         run: >
           cmake
+          -G Ninja
           -S "${{github.workspace}}"
           -B "${{matrix.system.binary_dir}}"
           --preset=${{matrix.system.cmake_preset}}
