@@ -73,6 +73,10 @@ target_link_libraries(${TARGET} PRIVATE
 )
 target_compile_definitions(${TARGET} PRIVATE QT_NO_KEYWORDS)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_sources(${TARGET} PRIVATE fnsolver-gui.rc)
+endif ()
+
 qt_add_translations(${TARGET}
     TS_FILE_DIR translations
     PLURALS_TS_FILE translations/${PROJECT_NAME}_en_US.ts
