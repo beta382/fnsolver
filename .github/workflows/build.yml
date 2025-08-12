@@ -39,6 +39,10 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install qt6-base-dev libqt6svg6-dev libglx-dev libgl1-mesa-dev
 
+      - name: Setup MSVC (Windows)
+        if: ${{runner.os == 'Windows'}}
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
