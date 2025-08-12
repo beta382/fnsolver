@@ -12,3 +12,7 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(fnsolver)
 
+option(BUILD_PACKAGE Off)
+if (BUILD_PACKAGE)
+  add_subdirectory(install)
+endif ()

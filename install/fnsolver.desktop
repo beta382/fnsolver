@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=${PROJECT_DISPLAY_NAME}
+Version=${CMAKE_PROJECT_VERSION}
+Categories=Game;GameTool
+Exec=fnsolver-gui
+Icon=fnsolver-gui
+StartupNotify=true
+Terminal=false

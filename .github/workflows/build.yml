@@ -1,0 +1,87 @@
+name: Build
+on:
+  push: ~
+  workflow_dispatch: ~
+
+env:
+  SOURCE_DIR: ${{github.workspace}}
+  BUILD_DIR: ${{github.workspace}}/build
+  QT_VERSION: 6.8
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ${{matrix.system.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        system:
+          - os: ubuntu-latest
+            cmake_preset: release
+            cpack_generator: "DEB;RPM;TGZ"
+          - os: windows-latest
+            cmake_preset: release-win-msvc
+            cpack_generator: "NSIS;ZIP"
+
+    steps:
+      #######################
+      # SETUP
+      #######################
+      - uses: actions/checkout@v4
+
+      - name: Install System Packages (Linux)
+        if: ${{runner.os == 'Linux'}}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install qt6-base-dev libqt6svg6-dev libglx-dev libgl1-mesa-dev
+
+      - name: Install Qt
+        # Don't need this on Linux, as Qt will come from the system package manager above
+        if: ${{runner.os != 'Linux'}}
+        uses: jurplel/install-qt-action@v4
+        with:
+          dir: ${{github.workspace}}/.qt
+          version: ${{env.QT_VERSION}}
+          cache: true
+
+      #######################
+      # BUILD
+      #######################
+      - name: Configure CMake
+        run: >
+          cmake
+          -S "${{github.workspace}}"
+          -B "${BUILD_DIR}"
+          -preset=${{matrix.system.cmake_preset}}
+          -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install_root"
+          -DBUILD_PACKAGE=On
+
+      - name: Build
+        run: cmake --build "${BUILD_DIR}"
+
+      - name: Install
+        run: cmake --install "${BUILD_DIR}"
+
+      #######################
+      # PACKAGE
+      #######################
+      - name: Package
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack -G "${{matrix.system.cpack_generator}}" -B "${BUILD_DIR}/packages"
+
+      - name: Upload failed package artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{failure()}}
+        with:
+          name: failed_package_${{runner.os}}
+          path: ${{env.BUILD_DIR}}/packages
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages_${{runner.os}}_${{runner.arch}}
+          path: ${{env.BUILD_DIR}}/packages/*.*
+          if-no-files-found: error

@@ -80,11 +80,12 @@ qt_add_translations(${TARGET}
 
 install(
     TARGETS ${TARGET}
-    BUNDLE DESTINATION .
+    COMPONENT gui
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 install(
     FILES "$<TARGET_RUNTIME_DLLS:${TARGET}>"
+    COMPONENT gui
     TYPE BIN
 )
 
@@ -94,5 +95,8 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
         OUTPUT_SCRIPT DEPLOY_SCRIPT
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
-    install(SCRIPT ${DEPLOY_SCRIPT})
+    install(
+        SCRIPT ${DEPLOY_SCRIPT}
+        COMPONENT gui
+    )
 endif ()
