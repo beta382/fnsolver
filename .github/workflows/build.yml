@@ -61,7 +61,7 @@ jobs:
           -DBUILD_PACKAGE=On
 
       - name: Build
-        run: cmake --build "${{matrix.system.binary_dir}}" --preset=${{matrix.system.cmake_preset}}
+        run: cmake --build "${{matrix.system.binary_dir}}"
 
       #######################
       # PACKAGE
