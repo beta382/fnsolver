@@ -75,7 +75,7 @@ jobs:
       #######################
       - name: Package
         working-directory: ${{matrix.system.binary_dir}}
-        run: cpack -G "${{matrix.system.cpack_generator}}" -B "${{matrix.system.binary_dir}}/packages"
+        run: cpack -G "${{matrix.system.cpack_generator}}" -B "./packages"
 
       - name: Upload failed package artifacts
         uses: actions/upload-artifact@v4
