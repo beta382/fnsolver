@@ -444,8 +444,6 @@ void MainWindow::data_changed() {
 }
 
 void MainWindow::probe_map_changed() {
-  // Force update of resolved placements.
-  layout_ = Layout(layout_.get_placements());
   inventory_model_->reset();
   widgets_.solution_widget->set_layout(layout_);
   update_options_seed();

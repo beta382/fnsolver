@@ -25,7 +25,6 @@ class Layout {
 
     const std::vector<Placement> &get_placements() const;
     const Probe* get_probe(const FnSite& site) const;
-    void set_probe(const FnSite& site, const Probe& probe);
     const std::vector<ResolvedPlacement> &get_resolved_placements() const;
     const ResolvedPlacement& get_resolved_placement(const FnSite& site) const;
     const ResourceYield &get_resource_yield() const;

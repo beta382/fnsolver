@@ -249,19 +249,6 @@ const Probe* Layout::get_probe(const FnSite& site) const {
   return &placement->get_probe();
 }
 
-void Layout::set_probe(const FnSite& site, const Probe& probe) {
-  auto placement = std::ranges::find_if(placements, [&site](const Placement& placement) {
-    return placement.get_site().site_id == site.site_id;
-  });
-  if (placement != placements.end()) {
-    *placement = Placement(site, probe);
-  } else {
-    placements.emplace_back(site, probe);
-  }
-  resolved_placements = resolve_placements(placements);
-  resource_yield = resolve_resource_yield(resolved_placements);
-}
-
 const std::vector<ResolvedPlacement> &Layout::get_resolved_placements() const {
   return resolved_placements;
 }

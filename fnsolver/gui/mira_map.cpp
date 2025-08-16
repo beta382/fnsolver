@@ -40,7 +40,10 @@ MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout
     auto siteWidget = new FnSiteWidget(&site);
     connect(siteWidget, &FnSiteWidget::data_probe_changed,
             [this, &site](const Probe* probe) {
-              layout_->set_probe(site, *probe);
+              auto placements = layout_->get_placements();
+              const auto site_idx = FnSite::idx_for_id.at(site.site_id);
+              placements.at(site_idx) = Placement(site, *probe);
+              *layout_ = Layout(placements);
               calculate_links();
               Q_EMIT(site_probe_map_changed());
             });
