@@ -4,7 +4,7 @@
 #include <qstyle.h>
 
 namespace detail::score_function {
-ScoreFunctionSelectWidget::ScoreFunctionSelectWidget(QWidget* parent): QWidget(parent),
+ScoreFunctionSelectWidget::ScoreFunctionSelectWidget(ScoreFunctionWidget* parent): QWidget(parent),
   form_(new QFormLayout),
   radio_(new QRadioButton(this)),
   description_(new DescriptionWidget(this)) {
@@ -43,6 +43,14 @@ void ScoreFunctionSelectWidget::set_description(const QString& description) {
   description_->setVisible(!description.isEmpty());
 }
 
+std::unordered_set<ScoreFunction::Type> ScoreFunctionSelectWidget::get_siblings() const {
+  const auto* container_widget = qobject_cast<const ScoreFunctionWidget*>(parentWidget());
+  if (container_widget == nullptr) {
+    throw std::logic_error("ScoreFunctionSelectWidget must be contained in a ScoreFunctionWidget.");
+  }
+  return container_widget->get_allowed();
+}
+
 void ScoreFunctionSelectWidget::toggled(bool checked) {
   // Disable/enable form widgets.
   for (int item_ix = 0; item_ix < form_->count(); ++item_ix) {
@@ -57,7 +65,7 @@ void ScoreFunctionSelectWidget::toggled(bool checked) {
   }
 }
 
-NoneWidget::NoneWidget(QWidget* parent): ScoreFunctionSelectWidget(parent) {
+NoneWidget::NoneWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent) {
   set_name(tr("None"));
 }
 
@@ -65,19 +73,26 @@ std::optional<ScoreFunction> NoneWidget::get_score_function() const {
   return {};
 }
 
-MaxMiningWidget::MaxMiningWidget(QWidget* parent): ScoreFunctionSelectWidget(parent) {
+MaxMiningWidget::MaxMiningWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent) {
   set_name(tr("Max Mining"));
-  set_description(tr(R"(
+  QString description{
+    tr(R"(
 - Uses "Mining yield" as the score.
+)")
+  };
+  if (get_siblings().contains(ScoreFunction::Type::max_effective_mining)) {
+    description.append(tr(R"(
 - It is recommended to use `Max Effective Mining`, as that tends to be more interesting in practice.
 )"));
+  }
+  set_description(description);
 }
 
 std::optional<ScoreFunction> MaxMiningWidget::get_score_function() const {
   return ScoreFunction::create_max_mining();
 }
 
-MaxEffectiveMiningWidget::MaxEffectiveMiningWidget(QWidget* parent): ScoreFunctionSelectWidget(parent),
+MaxEffectiveMiningWidget::MaxEffectiveMiningWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent),
   storage_factor_(new QDoubleSpinBox(this)) {
   set_name(tr("Max Effective Mining"));
   set_description(tr(R"(
@@ -97,7 +112,7 @@ std::optional<ScoreFunction> MaxEffectiveMiningWidget::get_score_function() cons
   return ScoreFunction::create_max_effective_mining(storage_factor_->value());
 }
 
-MaxRevenueWidget::MaxRevenueWidget(QWidget* parent): ScoreFunctionSelectWidget(parent) {
+MaxRevenueWidget::MaxRevenueWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent) {
   set_name(tr("Max Revenue"));
   set_description(tr(R"(
 - Uses "Revenue Yield" as the score.
@@ -108,7 +123,7 @@ std::optional<ScoreFunction> MaxRevenueWidget::get_score_function() const {
   return ScoreFunction::create_max_revenue();
 }
 
-MaxStorageWidget::MaxStorageWidget(QWidget* parent): ScoreFunctionSelectWidget(parent) {
+MaxStorageWidget::MaxStorageWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent) {
   set_name(tr("Max Storage"));
   set_description(tr(R"(
 - Uses "Total Storage" as the score.
@@ -119,7 +134,7 @@ std::optional<ScoreFunction> MaxStorageWidget::get_score_function() const {
   return ScoreFunction::create_max_storage();
 }
 
-RatioWidget::RatioWidget(QWidget* parent): ScoreFunctionSelectWidget(parent),
+RatioWidget::RatioWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent),
   mining_factor_(new QDoubleSpinBox(this)),
   revenue_factor_(new QDoubleSpinBox(this)),
   storage_factor_(new QDoubleSpinBox(this)) {
@@ -149,7 +164,7 @@ std::optional<ScoreFunction> RatioWidget::get_score_function() const {
   return ScoreFunction::create_ratio(mining_factor_->value(), revenue_factor_->value(), storage_factor_->value());
 }
 
-WeightsWidget::WeightsWidget(QWidget* parent): ScoreFunctionSelectWidget(parent),
+WeightsWidget::WeightsWidget(ScoreFunctionWidget* parent): ScoreFunctionSelectWidget(parent),
   mining_weight_(new QDoubleSpinBox(this)),
   revenue_weight_(new QDoubleSpinBox(this)),
   storage_weight_(new QDoubleSpinBox(this)) {

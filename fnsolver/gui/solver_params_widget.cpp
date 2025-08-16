@@ -23,7 +23,8 @@ The FnSolver algorithm can be simplified as follows:
 
 The total runtime of FnSolver will scale roughly linearly with `iterations * population * offspring`.
 
-The options below control the various named parameters from the description above.
+The options below control the various named parameters from the description above. Hover over them for a description of
+how they affect the simulation.
 )"), this);
   layout->addRow(desc);
 
@@ -41,11 +42,13 @@ This can be used for various purposes, including:
   FrontierNav layout that it otherwise would struggle to find.
 - Giving FnSolver a complete layout from a prior run (or that you handcrafted) for it to find further improvements or
   tweaks for (note that this effectively pigeonholes the FnSolver algorithm into not considering substantially different
-   FrontierNav layouts, but can allocate many more resources towards fine-tuning that specific FrontierNav layout)
+  FrontierNav layouts, but can allocate many more resources towards fine-tuning that specific FrontierNav layout)
+
+If checked, the seed will contain all unlocked sites with a non-basic probe.
 )");
   set_markdown_tooltip(widgets_.seed, seed_desc);
   set_markdown_tooltip(layout->labelForField(widgets_.seed), seed_desc);
-  // Only allow force seed if the seed is used.
+  widgets_.seed->setChecked(solver_options->get_force_seed());
   connect(widgets_.seed, &QCheckBox::toggled, this, &SolverParamsWidget::seed_toggled);
 
   // Force seed
@@ -58,6 +61,7 @@ means that any assigned non-basic probes are guaranteed to be present in all gen
 )");
   set_markdown_tooltip(widgets_.force_seed, force_seed_desc);
   set_markdown_tooltip(layout->labelForField(widgets_.force_seed), force_seed_desc);
+  widgets_.force_seed->setChecked(solver_options->get_force_seed());
 
   // Iterations
   widgets_.iterations = new QSpinBox(this);
@@ -167,16 +171,11 @@ A FrontierNav layout lineage that has a score of zero (namely, it fails to meet 
   set_markdown_tooltip(layout->labelForField(widgets_.max_age), max_age_desc);
 
   // Threads
-  auto* threads_layout = new QHBoxLayout();
   widgets_.threads = new QSpinBox(this);
   widgets_.threads->setMinimum(1);
   widgets_.threads->setMaximum(99);
   widgets_.threads->setValue(solver_options->get_num_threads());
-  threads_layout->addWidget(widgets_.threads);
-  auto* default_threads = new QPushButton(tr("Use Default"), this);
-  threads_layout->addWidget(default_threads);
-  connect(default_threads, &QPushButton::clicked, this, &SolverParamsWidget::use_default_threads);
-  layout->addRow(tr("Threads"), threads_layout);
+  layout->addRow(tr("Threads"), widgets_.threads);
   const auto threads_desc = tr(R"(
 Sets the number of threads to execute FnSolver in parallel with.
 
@@ -187,8 +186,12 @@ you may intentionally desire this), while any more will not yield better perform
 resources.
 )");
   set_markdown_tooltip(widgets_.threads, threads_desc);
-  set_markdown_tooltip(default_threads, threads_desc);
-  set_markdown_tooltip(layout->labelForField(threads_layout), threads_desc);
+  set_markdown_tooltip(layout->labelForField(widgets_.threads), threads_desc);
+
+  // Defaults
+  auto* defaults_button = new QPushButton(tr("Use Defaults"), this);
+  layout->addRow(defaults_button);
+  connect(defaults_button, &QPushButton::clicked, this, &SolverParamsWidget::use_defaults);
 
   seed_toggled(widgets_.seed->isChecked());
 }
@@ -210,10 +213,20 @@ void SolverParamsWidget::apply_to_options(Options* options) const {
   options->set_num_threads(widgets_.threads->value());
 }
 
-void SolverParamsWidget::use_default_threads() {
-  widgets_.threads->setValue(static_cast<int>(options_loader::default_options().get_num_threads()));
+void SolverParamsWidget::use_defaults() {
+  const auto defaults = options_loader::default_options();
+  widgets_.seed->setChecked(defaults.get_force_seed());
+  widgets_.force_seed->setChecked(defaults.get_force_seed());
+  widgets_.iterations->setValue(defaults.get_iterations());
+  widgets_.bonus_iterations->setValue(defaults.get_bonus_iterations());
+  widgets_.population->setValue(defaults.get_population_size());
+  widgets_.offspring->setValue(defaults.get_num_offspring());
+  widgets_.mutation_rate->setValue(defaults.get_mutation_rate());
+  widgets_.max_age->setValue(defaults.get_max_age());
+  widgets_.threads->setValue(defaults.get_num_threads());
 }
 
 void SolverParamsWidget::seed_toggled(bool checked) {
+  // Only allow force seed if the seed is used.
   widgets_.force_seed->setEnabled(checked);
 }

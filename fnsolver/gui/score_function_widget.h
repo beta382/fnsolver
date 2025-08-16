@@ -13,6 +13,8 @@
 #include "QObjectDeleter.h"
 #include "fnsolver/solver/score_function.h"
 
+class ScoreFunctionWidget;
+
 namespace detail::score_function {
 /**
  * Base class for score function selector widgets.
@@ -21,7 +23,7 @@ class ScoreFunctionSelectWidget : public QWidget {
   Q_OBJECT
 
 public:
-  explicit ScoreFunctionSelectWidget(QWidget* parent = nullptr);
+  explicit ScoreFunctionSelectWidget(ScoreFunctionWidget* parent = nullptr);
   void set_selected(bool selected);
 
   virtual void set_args(const ScoreFunction::args_map_t&) {}
@@ -38,6 +40,7 @@ protected:
 
   void set_name(const QString& name);
   void set_description(const QString& description);
+  std::unordered_set<ScoreFunction::Type> get_siblings() const;
 
 private:
   QRadioButton* radio_;
@@ -51,7 +54,7 @@ class NoneWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit NoneWidget(QWidget* parent = nullptr);
+  explicit NoneWidget(ScoreFunctionWidget* parent = nullptr);
   [[nodiscard]] virtual std::optional<ScoreFunction> get_score_function() const;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -63,7 +66,7 @@ class MaxMiningWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit MaxMiningWidget(QWidget* parent = nullptr);
+  explicit MaxMiningWidget(ScoreFunctionWidget* parent = nullptr);
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -75,7 +78,7 @@ class MaxEffectiveMiningWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit MaxEffectiveMiningWidget(QWidget* parent = nullptr);
+  explicit MaxEffectiveMiningWidget(ScoreFunctionWidget* parent = nullptr);
   void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
@@ -91,7 +94,7 @@ class MaxRevenueWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit MaxRevenueWidget(QWidget* parent = nullptr);
+  explicit MaxRevenueWidget(ScoreFunctionWidget* parent = nullptr);
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -103,7 +106,7 @@ class MaxStorageWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit MaxStorageWidget(QWidget* parent = nullptr);
+  explicit MaxStorageWidget(ScoreFunctionWidget* parent = nullptr);
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
   std::optional<ScoreFunction::Type> get_score_function_type() const override {
@@ -115,7 +118,7 @@ class RatioWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit RatioWidget(QWidget* parent = nullptr);
+  explicit RatioWidget(ScoreFunctionWidget* parent = nullptr);
   void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
@@ -133,7 +136,7 @@ class WeightsWidget : public ScoreFunctionSelectWidget {
   Q_OBJECT
 
 public:
-  explicit WeightsWidget(QWidget* parent = nullptr);
+  explicit WeightsWidget(ScoreFunctionWidget* parent = nullptr);
   void set_args(const ScoreFunction::args_map_t& args) override;
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const override;
 
@@ -161,6 +164,8 @@ public:
 
   void set_allowed(const std::unordered_set<ScoreFunction::Type>& allowed);
 
+  [[nodiscard]] const std::unordered_set<ScoreFunction::Type>& get_allowed() const { return allowed_; }
+
   void set_selection(const std::optional<ScoreFunction>& selection);
 
   [[nodiscard]] std::optional<ScoreFunction> get_score_function() const;
@@ -177,8 +182,7 @@ private:
 
   template <ScoreFunctionSelectWidget Widget_T>
   void init_scorefunction_select_widget() {
-    // These widgets all have no parent as the custom deleter takes care of memory management.
-    auto& widget = widgets_.emplace_back(new Widget_T());
+    auto& widget = widgets_.emplace_back(new Widget_T(this));
     button_group_->addButton(widget->radio_button());
     layout_->addWidget(widget.get());
   }

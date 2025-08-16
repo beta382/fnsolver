@@ -33,7 +33,7 @@ private:
   Widgets widgets_;
 
 private Q_SLOTS:
-  void use_default_threads();
+  void use_defaults();
   void seed_toggled(bool checked);
 };
 

@@ -21,9 +21,28 @@ RunDialog::RunDialog(Options* solver_options, QWidget* parent): QDialog(parent),
   layout->addWidget(tabs);
 
   // Score function
+  auto* scorefunction_container = new QWidget(this);
+  auto* scorefunction_layout = new QVBoxLayout(scorefunction_container);
+  // Stop adding extra margins on the contained widgets...
+  scorefunction_layout->setContentsMargins(0, 0, 0, 0);
+  auto* scorefunction_desc = new DescriptionWidget(this);
+  scorefunction_desc->set_text(tr(R"(
+The Score Function is used to calculate the "score" for a generated FrontierNav layout, which is then used to compare
+different layouts and determine which one is "better".
+)"));
+  // ... but need to add them back to make this descriptive text look nice.
+  const auto* style = qApp->style();
+  scorefunction_desc->setContentsMargins(
+    style->pixelMetric(QStyle::PM_LayoutLeftMargin),
+    style->pixelMetric(QStyle::PM_LayoutTopMargin),
+    style->pixelMetric(QStyle::PM_LayoutRightMargin),
+    style->pixelMetric(QStyle::PM_LayoutBottomMargin)
+  );
+  scorefunction_layout->addWidget(scorefunction_desc);
   widgets_.scorefunction = new ScoreFunctionWidget(this);
+  scorefunction_layout->addWidget(widgets_.scorefunction);
   auto* scoreFunctionScroll = new QScrollArea(this);
-  scoreFunctionScroll->setWidget(widgets_.scorefunction);
+  scoreFunctionScroll->setWidget(scorefunction_container);
   scoreFunctionScroll->setWidgetResizable(true);
   tabs->addTab(scoreFunctionScroll, tr("Score Function"));
   widgets_.scorefunction->set_required(true);
@@ -40,17 +59,13 @@ RunDialog::RunDialog(Options* solver_options, QWidget* parent): QDialog(parent),
   // Tiebreaker
   auto* tiebreaker_container = new QWidget(this);
   auto* tiebreaker_layout = new QVBoxLayout(tiebreaker_container);
-  // Stop adding extra margins on the contained widgets...
   tiebreaker_layout->setContentsMargins(0, 0, 0, 0);
-  auto* tiebreaker_desc = new QLabel(tr(R"(
+  auto* tiebreaker_desc = new DescriptionWidget(this);
+  tiebreaker_desc->set_text(tr(R"(
 Generally, this is only interesting with "Max Storage", "Max Effective Mining, or "Ratio" as the Score Function. With
 "Max Mining" or "Max Revenue" as the Score Function, the non-zero efficacy on Research and Mining probes respectively
 make a tiebreaker largely low-impact. With "Weights" as the Score Function, a tiebreaker is effectively built-in.
-  )"), tiebreaker_container);
-  tiebreaker_desc->setTextFormat(Qt::MarkdownText);
-  tiebreaker_desc->setWordWrap(true);
-  // ... but need to add them back to make this descriptive text look nice.
-  const auto* style = qApp->style();
+)"));
   tiebreaker_desc->setContentsMargins(
     style->pixelMetric(QStyle::PM_LayoutLeftMargin),
     style->pixelMetric(QStyle::PM_LayoutTopMargin),
