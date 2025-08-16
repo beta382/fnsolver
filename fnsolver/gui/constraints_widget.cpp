@@ -30,7 +30,7 @@ PreciousResourceConstraintWidget::PreciousResourceConstraintWidget(precious_reso
     tr("of %1").arg(precious_resource::max_resource_quantity(precious_resource) / 100.0, 0, 'f', 2));
   layout->addWidget(widgets_.constraint_max);
 
-  update_value_spinbox_range();
+  constraint_type_changed(widgets_.constraint_type->currentIndex());
 }
 
 uint32_t PreciousResourceConstraintWidget::get_value() const {
@@ -54,6 +54,7 @@ void PreciousResourceConstraintWidget::set_value(uint32_t value) {
 }
 
 void PreciousResourceConstraintWidget::set_type(Type type) {
+  type_ = type;
   widgets_.constraint_type->setCurrentIndex(static_cast<int>(type));
   // QComboBox will call constraint_type_changed slot.
 }
