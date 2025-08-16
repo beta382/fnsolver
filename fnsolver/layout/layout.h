@@ -23,10 +23,10 @@ class Layout {
     Layout &operator=(const Layout &other) = default;
     Layout &operator=(Layout &&other) = default;
 
+    /** Site/Probe pairs ordered by site id */
     const std::vector<Placement> &get_placements() const;
-    const Probe* get_probe(const FnSite& site) const;
+    /** Site yield info ordered by site id */
     const std::vector<ResolvedPlacement> &get_resolved_placements() const;
-    const ResolvedPlacement& get_resolved_placement(const FnSite& site) const;
     const ResourceYield &get_resource_yield() const;
 
     std::string to_frontier_nav_net_url() const;

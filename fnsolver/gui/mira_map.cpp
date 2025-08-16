@@ -49,7 +49,7 @@ MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout
             });
     connect(siteWidget, &FnSiteWidget::territories_changed, this, &MiraMap::site_probe_map_changed);
     auto& siteButton =
-      site_widgets_.emplace_back(map_scene_.addWidget(siteWidget));
+      site_widgets_.emplace(site.site_id, map_scene_.addWidget(siteWidget)).first->second;
     // Site data stores the center point, so we need to half it to get the
     // corners for drawing.
     const auto& site_position = site_positions.at(site.site_id);
@@ -121,14 +121,14 @@ void MiraMap::contextMenuEvent(QContextMenuEvent* event) {
 }
 
 void MiraMap::calculate_site_widgets() {
-  for (auto& widget : site_widgets_) {
+  for (const auto& placement : layout_->get_placements()) {
+    const auto& site = placement.get_site();
+    const auto& probe = placement.get_probe();
     auto* fn_site_widget = dynamic_cast<FnSiteWidget*>(
-      dynamic_cast<QGraphicsProxyWidget*>(widget.get())->widget());
-
-    const auto* site = fn_site_widget->site();
-    const auto* probe = layout_->get_probe(*site);
-    fn_site_widget->set_data_probe(probe);
-    fn_site_widget->set_num_territories(site->territories);
+      dynamic_cast<QGraphicsProxyWidget*>(site_widgets_.at(site.site_id).get())->widget()
+    );
+    fn_site_widget->set_data_probe(&probe);
+    fn_site_widget->set_num_territories(site.territories);
   }
 
   calculate_links();
@@ -152,10 +152,15 @@ void MiraMap::calculate_links() {
   // Need to track which lines have already been drawn as both sides of the link
   // are stored.
   std::unordered_set<std::set<FnSite::id_t>, SiteIdSetHash> drawn_links;
-  for (const auto& site : FnSite::sites) {
-    const auto site_probe = layout_->get_probe(site);
-    const auto& resolved_placement = layout_->get_resolved_placement(site);
-    const auto combo_bonus = resolved_placement.get_chain_bonus();
+  auto placement = layout_->get_placements().cbegin();
+  auto resolved_placement = layout_->get_resolved_placements().cbegin();
+  for (; placement != layout_->get_placements().cend() && resolved_placement != layout_->get_resolved_placements().
+         cend();
+         ++placement, ++resolved_placement) {
+    const auto& site = placement->get_site();
+    const auto& site_probe = placement->get_probe();
+
+    const auto combo_bonus = resolved_placement->get_chain_bonus();
     for (const auto neighbor_idx : site.neighbor_idxs) {
       const auto& neighbor = FnSite::sites.at(neighbor_idx);
       // Don't draw combo lines more than once.
@@ -164,21 +169,16 @@ void MiraMap::calculate_links() {
         // Already drawn line.
         continue;
       }
-      const auto neighbor_probe = layout_->get_probe(neighbor);
-      if (site_probe->probe_type == Probe::Type::none || neighbor_probe->probe_type == Probe::Type::none) {
-        // Do not draw links between sites not visited.
+
+      // Do not draw links between sites not visited.
+      const auto& neighbor_placement = layout_->get_placements().at(neighbor_idx);
+      const auto& neighbor_probe = neighbor_placement.get_probe();
+      if (site_probe.probe_type == Probe::Type::none || neighbor_probe.probe_type == Probe::Type::none) {
+        // Already visited.
         continue;
       }
 
-      bool combo_link = false;
-      if (combo_bonus > 1) {
-        // This site participates in a combo, determine if this link is part of
-        // it.
-        if (site_probe->probe_id == neighbor_probe->probe_id) {
-          combo_link = true;
-        }
-      }
-      if (combo_link) {
+      if (combo_bonus > 1 && site_probe.probe_id == neighbor_probe.probe_id) {
         pen.setColor(with_combo_link_color);
       }
       else {

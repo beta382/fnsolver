@@ -242,22 +242,8 @@ const std::vector<Placement> &Layout::get_placements() const {
   return placements;
 }
 
-const Probe* Layout::get_probe(const FnSite& site) const {
-  auto placement = std::ranges::find_if(placements, [&site](const Placement& placement) {
-    return placement.get_site().site_id == site.site_id;
-  });
-  return &placement->get_probe();
-}
-
 const std::vector<ResolvedPlacement> &Layout::get_resolved_placements() const {
   return resolved_placements;
-}
-
-const ResolvedPlacement& Layout::get_resolved_placement(const FnSite& site) const {
-  auto placement = std::ranges::find_if(resolved_placements, [&site](const ResolvedPlacement& placement) {
-    return placement.get_site().site_id == site.site_id;
-  });
-  return *placement;
 }
 
 const ResourceYield &Layout::get_resource_yield() const {

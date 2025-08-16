@@ -1,6 +1,7 @@
 #ifndef FNSOLVER_GUI_MIRA_MAP_H
 #define FNSOLVER_GUI_MIRA_MAP_H
 
+#include <unordered_map>
 #include <QGraphicsView>
 #include <fnsolver/layout/layout.h>
 #include "QGraphicsItemDeleter.h"
@@ -35,7 +36,7 @@ private:
   static constexpr auto z_map = -100;
   QGraphicsScene map_scene_;
   Layout* layout_;
-  std::vector<GraphicsItemPtr> site_widgets_;
+  std::unordered_map<FnSite::id_t, GraphicsItemPtr> site_widgets_;
   std::vector<GraphicsItemPtr> link_graphics_;
   std::vector<GraphicsItemPtr> combo_graphics_;
 
