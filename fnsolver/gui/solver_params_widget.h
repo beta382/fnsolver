@@ -16,7 +16,6 @@ public:
   explicit SolverParamsWidget(const Options* solver_options, QWidget* parent = nullptr);
 
   void apply_to_options(Options* options) const override;
-  bool get_seed() const;
 
 private:
   struct Widgets {
@@ -35,6 +34,7 @@ private:
 
 private Q_SLOTS:
   void use_default_threads();
+  void seed_toggled(bool checked);
 };
 
 

@@ -45,7 +45,8 @@ This can be used for various purposes, including:
 )");
   set_markdown_tooltip(widgets_.seed, seed_desc);
   set_markdown_tooltip(layout->labelForField(widgets_.seed), seed_desc);
-  connect(widgets_.seed, &QCheckBox::toggled, [this](bool checked) { widgets_.force_seed->setEnabled(checked); });
+  // Only allow force seed if the seed is used.
+  connect(widgets_.seed, &QCheckBox::toggled, this, &SolverParamsWidget::seed_toggled);
 
   // Force seed
   widgets_.force_seed = new QCheckBox(this);
@@ -188,9 +189,18 @@ resources.
   set_markdown_tooltip(widgets_.threads, threads_desc);
   set_markdown_tooltip(default_threads, threads_desc);
   set_markdown_tooltip(layout->labelForField(threads_layout), threads_desc);
+
+  seed_toggled(widgets_.seed->isChecked());
 }
 
 void SolverParamsWidget::apply_to_options(Options* options) const {
+  if (!widgets_.seed->isChecked()) {
+    options->set_seed({});
+    options->set_force_seed(false);
+  }
+  else {
+    options->set_force_seed(widgets_.force_seed->isChecked());
+  }
   options->set_iterations(widgets_.iterations->value());
   options->set_bonus_iterations(widgets_.bonus_iterations->value());
   options->set_population_size(widgets_.population->value());
@@ -200,10 +210,10 @@ void SolverParamsWidget::apply_to_options(Options* options) const {
   options->set_num_threads(widgets_.threads->value());
 }
 
-bool SolverParamsWidget::get_seed() const {
-  return widgets_.seed->isChecked();
-}
-
 void SolverParamsWidget::use_default_threads() {
   widgets_.threads->setValue(static_cast<int>(options_loader::default_options().get_num_threads()));
+}
+
+void SolverParamsWidget::seed_toggled(bool checked) {
+  widgets_.force_seed->setEnabled(checked);
 }

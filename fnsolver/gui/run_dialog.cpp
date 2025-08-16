@@ -106,10 +106,6 @@ void RunDialog::solve() {
   solver_options.set_maybe_tiebreaker_function(widgets_.tiebreaker->get_score_function());
   widgets_.constraints->apply_to_options(&solver_options);
   widgets_.solver_params->apply_to_options(&solver_options);
-  if (!widgets_.solver_params->get_seed()) {
-    solver_options.set_seed({});
-    solver_options.set_force_seed(false);
-  }
 
   if (solver_options != *solver_options_) {
     Q_EMIT options_changed(solver_options);
