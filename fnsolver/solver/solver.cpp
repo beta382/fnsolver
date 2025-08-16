@@ -68,9 +68,7 @@ std::vector<Placement> merge_locked_sites_and_seed(const Options &options) {
       seed.cbegin(),
       seed.cend(),
       std::back_inserter(merged_seed),
-      [](const Placement &lhs, const Placement &rhs) {
-        return lhs.get_site().site_id < rhs.get_site().site_id;
-      });
+      &Placement::sort_cmp);
   return merged_seed;
 }
 } // namespace

@@ -321,6 +321,8 @@ void MainWindow::update_options_seed() {
       seed.emplace_back(placement);
     }
   }
+  std::ranges::sort(locked_sites, &Placement::sort_cmp);
+  std::ranges::sort(seed, &Placement::sort_cmp);
   solver_options_.set_locked_sites(locked_sites);
   solver_options_.set_seed(seed);
 }
@@ -352,9 +354,7 @@ Layout MainWindow::fill_layout(std::vector<Placement> seed, std::vector<Placemen
   // Layout ctor requires that placements is sorted.
   const auto placements_view = placements | std::views::values;
   std::vector<Placement> placements_sorted(placements_view.begin(), placements_view.end());
-  std::ranges::sort(placements_sorted, [](const Placement& lhs, const Placement& rhs) {
-    return lhs.get_site().site_id < rhs.get_site().site_id;
-  });
+  std::ranges::sort(placements_sorted, &Placement::sort_cmp);
 
   return {placements_sorted};
 }
