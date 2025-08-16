@@ -14,6 +14,11 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
 
 - [Differences Between FnSolver and XenoProbes](#differences-between-fnsolver-and-xenoprobes)
 - [GUI](#gui)
+  - [Map](#map)
+  - [Inventory](#inventory)
+  - [Results](#results)
+  - [Running](#running)
+  - [Saving/Loading](#savingloading)
 - [CLI](#cli)
   - [General Options](#general-options)
     - [`--help`](#--help)
@@ -23,7 +28,7 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
   - [Score Function](#score-function)
     - [`--score-function`](#--score-function)
     - [`--tiebreaker`](#--tiebreaker)
-  - [Inventory](#inventory)
+  - [Inventory](#inventory-1)
     - [`--inventory`](#--inventory)
   - [FrontierNav Overrides](#frontiernav-overrides)
     - [`--territories`](#--territories)
@@ -533,7 +538,7 @@ These examples use the pre-built Windows executable to demonstrate.
 
 ## Building
 
-FnSolver requires a C++ toolchain that supports C++20, Qt 6.8 or higher, and CMake 3.28 or higher.
+FnSolver requires a C++ toolchain that supports C++20, Qt 6.4 or higher, and CMake 3.28 or higher. On platforms other than Linux, Qt 6.8 or higher is recommended.
 
 If you are building on Linux, it is recommended to configure and build from the provided CMake presets, which are:
 
