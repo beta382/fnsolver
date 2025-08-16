@@ -13,8 +13,8 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
 ## Table of Contents
 
 - [Differences Between FnSolver and XenoProbes](#differences-between-fnsolver-and-xenoprobes)
-- [Running](#running)
-- [Options](#options)
+- [GUI](#gui)
+- [CLI](#cli)
   - [General Options](#general-options)
     - [`--help`](#--help)
     - [`--config-file`](#--config-file)
@@ -65,10 +65,36 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
   - More uniformly generates mutations (XenoProbes has a bias towards mutating later FrontierNav sites)
 - \+ ~60-80% faster (tested across various option combinations)
 
+## GUI
+![Main window](/doc/img/gui-main.png)
 
-## Running
+The graphical interface is broken into three sections: Map, Inventory, and Results.
 
-FnSolver is available in both graphical and command-line variants. The instructions below apply to the command-line variant.
+### Map
+
+The map shows the current probe layout. Right-click on a site to manually set its probe, or mark it as locked (i.e. undiscovered). Sites with [Unexplored Territories](https://www.xenoserieswiki.org/wiki/Unexplored_Territory) or [Scenic Viewpoints](https://www.xenoserieswiki.org/wiki/Scenic_Viewpoint) have additional options to select how many have been discovered. This number changes the efficacy of Research Probes on that site.
+
+As with the in-game map, sites that are linked together are shown with blue lines between them. If 3 or more sites have the same probe, the line will be pink and the sites that benefit from the link will be circled in red.
+
+Some quick shortcuts are available in the Layout menu to lock all sites, unlock all sites, and set all sites to basic probes.
+
+### Inventory
+
+Enter the number of probes in your inventory here. Additionally, for each probe the number used in the current layout and the number remaining are displayed. These counts are updated live as the layout is adjusted. If the number of probes used exceeds the number in inventory, that row will be highlighted in red.
+
+### Results
+
+The current layout's yields are listed here. See [here](#--precious-resources) for information on what the resource yield quantities and percentages mean.
+
+### Running
+
+Click the "play" button on the toolbar to run the simulation. In the solve dialog, adjust the parameters to your liking based on the descriptions shown for each parameter. Then, click solve. Once the results are ready, the solve dialog will close and the results will be shown on the map.
+
+### Saving/Loading
+
+Options (including current layout, inventory, and solver options) can be saved/opened as needed from the File menu. Additionally, layouts created on [frontiernav.net](https://frontiernav.net/wiki/xenoblade-chronicles-x/visualisations/maps/probe-guides) can be opened and saved from the Layout menu.
+
+## CLI
 
 If you're a Windows user who downloaded the [pre-built executable](https://github.com/beta382/fnsolver/releases) (and you aren't familiar with running CLI applications):
 
@@ -85,12 +111,6 @@ Once FnSolver concludes, it will output a report for the best FrontierNav layout
 - A [frontiernav.net](https://frontiernav.net/wiki/xenoblade-chronicles-x/visualisations/maps/probe-guides) URL linking to a visual representation of the layout
 - An overview of the resource yields for the layout
 - A table giving advanced details for each FrontierNav site in the layout
-
-
-
-## Options
-
-
 
 ### General Options
 
