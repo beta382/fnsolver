@@ -313,8 +313,8 @@ void load_precious_resources(const toml::table& tbl, Options& options) {
       );
     }
     else {
-      minimum = std::stoi(constraint);
-      if (0 < minimum || minimum > precious_resource::max_resource_quantity(resource)) {
+      minimum = std::stoul(constraint);
+      if (minimum > precious_resource::max_resource_quantity(resource)) {
         throw std::runtime_error("Precious resource constraint is out of bounds.");
       }
     }
