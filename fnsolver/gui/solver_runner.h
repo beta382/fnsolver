@@ -19,7 +19,7 @@ protected:
   void run() override;
 
 private:
-  const Options& solver_options_;
+  Options solver_options_;
 };
 
 

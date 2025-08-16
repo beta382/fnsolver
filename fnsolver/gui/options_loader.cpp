@@ -10,13 +10,7 @@ Options options_loader::default_options() {
     false,
     ScoreFunction::create_max_effective_mining(2),
     ScoreFunction::create_max_storage(),
-    []() {
-      // Have enough basic probes for every site.
-      std::array<uint32_t, Probe::num_probes> probe_quantities{};
-      probe_quantities.at(Probe::idx_for_shorthand.at("-")) = FnSite::num_sites;
-
-      return probe_quantities;
-    }(),
+    {},
     {},
     {},
     []() {
