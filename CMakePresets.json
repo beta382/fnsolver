@@ -21,7 +21,7 @@
       }
     },
     {
-      "name": "release-win",
+      "name": "release-win-mingw",
       "description": "Release build with optimizations and static linking, cross-compiled for Windows using mingw-w64",
       "binaryDir": "${sourceDir}/build-release-win",
       "toolchainFile": "${sourceDir}/mingw-w64-x86_64.cmake",
@@ -30,6 +30,37 @@
         "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wconversion -Werror -O3",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE",
         "CMAKE_EXE_LINKER_FLAGS": "-static"
+      }
+    },
+    {
+      "name": "debug-win-msvc",
+      "description": "Debug build using the default toolchain",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "binaryDir": "${sourceDir}/build-debug-win",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS_INIT": "/W3 /wd4101 /Od",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-debug-win/install_root"
+      }
+    },
+    {
+      "name": "release-win-msvc",
+      "description": "Release build with optimizations",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "binaryDir": "${sourceDir}/build-release-win",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS_INIT": "/W3 /wd4101 /WX /O2",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "TRUE",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build-release-win/install_root"
       }
     }
   ]

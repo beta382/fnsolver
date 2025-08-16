@@ -339,12 +339,12 @@ std::map<FnSite::id_t, uint32_t> parse_territory_overrides(const std::vector<std
           territory_override_str));
     }
 
-    if (quantity > FnSite::sites.at(FnSite::idx_for_id.at(site_id)).territories) {
+    if (quantity > FnSite::sites.at(FnSite::idx_for_id.at(site_id)).max_territories) {
       throw CLI::ValidationError(std::format(
           "--{}: FrontierNav Site {} can have up to {} unexplored territories, cannot override with {}",
           territory_overrides_opt_str,
           site_id,
-          FnSite::sites.at(FnSite::idx_for_id.at(site_id)).territories,
+          FnSite::sites.at(FnSite::idx_for_id.at(site_id)).max_territories,
           quantity));
     }
 

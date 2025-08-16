@@ -5,6 +5,8 @@
 #include <fnsolver/data/probe.h>
 
 class Placement {
+  friend bool operator==(const Placement& lhs, const Placement& rhs);
+
   public:
     Placement(const FnSite &site, const Probe &probe);
 
