@@ -50,26 +50,31 @@ void MainWindow::init_ui() {
 
   // Menubar
   // File menu
-  auto* menuFile = menuBar()->addMenu(tr("&File"));
-  menuFile->addAction(actions.file_new);
-  menuFile->addAction(actions.file_open);
-  menuFile->addMenu(actions.file_recent);
-  menuFile->addAction(actions.file_save);
-  menuFile->addAction(actions.file_save_as);
-  menuFile->addSeparator();
-  menuFile->addAction(actions.file_load_from_frontiernav);
-  menuFile->addAction(actions.file_show_in_frontiernav);
-  menuFile->addSeparator();
-  menuFile->addAction(actions.file_exit);
+  auto* menu_file = menuBar()->addMenu(tr("&File"));
+  menu_file->addAction(actions.file_new);
+  menu_file->addAction(actions.file_open);
+  menu_file->addMenu(actions.file_recent);
+  menu_file->addAction(actions.file_save);
+  menu_file->addAction(actions.file_save_as);
+  menu_file->addSeparator();
+  menu_file->addAction(actions.file_exit);
   // View menu
-  auto* menuView = menuBar()->addMenu(tr("&View"));
-  menuView->addAction(actions.view_zoom_in);
-  menuView->addAction(actions.view_zoom_out);
-  menuView->addAction(actions.view_zoom_all);
+  auto* menu_view = menuBar()->addMenu(tr("&View"));
+  menu_view->addAction(actions.view_zoom_in);
+  menu_view->addAction(actions.view_zoom_out);
+  menu_view->addAction(actions.view_zoom_all);
+  // Layout menu
+  auto* menu_layout = menuBar()->addMenu(tr("&Layout"));
+  menu_layout->addAction(actions.layout_load_from_frontiernav);
+  menu_layout->addAction(actions.layout_show_in_frontiernav);
+  menu_layout->addSeparator();
+  menu_layout->addAction(actions.layout_unlock_all);
+  menu_layout->addAction(actions.layout_lock_all);
+  menu_layout->addAction(actions.layout_set_all_basic);
   // Help menu
-  auto* menuHelp = menuBar()->addMenu(tr("&Help"));
-  menuHelp->addAction(actions.help_about);
-  menuHelp->addAction(actions.help_website);
+  auto* menu_help = menuBar()->addMenu(tr("&Help"));
+  menu_help->addAction(actions.help_about);
+  menu_help->addAction(actions.help_website);
 
   // Toolbar
   auto* toolbar = addToolBar(tr("Toolbar"));
@@ -86,9 +91,9 @@ void MainWindow::init_ui() {
   toolbar->addAction(actions.run_simulation);
 
   // Map
-  auto mapLayout = new QVBoxLayout(central);
+  auto map_layout = new QVBoxLayout(central);
   widgets_.mira_map = new MiraMap(&layout_, central);
-  mapLayout->addWidget(widgets_.mira_map);
+  map_layout->addWidget(widgets_.mira_map);
   // Forces recalculation of geometry, otherwise map is zoomed in a strange way at startup.
   widgets_.mira_map->show();
   connect(widgets_.mira_map, &MiraMap::site_probe_map_changed, this,
@@ -130,11 +135,11 @@ void MainWindow::init_ui() {
   solution_scroll_area->setSizeAdjustPolicy(QScrollArea::AdjustToContents);
   solution_scroll_area->setSizePolicy(QSizePolicy::MinimumExpanding,
                                       QSizePolicy::Preferred);
-  auto* resultsDockWidget = new QDockWidget(tr("Results"), this);
-  resultsDockWidget->setFeatures(QDockWidget::DockWidgetMovable |
+  auto* results_dock_widget = new QDockWidget(tr("Results"), this);
+  results_dock_widget->setFeatures(QDockWidget::DockWidgetMovable |
     QDockWidget::DockWidgetFloatable);
-  resultsDockWidget->setWidget(solution_scroll_area);
-  addDockWidget(Qt::RightDockWidgetArea, resultsDockWidget);
+  results_dock_widget->setWidget(solution_scroll_area);
+  addDockWidget(Qt::RightDockWidgetArea, results_dock_widget);
 }
 
 void MainWindow::init_actions() {
@@ -163,12 +168,6 @@ void MainWindow::init_actions() {
   actions.file_save_as->setShortcut(QKeySequence::SaveAs);
   connect(actions.file_save_as, &QAction::triggered, this,
           &MainWindow::file_save_as);
-  // Load from FrontierNav
-  actions.file_load_from_frontiernav = new QAction(tr("Load from FrontierNav.net"), this);
-  connect(actions.file_load_from_frontiernav, &QAction::triggered, this, &MainWindow::file_load_from_frontiernav);
-  // Show in FrontierNav
-  actions.file_show_in_frontiernav = new QAction(tr("Show in FrontierNav.net"), this);
-  connect(actions.file_show_in_frontiernav, &QAction::triggered, this, &MainWindow::file_show_in_frontiernav);
   // Exit
   actions.file_exit = new QAction(qicon_from_theme(ThemeIcon::ApplicationExit),
                                   tr("E&xit"), this);
@@ -187,6 +186,23 @@ void MainWindow::init_actions() {
   actions.view_zoom_all = new QAction(qicon_from_theme(ThemeIcon::ZoomFitBest),
                                       tr("Zoom &All"), this);
   actions.view_zoom_all->setShortcut(QKeySequence::SelectAll);
+
+  // Layout
+  // Load from FrontierNav
+  actions.layout_load_from_frontiernav = new QAction(tr("Load from FrontierNav.net"), this);
+  connect(actions.layout_load_from_frontiernav, &QAction::triggered, this, &MainWindow::layout_load_from_frontiernav);
+  // Show in FrontierNav
+  actions.layout_show_in_frontiernav = new QAction(tr("Show in FrontierNav.net"), this);
+  connect(actions.layout_show_in_frontiernav, &QAction::triggered, this, &MainWindow::layout_show_in_frontiernav);
+  // Unlock all
+  actions.layout_unlock_all = new QAction(tr("Unlock All"), this);
+  connect(actions.layout_unlock_all, &QAction::triggered, this, &MainWindow::layout_unlock_all);
+  // Lock all
+  actions.layout_lock_all = new QAction(tr("Lock All"), this);
+  connect(actions.layout_lock_all, &QAction::triggered, this, &MainWindow::layout_lock_all);
+  // Set all to Basic
+  actions.layout_set_all_basic = new QAction(tr("Set All to Basic"), this);
+  connect(actions.layout_set_all_basic, &QAction::triggered, this, &MainWindow::layout_set_all_basic);
 
   // Help
   // About
@@ -428,19 +444,24 @@ void MainWindow::file_save_as() {
   settings::set_last_file_dialog_path(file_info.absoluteDir().path());
 }
 
-void MainWindow::file_load_from_frontiernav() {
+void MainWindow::layout_load_from_frontiernav() {
   auto* input_dialog = new QInputDialog(this);
   input_dialog->setWindowTitle(tr("Load from FrontierNav.net"));
   input_dialog->setInputMode(QInputDialog::TextInput);
   input_dialog->setLabelText(tr("FrontierNav.net URL:"));
   QString url;
   std::optional<Layout> layout;
-  while (!(layout = Layout::from_frontier_nav_net_url(url.toStdString())).has_value()) {
+  for (;;) {
     input_dialog->setTextValue(url);
     if (input_dialog->exec() != QDialog::Accepted) {
       return;
     }
     url = input_dialog->textValue();
+    layout = Layout::from_frontier_nav_net_url(url.toStdString());
+    if (layout.has_value()) {
+      break;
+    }
+    QMessageBox::warning(this, tr("Invalid FrontierNav.net URL"), tr("Enter a URL from FrontierNav.net."));
   }
   layout_ = *layout;
   update_options_seed();
@@ -449,9 +470,49 @@ void MainWindow::file_load_from_frontiernav() {
   update_window_title();
 }
 
-void MainWindow::file_show_in_frontiernav() {
+void MainWindow::layout_show_in_frontiernav() {
   const QUrl url(QString::fromStdString(layout_.to_frontier_nav_net_url()), QUrl::TolerantMode);
   QDesktopServices::openUrl(url);
+}
+
+void MainWindow::layout_unlock_all() {
+  std::vector<Placement> placements = layout_.get_placements();
+  for (auto& placement : placements) {
+    if (placement.get_probe().probe_type == Probe::Type::none) {
+      placement = Placement(placement.get_site(), Probe::probes.at(Probe::idx_for_shorthand.at("-")));
+    }
+  }
+  layout_ = Layout(placements);
+  update_options_seed();
+  widgets_.mira_map->set_layout(&layout_);
+  setWindowModified(true);
+  update_window_title();
+}
+
+void MainWindow::layout_lock_all() {
+  std::vector<Placement> placements;
+  placements.reserve(FnSite::num_sites);
+  for (const auto& site : FnSite::sites) {
+    placements.emplace_back(site, Probe::probes.at(Probe::idx_for_shorthand.at("X")));
+  }
+  layout_ = Layout(placements);
+  update_options_seed();
+  widgets_.mira_map->set_layout(&layout_);
+  setWindowModified(true);
+  update_window_title();
+}
+
+void MainWindow::layout_set_all_basic() {
+  std::vector<Placement> placements;
+  placements.reserve(FnSite::num_sites);
+  for (const auto& site : FnSite::sites) {
+    placements.emplace_back(site, Probe::probes.at(Probe::idx_for_shorthand.at("-")));
+  }
+  layout_ = Layout(placements);
+  update_options_seed();
+  widgets_.mira_map->set_layout(&layout_);
+  setWindowModified(true);
+  update_window_title();
 }
 
 void MainWindow::help_about() {
