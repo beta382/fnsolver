@@ -12,13 +12,14 @@ SolverRunner::SolverRunner(const Options& options, QObject* parent): QThread(par
     }
     --(solver_options_.mutable_probe_quantities().at(probe.probe_id));
   }
-  const auto num_probes = std::accumulate(solver_options_.get_probe_quantities().cbegin(),
-                                          solver_options_.get_probe_quantities().cend(), 0u);
+  const uint32_t num_probes = std::accumulate(solver_options_.get_probe_quantities().cbegin(),
+                                              solver_options_.get_probe_quantities().cend(), 0u);
   const auto num_locked_sites = solver_options_.get_locked_sites().size();
   const auto seed_size = solver_options_.get_seed().size();
   const auto num_probes_required = FnSite::sites.size() - num_locked_sites - seed_size;
   if (num_probes < num_probes_required) {
-    solver_options_.mutable_probe_quantities().at(Probe::idx_for_shorthand.at("-")) += num_probes_required - num_probes;
+    solver_options_.mutable_probe_quantities().at(Probe::idx_for_shorthand.at("-")) +=
+      static_cast<uint32_t>(num_probes_required) - num_probes;
   }
 }
 
