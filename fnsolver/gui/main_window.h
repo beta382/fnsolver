@@ -31,7 +31,8 @@ private:
     QMenu* file_recent = nullptr;
     QAction* file_save = nullptr;
     QAction* file_save_as = nullptr;
-    QAction* file_frontiernav_url = nullptr;
+    QAction* file_load_from_frontiernav = nullptr;
+    QAction* file_show_in_frontiernav = nullptr;
     QAction* file_exit = nullptr;
     QAction* view_zoom_in = nullptr;
     QAction* view_zoom_out = nullptr;
@@ -72,7 +73,8 @@ private Q_SLOTS:
   void file_open();
   void file_save();
   void file_save_as();
-  void file_frontiernav_url();
+  void file_show_in_frontiernav();
+  void file_load_from_frontiernav();
   void help_about();
   void help_website();
   void data_changed();

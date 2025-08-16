@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QDockWidget>
+#include <QInputDialog>
 #include <ranges>
 
 #include "about_dialog.h"
@@ -56,7 +57,8 @@ void MainWindow::init_ui() {
   menuFile->addAction(actions.file_save);
   menuFile->addAction(actions.file_save_as);
   menuFile->addSeparator();
-  menuFile->addAction(actions.file_frontiernav_url);
+  menuFile->addAction(actions.file_load_from_frontiernav);
+  menuFile->addAction(actions.file_show_in_frontiernav);
   menuFile->addSeparator();
   menuFile->addAction(actions.file_exit);
   // View menu
@@ -161,9 +163,12 @@ void MainWindow::init_actions() {
   actions.file_save_as->setShortcut(QKeySequence::SaveAs);
   connect(actions.file_save_as, &QAction::triggered, this,
           &MainWindow::file_save_as);
-  // Open FrontierNav URL
-  actions.file_frontiernav_url = new QAction(tr("Open in FrontierNav.net..."), this);
-  connect(actions.file_frontiernav_url, &QAction::triggered, this, &MainWindow::file_frontiernav_url);
+  // Load from FrontierNav
+  actions.file_load_from_frontiernav = new QAction(tr("Load from FrontierNav.net"), this);
+  connect(actions.file_load_from_frontiernav, &QAction::triggered, this, &MainWindow::file_load_from_frontiernav);
+  // Show in FrontierNav
+  actions.file_show_in_frontiernav = new QAction(tr("Show in FrontierNav.net"), this);
+  connect(actions.file_show_in_frontiernav, &QAction::triggered, this, &MainWindow::file_show_in_frontiernav);
   // Exit
   actions.file_exit = new QAction(qicon_from_theme(ThemeIcon::ApplicationExit),
                                   tr("E&xit"), this);
@@ -423,7 +428,28 @@ void MainWindow::file_save_as() {
   settings::set_last_file_dialog_path(file_info.absoluteDir().path());
 }
 
-void MainWindow::file_frontiernav_url() {
+void MainWindow::file_load_from_frontiernav() {
+  auto* input_dialog = new QInputDialog(this);
+  input_dialog->setWindowTitle(tr("Load from FrontierNav.net"));
+  input_dialog->setInputMode(QInputDialog::TextInput);
+  input_dialog->setLabelText(tr("FrontierNav.net URL:"));
+  QString url;
+  std::optional<Layout> layout;
+  while (!(layout = Layout::from_frontier_nav_net_url(url.toStdString())).has_value()) {
+    input_dialog->setTextValue(url);
+    if (input_dialog->exec() != QDialog::Accepted) {
+      return;
+    }
+    url = input_dialog->textValue();
+  }
+  layout_ = *layout;
+  update_options_seed();
+  widgets_.mira_map->set_layout(&layout_);
+  setWindowModified(true);
+  update_window_title();
+}
+
+void MainWindow::file_show_in_frontiernav() {
   const QUrl url(QString::fromStdString(layout_.to_frontier_nav_net_url()), QUrl::TolerantMode);
   QDesktopServices::openUrl(url);
 }
