@@ -89,7 +89,7 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
   }
 
   // Status
-  widgets_.best_score->setText(locale.toString(iteration_status.best_score));
+  widgets_.best_score->setText(locale.toString(iteration_status.best_score, 'f', 0));
   widgets_.killed->setText(locale.toString(iteration_status.num_killed));
   const auto last_improvement_iteration = iteration_status.iteration - iteration_status.last_improvement;
   widgets_.last_improvement->setText(last_improvement_iteration == 0
