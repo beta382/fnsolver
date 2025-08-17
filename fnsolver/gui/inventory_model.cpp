@@ -26,7 +26,7 @@ QVariant InventoryModel::headerData(int section, Qt::Orientation orientation, in
         case Column::Name:
           return tr("Name");
         case Column::Quantity:
-          return tr("#");
+          return tr("Count");
         case Column::Used:
           return tr("Used");
         case Column::Remaining:
