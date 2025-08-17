@@ -55,6 +55,7 @@ different layouts and determine which one is "better".
     ScoreFunction::Type::weights,
   });
   widgets_.scorefunction->set_selection(solver_options_->get_score_function());
+  connect(widgets_.scorefunction, &ScoreFunctionWidget::selection_changed, this, &RunDialog::validate);
 
   // Tiebreaker
   auto* tiebreaker_container = new QWidget(this);
@@ -85,6 +86,7 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
     ScoreFunction::Type::max_revenue,
     ScoreFunction::Type::max_storage,
   });
+  connect(widgets_.tiebreaker, &ScoreFunctionWidget::selection_changed, this, &RunDialog::validate);
   if (solver_options_->get_maybe_tiebreaker_function().has_value()) {
     widgets_.tiebreaker->set_selection(solver_options_->get_maybe_tiebreaker_function());
   }
@@ -103,13 +105,21 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
   solver_params_scroll->setWidgetResizable(true);
   tabs->addTab(solver_params_scroll, tr("Solver Parameters"));
 
-  // Buttons.
+  // Errors
+  widgets_.errors = new QLabel(this);
+  widgets_.errors->setTextFormat(Qt::RichText);
+  widgets_.errors->setVisible(false);
+  layout->addWidget(widgets_.errors);
+
+  // Buttons
   auto* buttons = new QDialogButtonBox(this);
   layout->addWidget(buttons);
   buttons->addButton(QDialogButtonBox::Cancel);
-  buttons->addButton(tr("Solve"), QDialogButtonBox::AcceptRole);
+  widgets_.solve = buttons->addButton(tr("Solve"), QDialogButtonBox::AcceptRole);
   connect(buttons, &QDialogButtonBox::accepted, this, &RunDialog::solve);
   connect(buttons, &QDialogButtonBox::rejected, this, &RunDialog::reject);
+
+  validate();
 }
 
 void RunDialog::solve() {
@@ -130,4 +140,27 @@ void RunDialog::solve() {
   connect(run_progress, &RunProgressDialog::solved, this, &RunDialog::solved);
   connect(run_progress, &RunProgressDialog::solved, this, &RunDialog::accept);
   run_progress->show();
+}
+
+void RunDialog::validate() {
+  if (widgets_.errors == nullptr || widgets_.solve == nullptr) {
+    return;
+  }
+
+  std::vector<std::function<void(QStringList& errors)>> validators{
+    [this](QStringList& errors) {
+      // Ensure the score function and tiebreaker are different.
+      if (widgets_.scorefunction->get_score_function() == widgets_.tiebreaker->get_score_function()) {
+        errors.push_back(tr("Score Function and Tiebreaker must be different."));
+      }
+    }
+  };
+
+  QStringList errors;
+  for (const auto& validator : validators) {
+    validator(errors);
+  }
+  widgets_.errors->setText(QString("<div style=\"color:#FF0000\">%1</div>").arg(errors.join("<br>")));
+  widgets_.errors->setVisible(!errors.isEmpty());
+  widgets_.solve->setEnabled(errors.isEmpty());
 }

@@ -183,8 +183,12 @@ private:
   template <ScoreFunctionSelectWidget Widget_T>
   void init_scorefunction_select_widget() {
     auto& widget = widgets_.emplace_back(new Widget_T(this));
+    const auto scorefunction_type = widget->get_score_function_type();
     button_group_->addButton(widget->radio_button());
     layout_->addWidget(widget.get());
+    connect(widget->radio_button(), &QRadioButton::toggled, [this, scorefunction_type]() {
+      Q_EMIT(selection_changed(scorefunction_type));
+    });
   }
 };
 

@@ -2,6 +2,7 @@
 #define FNSOLVER_GUI_RUN_DIALOG_H
 
 #include <QDialog>
+#include <QLabel>
 
 #include "constraints_widget.h"
 #include "score_function_widget.h"
@@ -24,6 +25,8 @@ private:
     ScoreFunctionWidget* tiebreaker = nullptr;
     ConstraintsWidget* constraints = nullptr;
     SolverParamsWidget* solver_params = nullptr;
+    QLabel* errors = nullptr;
+    QPushButton* solve = nullptr;
   };
 
   Widgets widgets_;
@@ -31,6 +34,7 @@ private:
 
 private Q_SLOTS:
   void solve();
+  void validate();
 };
 
 
