@@ -75,7 +75,7 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
   );
   if (iteration_status.iteration <= solver_options_.get_iterations()) {
     const auto time_remaining = QTime::fromMSecsSinceStartOfDay(
-      total_time_required.msecsSinceStartOfDay() - time_elapsed.msecsSinceStartOfDay());
+      std::max(0, total_time_required.msecsSinceStartOfDay() - time_elapsed.msecsSinceStartOfDay()));
     widgets_.time_remaining->setText(tr("%1 remaining").arg(locale.toString(time_remaining, time_format)));
     widgets_.progress_bar->setMaximum(solver_options_.get_iterations());
   }
