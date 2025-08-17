@@ -25,6 +25,17 @@ int main(int argc, char* argv[]) {
     app.installTranslator(&app_translator);
   }
 
+#ifdef Q_OS_WINDOWS
+  // Using fusion style enables dark-mode detection on Windows < 11.
+  if (app.style()->name() != "windows11")
+  {
+    auto *style = QStyleFactory::create("fusion");
+    if (style != nullptr) {
+      app.setStyle(style);
+    }
+  }
+#endif
+
   MainWindow main_window;
   main_window.show();
 
