@@ -113,6 +113,12 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
         OUTPUT_SCRIPT DEPLOY_SCRIPT
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
+    add_custom_command(
+            TARGET ${TARGET} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" "-DCMAKE_INSTALL_PREFIX=$<TARGET_FILE_DIR:${TARGET}>" -DQT_DEPLOY_BIN_DIR=.
+            -DQT_DEPLOY_LIB_DIR=. -P "${DEPLOY_SCRIPT}"
+            VERBATIM
+    )
     install(
         SCRIPT ${DEPLOY_SCRIPT}
         COMPONENT gui
