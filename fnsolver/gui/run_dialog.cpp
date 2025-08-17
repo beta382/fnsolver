@@ -87,9 +87,7 @@ make a tiebreaker largely low-impact. With "Weights" as the Score Function, a ti
     ScoreFunction::Type::max_storage,
   });
   connect(widgets_.tiebreaker, &ScoreFunctionWidget::selection_changed, this, &RunDialog::validate);
-  if (solver_options_->get_maybe_tiebreaker_function().has_value()) {
-    widgets_.tiebreaker->set_selection(solver_options_->get_maybe_tiebreaker_function());
-  }
+  widgets_.tiebreaker->set_selection(solver_options_->get_maybe_tiebreaker_function());
 
   // Constraints
   widgets_.constraints = new ConstraintsWidget(solver_options_, this);
