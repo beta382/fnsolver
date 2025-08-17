@@ -4,7 +4,7 @@
 <context>
     <name>FnSiteWidget</name>
     <message numerus="yes">
-        <location filename="../../fnsolver/gui/fn_site_widget.cpp" line="23"/>
+        <location filename="../fn_site_widget.cpp" line="23"/>
         <source>%n territories</source>
         <translation>
             <numerusform>1 territory</numerusform>
@@ -15,7 +15,15 @@
 <context>
     <name>RunProgressDialog</name>
     <message numerus="yes">
-        <location filename="../../fnsolver/gui/run_progress_dialog.cpp" line="86"/>
+        <location filename="../run_progress_dialog.cpp" line="85"/>
+        <source>%n bonus iteration(s) remaining</source>
+        <translation>
+            <numerusform>1 bonus iteration remaining</numerusform>
+            <numerusform>%n bonus iterations remaining</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../run_progress_dialog.cpp" line="97"/>
         <source>%n iteration(s) ago</source>
         <translation>
             <numerusform>1 iteration ago</numerusform>

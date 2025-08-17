@@ -10,9 +10,7 @@ find_package(Qt6 6.4 REQUIRED COMPONENTS
     Svg
     Widgets
 )
-qt_standard_project_setup(
-    I18N_SOURCE_LANGUAGE en_US
-)
+qt_standard_project_setup()
 include(FetchContent)
 FetchContent_Declare(
     tomlplusplus
@@ -82,9 +80,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(${TARGET} PRIVATE fnsolver-gui.rc)
 endif ()
 
-qt_add_translations(${TARGET}
-    TS_FILE_DIR translations
-    PLURALS_TS_FILE translations/${PROJECT_NAME}_en_US.ts
+# When Qt min is 6.7 or higher, this can be replaced with qt_add_translations.
+qt_add_lupdate(${TARGET}
+    TS_FILES translations/${PROJECT_NAME}_en_US.ts
+    OPTIONS -pluralonly -source-language en_US
+)
+qt_add_lrelease(${TARGET}
+    TS_FILES translations/${PROJECT_NAME}_en_US.ts
+    QM_FILES_OUTPUT_VARIABLE QM_FILES
+)
+qt_add_resources(${TARGET} "translations"
+    PREFIX "/i18n"
+    BASE "${CMAKE_CURRENT_BINARY_DIR}"
+    FILES "${QM_FILES}"
 )
 
 install(

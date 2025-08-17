@@ -65,8 +65,6 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
   );
   const auto total_time_required = QTime::fromMSecsSinceStartOfDay(
     (time_elapsed.msecsSinceStartOfDay() / iteration_status.iteration) * solver_options_.get_iterations());
-  const auto time_remaining = QTime::fromMSecsSinceStartOfDay(
-    total_time_required.msecsSinceStartOfDay() - time_elapsed.msecsSinceStartOfDay());
   widgets_.iteration->setText(tr("%1 of %2")
                               .arg(iteration_status.iteration)
                               .arg(solver_options_.get_iterations())
@@ -75,7 +73,20 @@ void RunProgressDialog::progress(const Solver::IterationStatus& iteration_status
                                  .arg(locale.toString(time_elapsed, time_format))
                                  .arg(locale.toString(total_time_required, time_format))
   );
-  widgets_.time_remaining->setText(tr("%1 remaining").arg(locale.toString(time_remaining, time_format)));
+  if (iteration_status.iteration <= solver_options_.get_iterations()) {
+    const auto time_remaining = QTime::fromMSecsSinceStartOfDay(
+      total_time_required.msecsSinceStartOfDay() - time_elapsed.msecsSinceStartOfDay());
+    widgets_.time_remaining->setText(tr("%1 remaining").arg(locale.toString(time_remaining, time_format)));
+    widgets_.progress_bar->setMaximum(solver_options_.get_iterations());
+  }
+  else {
+    // When we are in bonus iterations, the time remaining can no longer be calculated.
+    widgets_.time_remaining->setText(
+      tr("%n bonus iteration(s) remaining", "",
+         solver_options_.get_bonus_iterations() - (iteration_status.iteration - iteration_status.last_improvement))
+    );
+    widgets_.progress_bar->setMaximum(0);
+  }
 
   // Status
   widgets_.best_score->setText(locale.toString(iteration_status.best_score));
