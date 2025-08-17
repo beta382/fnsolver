@@ -23,9 +23,10 @@ jobs:
             cpack_generator: "DEB;RPM;TGZ"
             binary_dir: "build-release"
           - os: windows-latest
-            cmake_preset: release-win-msvc
+            cmake_preset: release-win-mingw
             cpack_generator: "NSIS;ZIP"
             binary_dir: "build-release-win"
+            qt_arch: win64_mingw
 
     steps:
       #######################
@@ -39,12 +40,6 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install qt6-base-dev libqt6svg6-dev qt6-tools-dev libglx-dev libgl1-mesa-dev
 
-      - name: Setup MSVC (Windows)
-        if: ${{runner.os == 'Windows'}}
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
-
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
         if: ${{runner.os != 'Linux'}}
@@ -52,6 +47,7 @@ jobs:
         with:
           dir: ${{github.workspace}}/.qt
           version: ${{env.QT_VERSION}}
+          arch: ${{matrix.system.qt_arch}}
           cache: true
 
       #######################
