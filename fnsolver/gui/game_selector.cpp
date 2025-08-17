@@ -10,10 +10,10 @@ GameSelectorWidget::GameSelectorWidget(QWidget* parent): QComboBox(parent) {
   });
 }
 
-Game GameSelectorWidget::get_selected_game() const {
-  return static_cast<Game>(currentIndex());
+game::Version GameSelectorWidget::get_selected_game() const {
+  return static_cast<game::Version>(currentIndex());
 }
 
-void GameSelectorWidget::set_selected_game(Game game) {
+void GameSelectorWidget::set_selected_game(game::Version game) {
   setCurrentIndex(static_cast<int>(game));
 }

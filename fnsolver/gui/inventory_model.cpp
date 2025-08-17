@@ -2,9 +2,9 @@
 #include <QBrush>
 #include "probe_ui.h"
 
-const std::unordered_map<Game, std::unordered_map<std::string, uint32_t>> probes_max_maps{
+const std::unordered_map<game::Version, std::unordered_map<std::string, uint32_t>> probes_max_maps{
   {
-    Game::Original, {
+    game::Version::Original, {
       {"M1", 20}, {"M2", 24}, {"M3", 7}, {"M4", 15}, {"M5", 9}, {"M6", 10}, {"M7", 4}, {"M8", 23}, {"M9", 10},
       {"M10", 4},
       {"R1", 3}, {"R2", 4}, {"R3", 2}, {"R4", 6}, {"R5", 7}, {"R6", 4},
@@ -15,7 +15,7 @@ const std::unordered_map<Game, std::unordered_map<std::string, uint32_t>> probes
     },
   },
   {
-    Game::Definitive, {
+    game::Version::Definitive, {
       {"M1", 20}, {"M2", 24}, {"M3", 7}, {"M4", 15}, {"M5", 9}, {"M6", 10}, {"M7", 4}, {"M8", 23}, {"M9", 10},
       {"M10", 11},
       {"R1", 3}, {"R2", 4}, {"R3", 2}, {"R4", 6}, {"R5", 7}, {"R6", 12},
@@ -34,7 +34,7 @@ const std::vector<std::string> display_probes{
   "D", "S", "C",
 };
 
-InventoryModel::InventoryModel(Options* options, const Layout* layout, const Game* game, QObject* parent):
+InventoryModel::InventoryModel(Options* options, const Layout* layout, const game::Version* game, QObject* parent):
   QAbstractTableModel(parent), options_(options), layout_(layout), game_(game) {
   calculate_used_probes();
 }
@@ -165,4 +165,30 @@ void InventoryModel::calculate_used_probes() {
         return probe_id == placement.get_probe().probe_id;
       }));
   }
+}
+
+void InventoryModel::set_all_from_game() {
+  beginResetModel();
+
+  const auto& probes_max_map = probes_max_maps.at(*game_);
+  for (const auto& [shorthand, count] : probes_max_map) {
+    const auto probe_ix = Probe::idx_for_shorthand.at(shorthand);
+    options_->mutable_probe_quantities()[probe_ix] = count;
+  }
+
+  calculate_used_probes();
+  endResetModel();
+}
+
+void InventoryModel::remove_all_of_type(Probe::Type type) {
+  beginResetModel();
+
+  for (const auto& probe : Probe::probes) {
+    if (probe.probe_type == type) {
+      options_->mutable_probe_quantities()[probe.probe_id] = 0;
+    }
+  }
+
+  calculate_used_probes();
+  endResetModel();
 }

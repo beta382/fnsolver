@@ -26,6 +26,8 @@
 
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(options_loader::default_options()),
   layout_(fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites())) {
+  game_ = static_cast<game::Version>(settings::get_game_version());
+
   update_options_seed();
   init_ui();
 }
@@ -75,6 +77,11 @@ void MainWindow::init_ui() {
   menu_layout->addAction(actions.layout_unlock_all);
   menu_layout->addAction(actions.layout_lock_all);
   menu_layout->addAction(actions.layout_set_all_basic);
+  // Inventory menu
+  auto* menu_inventory = menuBar()->addMenu(tr("&Inventory"));
+  menu_inventory->addAction(actions.inventory_all_from_game);
+  menu_inventory->addAction(actions.inventory_remove_mining);
+  menu_inventory->addAction(actions.inventory_remove_research);
   // Help menu
   auto* menu_help = menuBar()->addMenu(tr("&Help"));
   menu_help->addAction(actions.help_about);
@@ -213,6 +220,24 @@ void MainWindow::init_actions() {
   // Set all to Basic
   actions.layout_set_all_basic = new QAction(tr("Set All to Basic"), this);
   connect(actions.layout_set_all_basic, &QAction::triggered, this, &MainWindow::layout_set_all_basic);
+
+  // Inventory
+  // Get All in Game
+  actions.inventory_all_from_game = new QAction(tr("Get All in Game"), this);
+  connect(actions.inventory_all_from_game, &QAction::triggered, [this]() {
+    // Can't connect directly as the model doens't exist yet.
+    inventory_model_->set_all_from_game();
+  });
+  // Remove Mining
+  actions.inventory_remove_mining = new QAction(tr("Remove Mining"), this);
+  connect(actions.inventory_remove_mining, &QAction::triggered, [this]() {
+    inventory_model_->remove_all_of_type(Probe::Type::mining);
+  });
+  // Remove Research
+  actions.inventory_remove_research = new QAction(tr("Remove Research"), this);
+  connect(actions.inventory_remove_research, &QAction::triggered, [this]() {
+    inventory_model_->remove_all_of_type(Probe::Type::research);
+  });
 
   // Help
   // About
@@ -547,8 +572,9 @@ void MainWindow::probe_map_changed() {
   update_options_territories();
 }
 
-void MainWindow::selected_game_changed(Game game) {
+void MainWindow::selected_game_changed(game::Version game) {
   game_ = game;
+  settings::set_game_version(static_cast<int>(game));
   inventory_model_->reset();
 }
 

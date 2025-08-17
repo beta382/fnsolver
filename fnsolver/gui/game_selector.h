@@ -9,11 +9,11 @@ class GameSelectorWidget : public QComboBox {
 
 public:
   explicit GameSelectorWidget(QWidget* parent = nullptr);
-  Game get_selected_game() const;
-  void set_selected_game(Game game);
+  game::Version get_selected_game() const;
+  void set_selected_game(game::Version game);
 
 Q_SIGNALS:
-  void selected_game_changed(Game game);
+  void selected_game_changed(game::Version game);
 };
 
 

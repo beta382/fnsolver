@@ -40,6 +40,9 @@ private:
     QAction* layout_unlock_all = nullptr;
     QAction* layout_lock_all = nullptr;
     QAction* layout_set_all_basic = nullptr;
+    QAction* inventory_all_from_game = nullptr;
+    QAction* inventory_remove_mining = nullptr;
+    QAction* inventory_remove_research = nullptr;
     QAction* help_about = nullptr;
     QAction* help_website = nullptr;
     QAction* run_simulation = nullptr;
@@ -57,7 +60,7 @@ private:
   InventoryModel* inventory_model_ = nullptr;
   Options solver_options_;
   Layout layout_;
-  Game game_ = Game::Original;
+  game::Version game_;
 
   void init_ui();
   void init_actions();
@@ -86,7 +89,7 @@ private Q_SLOTS:
   void help_website();
   void data_changed();
   void probe_map_changed();
-  void selected_game_changed(Game game);
+  void selected_game_changed(game::Version game);
   void options_changed(const Options& options);
   void solve();
   void solved(const Layout& layout);

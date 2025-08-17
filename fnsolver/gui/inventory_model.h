@@ -21,7 +21,7 @@ public:
 
   static constexpr auto column_count = static_cast<int>(Column::Max) + 1;
 
-  explicit InventoryModel(Options* options, const Layout* layout, const Game* game, QObject* parent = nullptr);
+  explicit InventoryModel(Options* options, const Layout* layout, const game::Version* game, QObject* parent = nullptr);
   [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
   [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
                                     int role) const override;
@@ -32,6 +32,9 @@ public:
                int role) override;
   [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+  void set_all_from_game();
+  void remove_all_of_type(Probe::Type type);
+
   /**
    * Recalculate probe counts.
    */
@@ -40,7 +43,7 @@ public:
 private:
   Options* options_;
   const Layout* layout_;
-  const Game* game_;
+  const game::Version* game_;
   std::array<int, Probe::num_probes> used_probes_{};
 
   void calculate_used_probes();
