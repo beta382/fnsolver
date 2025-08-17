@@ -65,6 +65,8 @@ void MainWindow::init_ui() {
   menu_view->addAction(actions.view_zoom_all);
   // Layout menu
   auto* menu_layout = menuBar()->addMenu(tr("&Layout"));
+  menu_layout->addAction(actions.run_simulation);
+  menu_layout->addSeparator();
   menu_layout->addAction(actions.layout_load_from_frontiernav);
   menu_layout->addAction(actions.layout_show_in_frontiernav);
   menu_layout->addSeparator();
@@ -119,8 +121,7 @@ void MainWindow::init_ui() {
   widgets_.inventory_table->setSizePolicy(QSizePolicy::MinimumExpanding,
                                           QSizePolicy::Preferred);
   auto* inventory_dock_widget = new QDockWidget(tr("Inventory"), this);
-  inventory_dock_widget->setFeatures(QDockWidget::DockWidgetMovable |
-    QDockWidget::DockWidgetFloatable);
+  inventory_dock_widget->setFeatures(QDockWidget::DockWidgetMovable);
   inventory_dock_widget->setWidget(widgets_.inventory_table);
   addDockWidget(Qt::RightDockWidgetArea, inventory_dock_widget);
 
@@ -136,8 +137,7 @@ void MainWindow::init_ui() {
   solution_scroll_area->setSizePolicy(QSizePolicy::MinimumExpanding,
                                       QSizePolicy::Preferred);
   auto* results_dock_widget = new QDockWidget(tr("Results"), this);
-  results_dock_widget->setFeatures(QDockWidget::DockWidgetMovable |
-    QDockWidget::DockWidgetFloatable);
+  results_dock_widget->setFeatures(QDockWidget::DockWidgetMovable);
   results_dock_widget->setWidget(solution_scroll_area);
   addDockWidget(Qt::RightDockWidgetArea, results_dock_widget);
 }
