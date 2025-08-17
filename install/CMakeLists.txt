@@ -1,7 +1,9 @@
 set(CPACK_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set(CPACK_PACKAGE_VENDOR "${PROJECT_AUTHOR}")
 set(CPACK_PACKAGE_CONTACT "${PROJECT_AUTHOR}")
-set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME}-gui;${PROJECT_DISPLAY_NAME}")
+if (TARGET ${PROJECT_NAME}-gui)
+  set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME}-gui;${PROJECT_DISPLAY_NAME}")
+endif ()
 set(CPACK_STRIP_FILES On)
 
 # Archive
@@ -10,21 +12,23 @@ set(CPACK_ARCHIVE_COMPONENT_INSTALL On)
 # Linux
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   include(GNUInstallDirs)
-  # .desktop file is filled in with configure-time info
-  configure_file("fnsolver.desktop" "${CMAKE_CURRENT_BINARY_DIR}/fnsolver.desktop")
-  install(
-      FILES "${CMAKE_CURRENT_BINARY_DIR}/fnsolver.desktop"
-      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
-      COMPONENT gui
-  )
+  if (TARGET ${PROJECT_NAME}-gui)
+    # .desktop file is filled in with configure-time info
+    configure_file("fnsolver.desktop" "${CMAKE_CURRENT_BINARY_DIR}/fnsolver.desktop")
+    install(
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/fnsolver.desktop"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
+        COMPONENT gui
+    )
 
-  # App icon
-  install(
-      FILES "${PROJECT_SOURCE_DIR}/fnsolver/gui/resources/dataprobe.png"
-      RENAME "fnsolver-gui.png"
-      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps"
-      COMPONENT gui
-  )
+    # App icon
+    install(
+        FILES "${PROJECT_SOURCE_DIR}/fnsolver/gui/resources/dataprobe.png"
+        RENAME "fnsolver-gui.png"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps"
+        COMPONENT gui
+    )
+  endif ()
 
   # DEB
   set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS On)
@@ -51,7 +55,9 @@ cpack_add_component(cli
     DISPLAY_NAME "Command-Line Interface"
     DESCRIPTION "Command-Line Interface"
 )
-cpack_add_component(gui
-    DISPLAY_NAME "Graphical Interface"
-    DESCRIPTION "Graphical Interface"
-)
+if (TARGET ${PROJECT_NAME}-gui)
+  cpack_add_component(gui
+      DISPLAY_NAME "Graphical Interface"
+      DESCRIPTION "Graphical Interface"
+  )
+endif ()
