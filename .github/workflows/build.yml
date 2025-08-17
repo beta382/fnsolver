@@ -27,6 +27,7 @@ jobs:
             cpack_generator: "NSIS;ZIP"
             binary_dir: "build-release-win"
             qt_arch: win64_mingw
+            qt_tools: tools_mingw1310
 
     steps:
       #######################
@@ -49,6 +50,8 @@ jobs:
           version: ${{env.QT_VERSION}}
           arch: ${{matrix.system.qt_arch}}
           cache: true
+          tools: ${{matrix.system.qt_tools}}
+          add-tools-to-path: true
 
       #######################
       # BUILD
