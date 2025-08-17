@@ -2,6 +2,31 @@
 #include <QBrush>
 #include "probe_ui.h"
 
+const std::unordered_map<Game, std::unordered_map<std::string, uint32_t>> probes_max_maps{
+  {
+    Game::Original, {
+      {"M1", 20}, {"M2", 24}, {"M3", 7}, {"M4", 15}, {"M5", 9}, {"M6", 10}, {"M7", 4}, {"M8", 23}, {"M9", 10},
+      {"M10", 4},
+      {"R1", 3}, {"R2", 4}, {"R3", 2}, {"R4", 6}, {"R5", 7}, {"R6", 4},
+      {"B1", 3}, {"B2", 3},
+      {"D", 4},
+      {"S", 11},
+      {"C", 15}
+    },
+  },
+  {
+    Game::Definitive, {
+      {"M1", 20}, {"M2", 24}, {"M3", 7}, {"M4", 15}, {"M5", 9}, {"M6", 10}, {"M7", 4}, {"M8", 23}, {"M9", 10},
+      {"M10", 11},
+      {"R1", 3}, {"R2", 4}, {"R3", 2}, {"R4", 6}, {"R5", 7}, {"R6", 12},
+      {"B1", 6}, {"B2", 6},
+      {"D", 10},
+      {"S", 22},
+      {"C", 15}
+    }
+  }
+};
+
 const std::vector<std::string> display_probes{
   // Don't show basic probes in this list.
   "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9",
@@ -9,8 +34,8 @@ const std::vector<std::string> display_probes{
   "D", "S", "C",
 };
 
-InventoryModel::InventoryModel(Options* options, const Layout* layout, QObject* parent): QAbstractTableModel(parent),
-  options_(options), layout_(layout) {
+InventoryModel::InventoryModel(Options* options, const Layout* layout, const Game* game, QObject* parent):
+  QAbstractTableModel(parent), options_(options), layout_(layout), game_(game) {
   calculate_used_probes();
 }
 
@@ -31,6 +56,8 @@ QVariant InventoryModel::headerData(int section, Qt::Orientation orientation, in
           return tr("Used");
         case Column::Remaining:
           return tr("Remaining");
+        case Column::Max:
+          return tr("Max");
       }
     }
   }
@@ -47,6 +74,9 @@ QVariant InventoryModel::data(const QModelIndex& index, int role) const {
   const auto probe_ix = Probe::idx_for_shorthand.at(probe_shorthand);
   const auto& probe = Probe::probes.at(probe_ix);
   const auto quantity = options_->get_probe_quantities().at(probe_ix);
+  const auto& probes_max_map = probes_max_maps.at(*game_);
+  const auto probe_max = probes_max_map.at(probe_shorthand);
+  const auto probes_used = used_probes_.at(probe_ix);
 
   if (role == Qt::DisplayRole) {
     if (col == Column::Name) {
@@ -56,10 +86,13 @@ QVariant InventoryModel::data(const QModelIndex& index, int role) const {
       return quantity;
     }
     else if (col == Column::Used) {
-      return used_probes_.at(probe_ix);
+      return probes_used;
     }
     else if (col == Column::Remaining) {
       return static_cast<int>(quantity) - used_probes_.at(probe_ix);
+    }
+    else if (col == Column::Max) {
+      return probe_max;
     }
   }
   else if (role == Qt::EditRole) {
@@ -68,7 +101,7 @@ QVariant InventoryModel::data(const QModelIndex& index, int role) const {
     }
   }
   else if (role == Qt::BackgroundRole) {
-    if (used_probes_.at(probe_ix) > static_cast<int>(quantity)) {
+    if (probes_used > static_cast<int>(quantity) || probes_used > static_cast<int>(probe_max)) {
       return QBrush(QColorConstants::Red);
     }
     else {
@@ -105,14 +138,13 @@ bool InventoryModel::setData(const QModelIndex& index, const QVariant& value, in
 
 Qt::ItemFlags InventoryModel::flags(const QModelIndex& index) const {
   const auto col = static_cast<Column>(index.column());
-  const auto defaults = Qt::ItemNeverHasChildren;
+  constexpr auto defaults = Qt::ItemNeverHasChildren;
   switch (col) {
     case Column::Name:
       return defaults | Qt::ItemIsEnabled;
     case Column::Quantity:
       return defaults | Qt::ItemIsEnabled | Qt::ItemIsEditable;
-    case Column::Used:
-    case Column::Remaining:
+    default:
       return defaults;
   }
 

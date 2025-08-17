@@ -3,6 +3,7 @@
 
 #include <QAbstractTableModel>
 
+#include "game.h"
 #include "fnsolver/solver/options.h"
 #include "fnsolver/layout/layout.h"
 
@@ -15,11 +16,12 @@ public:
     Quantity,
     Used,
     Remaining,
+    Max,
   };
 
-  static constexpr auto column_count = static_cast<int>(Column::Remaining) + 1;
+  static constexpr auto column_count = static_cast<int>(Column::Max) + 1;
 
-  explicit InventoryModel(Options* options, const Layout* layout, QObject* parent = nullptr);
+  explicit InventoryModel(Options* options, const Layout* layout, const Game* game, QObject* parent = nullptr);
   [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
   [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
                                     int role) const override;
@@ -38,6 +40,7 @@ public:
 private:
   Options* options_;
   const Layout* layout_;
+  const Game* game_;
   std::array<int, Probe::num_probes> used_probes_{};
 
   void calculate_used_probes();

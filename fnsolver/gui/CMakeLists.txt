@@ -33,6 +33,9 @@ qt_add_executable(${TARGET} WIN32
     fn_site_widget.h
     fnsite_ui.cpp
     fnsite_ui.h
+    game.h
+    game_selector.cpp
+    game_selector.h
     inventory_model.cpp
     inventory_model.h
     main.cpp

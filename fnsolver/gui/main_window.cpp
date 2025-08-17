@@ -13,9 +13,11 @@
 #include <QHeaderView>
 #include <QDockWidget>
 #include <QInputDialog>
+#include <QWidgetAction>
 #include <ranges>
 
 #include "about_dialog.h"
+#include "game_selector.h"
 #include "options_loader.h"
 #include "run_dialog.h"
 #include "settings.h"
@@ -91,6 +93,14 @@ void MainWindow::init_ui() {
   toolbar->addAction(actions.view_zoom_all);
   toolbar->addSeparator();
   toolbar->addAction(actions.run_simulation);
+  toolbar->addSeparator();
+  auto* game_selector = new GameSelectorWidget(this);
+  game_selector->set_selected_game(game_);
+  connect(game_selector, &GameSelectorWidget::selected_game_changed, this, &MainWindow::selected_game_changed);
+  auto* game_selector_act = new QWidgetAction(this);
+  game_selector_act->setText(tr("Game"));
+  game_selector_act->setDefaultWidget(game_selector);
+  toolbar->addAction(game_selector_act);
 
   // Map
   auto map_layout = new QVBoxLayout(central);
@@ -111,7 +121,7 @@ void MainWindow::init_ui() {
 
   // Config pane
   // Inventory
-  inventory_model_ = new InventoryModel(&solver_options_, &layout_, this);
+  inventory_model_ = new InventoryModel(&solver_options_, &layout_, &game_, this);
   connect(inventory_model_, &InventoryModel::dataChanged, this, &MainWindow::data_changed);
   widgets_.inventory_table = new QTableView(this);
   widgets_.inventory_table->setModel(inventory_model_);
@@ -535,6 +545,11 @@ void MainWindow::probe_map_changed() {
   widgets_.solution_widget->set_layout(layout_);
   update_options_seed();
   update_options_territories();
+}
+
+void MainWindow::selected_game_changed(Game game) {
+  game_ = game;
+  inventory_model_->reset();
 }
 
 void MainWindow::options_changed(const Options& options) {

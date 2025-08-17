@@ -57,6 +57,7 @@ private:
   InventoryModel* inventory_model_ = nullptr;
   Options solver_options_;
   Layout layout_;
+  Game game_ = Game::Original;
 
   void init_ui();
   void init_actions();
@@ -85,6 +86,7 @@ private Q_SLOTS:
   void help_website();
   void data_changed();
   void probe_map_changed();
+  void selected_game_changed(Game game);
   void options_changed(const Options& options);
   void solve();
   void solved(const Layout& layout);
