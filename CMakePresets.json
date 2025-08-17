@@ -32,6 +32,16 @@
       }
     },
     {
+      "name": "debug-win-mingw",
+      "description": "Debug build, cross-compiled for Windows using mingw-w64",
+      "binaryDir": "${sourceDir}/build-debug-win",
+      "toolchainFile": "${sourceDir}/mingw-w64-x86_64.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wconversion -Og"
+      }
+    },
+    {
       "name": "debug-win-msvc",
       "description": "Debug build using the default toolchain",
       "condition": {

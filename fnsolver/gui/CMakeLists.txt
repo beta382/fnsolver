@@ -75,6 +75,7 @@ target_link_libraries(${TARGET} PRIVATE
     tomlplusplus::tomlplusplus
 )
 target_compile_definitions(${TARGET} PRIVATE QT_NO_KEYWORDS)
+target_compile_features(${TARGET} PUBLIC cxx_std_20)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(${TARGET} PRIVATE fnsolver-gui.rc)
