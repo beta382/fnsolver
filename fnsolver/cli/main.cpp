@@ -51,7 +51,7 @@ void output_inventory_str(const Options &options) {
   std::cout << std::format("  Inventory{}: {}/{} probes",
       options.get_seed().empty() ? "" : " (excluding seed)",
       total_probes,
-      FnSite::num_sites)
+      FnSite::num_sites - options.get_seed().size())
       << std::endl;
   util::output_columns(
       std::cout,
