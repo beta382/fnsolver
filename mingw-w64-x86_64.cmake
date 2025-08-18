@@ -1,10 +1,45 @@
 set(CMAKE_SYSTEM_NAME Windows)
 set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    # This isn't set yet when the toolchain is processed.
+    set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+endif ()
+set(CMAKE_FIND_ROOT_PATH)
 
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${CMAKE_EXECUTABLE_SUFFIX})
 
-set(CMAKE_FIND_ROOT_PATH /usr/${TOOLCHAIN_PREFIX})
-
+# Paths below are from the build instructions in the README.
+# Setup MinGW
+set(FOUND_MINGW)
+if (IS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/.qt/Qt/Tools")
+    file(GLOB MAYBE_MINGW_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_LIST_DIR}/.qt/Qt/Tools/*")
+    foreach (MAYBE_MINGW_DIR ${MAYBE_MINGW_DIRS})
+        if ("${MAYBE_MINGW_DIR}" MATCHES "mingw[0-9]+_64$")
+            list(APPEND CMAKE_FIND_ROOT_PATH "${MAYBE_MINGW_DIR}")
+            set(CMAKE_CXX_COMPILER "${MAYBE_MINGW_DIR}/bin/${CMAKE_CXX_COMPILER}")
+            set(FOUND_MINGW true)
+            break()
+        endif ()
+    endforeach ()
+endif ()
+if (NOT FOUND_MINGW)
+    list(APPEND CMAKE_FIND_ROOT_PATH /usr/${TOOLCHAIN_PREFIX})
+endif ()
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+# Setup Qt find path, if applicable
+if (IS_DIRECTORY "$ENV{QT_ROOT_DIR}")
+    list(APPEND CMAKE_FIND_ROOT_PATH "$ENV{QT_ROOT_DIR}")
+    set(Qt6_DIR "$ENV{QT_ROOT_DIR}/lib/cmake/Qt6")
+else ()
+    file(GLOB MAYBE_QT_DIRS LIST_DIRECTORIES true "${CMAKE_CURRENT_LIST_DIR}/.qt/Qt/*")
+    foreach (MAYBE_QT_DIR ${MAYBE_QT_DIRS})
+        if ("${MAYBE_QT_DIR}" MATCHES "[0-9]+\.[0-9]+\.[0-9]+$")
+            list(APPEND CMAKE_FIND_ROOT_PATH "${MAYBE_QT_DIR}/mingw_64")
+            set(Qt6_DIR "${MAYBE_QT_DIR}/mingw_64/lib/cmake/Qt6")
+            break()
+        endif ()
+    endforeach ()
+endif ()

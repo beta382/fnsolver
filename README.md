@@ -50,6 +50,8 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
     - [`--threads`](#--threads)
   - [Complete Examples](#complete-examples)
   - [Building](#building)
+    - [Linux](#linux)
+    - [Windows](#windows)
   - [FAQ](#faq)
 
 
@@ -540,24 +542,57 @@ These examples use the pre-built Windows executable to demonstrate.
 
 FnSolver requires a C++ toolchain that supports C++20, Qt 6.4 or higher, and CMake 3.28 or higher. On platforms other than Linux, Qt 6.8 or higher is recommended.
 
-If you are building on Linux, it is recommended to configure and build from the provided CMake presets, which are:
+The CLI can be compiled without Qt. If Qt is not available on the system, only the CLI will be built.
+
+### Linux
+
+On Debian and derivatives, install dependencies with
+```bash
+sudo apt install qt6-base-dev libqt6svg6-dev qt6-tools-dev libglx-dev libgl1-mesa-dev
+```
+
+It is recommended to configure and build from the provided CMake presets, which are:
 
 - `debug` (GCC Debug build)
 - `release` (GCC Release build with optimizations)
-- `release-win` (mingw-w64 GCC cross-compile for Windows Release build with optimizations; requires mingw-w64)
-- `debug-win-msvc` (MSVC Windows Debug build)
-- `release-win-msvc` (MSVC Windows Release build with optimizations)
 
 Run the following commands:
 
 ```bash
-> cmake --preset <preset>
-> cmake --build ./build-<preset>
+cmake --preset <preset>
+cmake --build ./build-<preset>
 ```
 
-If you are building on a different platform, or wish to use a different Generator or Toolchain (e.g., Ninja, Clang/LLVM, native MSVC for Windows, etc.), it should be fairly straightforward to define your own preset (probably just need to specify the correct compiler flags), as the build isn't doing anything fancy. But you're on your own there.
+### Windows
 
+Get Qt using either the [Qt Online Installer](https://www.qt.io/download-qt-installer-oss) or [aqtinstall](https://aqtinstall.readthedocs.io/en/latest/installation.html). The release builds use the MinGW toolchain as the executables it creates are better optimized.
 
+With aqt (easiest) from the root of this project's source directory:
+```powershell
+aqt install-qt windows desktop 6.8 win64_mingw --outputdir .qt/Qt
+aqt install-tool windows desktop tools_mingw1310 --outputdir .qt/Qt
+```
+
+With the online installer:
+- Choose "Custom Installation"
+- Check Qt > Qt 6.8.x > MinGW 13.1.0 64-bit and Qt > Build Tools > MinGW 13.1.0 64-bit
+- Edit your system PATH variable to ensure that both Qt's and MinGW's `bin` directories are in your PATH.
+
+It is recommended to configure and build from the provided CMake presets, which are:
+
+- `debug-win-mingw`(mingw-w64 GCC cross-compile for Windows Debug build; requires mingw-w64)
+- `release-win-mingw` (mingw-w64 GCC cross-compile for Windows Release build with optimizations; requires mingw-w64)
+- `debug-win-msvc` (MSVC Windows Debug build)
+- `release-win-msvc` (MSVC Windows Release build with optimizations)
+
+If you use the MinGW toolchain and installed Qt with `aqt`, the included CMake toolchain file will pick up on Qt's location automatically. Run the following commands from the root of this project's source directory:
+
+```powershell
+cmake --preset <preset>
+cmake --build ./build-<debug or release>-win
+```
+
+If you used the Qt Online Installer, you will need to add `-DCMAKE_PREFIX_PATH=<path to Qt installation>` to the first cmake command.
 
 ## FAQ
 
