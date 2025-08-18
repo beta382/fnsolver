@@ -101,7 +101,7 @@ QVariant InventoryModel::data(const QModelIndex& index, int role) const {
     }
   }
   else if (role == Qt::BackgroundRole) {
-    if (probes_used > static_cast<int>(quantity) || probes_used > static_cast<int>(probe_max)) {
+    if (probes_used > static_cast<int>(quantity) || quantity > probe_max) {
       return QBrush(QColorConstants::Red);
     }
     else {
