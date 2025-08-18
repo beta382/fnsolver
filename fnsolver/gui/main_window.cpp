@@ -14,6 +14,7 @@
 #include <QDockWidget>
 #include <QInputDialog>
 #include <QWidgetAction>
+#include <QStaticText>
 #include <ranges>
 
 #include "about_dialog.h"
@@ -137,6 +138,37 @@ void MainWindow::init_ui() {
   widgets_.inventory_table->setSizeAdjustPolicy(QTableView::AdjustToContents);
   widgets_.inventory_table->setSizePolicy(QSizePolicy::MinimumExpanding,
                                           QSizePolicy::Preferred);
+  auto* inventory_header = widgets_.inventory_table->horizontalHeader();
+  inventory_header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  // Determine how wide the columns must be by measuring some text.
+  inventory_header->setMinimumSectionSize([]()
+  {
+    // Buttons width
+    QSpinBox spinbox;
+    spinbox.setMaximum(999);
+    spinbox.setValue(999);
+    spinbox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QStyleOptionSpinBox style_option;
+    style_option.initFrom(&spinbox);
+    auto buttons_width = qApp->style()->subControlRect(
+      QStyle::CC_SpinBox, &style_option, QStyle::SC_SpinBoxUp, &spinbox
+    ).width();
+    if (qApp->style()->name() == "windows11")
+    {
+      // Windows 11 style puts the up.down buttons side by side.
+      buttons_width *= 2;
+    }
+
+    // Text width
+    QStaticText text;
+    text.setText("999");
+    const auto& font = qApp->font(&spinbox);
+    text.prepare({}, font);
+
+    // Increase the text width to give it some breathing room.
+    const auto width = buttons_width + (text.size().width() * 1.5);
+    return static_cast<int>(std::lround(width));
+  }());
   auto* inventory_dock_widget = new QDockWidget(tr("Inventory"), this);
   inventory_dock_widget->setFeatures(QDockWidget::DockWidgetMovable);
   inventory_dock_widget->setWidget(widgets_.inventory_table);
