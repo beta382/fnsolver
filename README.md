@@ -48,11 +48,11 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
     - [`--mutation-rate`](#--mutation-rate)
     - [`--max-age`](#--max-age)
     - [`--threads`](#--threads)
-  - [Complete Examples](#complete-examples)
-  - [Building](#building)
-    - [Linux](#linux)
-    - [Windows](#windows)
-  - [FAQ](#faq)
+- [Complete Examples](#complete-examples)
+- [Building](#building)
+  - [Linux](#linux)
+  - [Windows](#windows)
+- [FAQ](#faq)
 
 
 ## Differences Between FnSolver and XenoProbes
@@ -628,7 +628,7 @@ I've found that increasing [`--offspring`](#--offspring) and [`--population`](#-
 
 That really depends on what you want out of FrontierNav. Many options are provided because everyone wants something different.
 
-Generally, I think that `max_effective_mining` is the most relevant Score Function (optionally with a `max_mining` tiebreaker). Revenue seems to be fairly worthless outside of a couple quests that require it, and it captures the nuance of "you get Miranium in discreet chunks but are capped by your Storage).
+Generally, I think that `max_effective_mining` is the most relevant Score Function (optionally with a `max_mining` tiebreaker). Revenue seems to be fairly worthless outside of a couple quests that require it, and it captures the nuance of "you get Miranium in discreet chunks but are capped by your Storage".
 
 #### Why shouldn't I use the [`--min-mining`](#--min-mining)/[`--min-revenue`](#--min-revenue)/[`--min-storage`](#--min-storage) constraints?
 
