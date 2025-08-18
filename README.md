@@ -87,7 +87,11 @@ Some quick shortcuts are available in the Layout menu to lock all sites, unlock 
 
 ### Inventory
 
-Enter the number of probes in your inventory here. Additionally, for each probe the number used in the current layout and the number remaining are displayed. These counts are updated live as the layout is adjusted. If the number of probes used exceeds the number in inventory, that row will be highlighted in red.
+Enter the number of probes in your inventory here. Additionally, for each probe the number used in the current layout and the number remaining are displayed. These counts are updated live as the layout is adjusted. If the number of probes used exceeds the number in inventory or available in the game, that row will be highlighted in red.
+
+The "Max" column displays the maximum number of each probe type that can be found in the game. Set the version you're playing to "Original" or "Definitive" with the menu in the toolbar.
+
+The Inventory menu has quick shortcuts to obtain all available probes in this version of the game, remove all Mining Probes, or remove all Research Probes.
 
 ### Results
 
