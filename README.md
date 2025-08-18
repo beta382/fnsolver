@@ -328,10 +328,11 @@ If you use [frontiernav.net](https://frontiernav.net/wiki/xenoblade-chronicles-x
 
 Examples:
 
-- `--seed 312:D 315:D 321:D` (a Duplicator chain setup in Oblivia, useful for optimizing any yield type while keeping high Precious Resource output; 312 may be swapped with 318, or omitted entirely to let FnSolver figure out which is better)
-- `--seed 405:D 408:D 409:D` (a powerful Duplicator chain setup in Sylvalum, useful for optimizing Mining or Storage while keeping high Precious Resource output)
-- `--seed 110:D 111:D 112:D 113:D 114:D 405:D 408:D 409:D` (a powerful Duplicator chain setup in Primordia and Sylvalium, useful for optimizing primarily Storage while keeping high Precious Resource output)
-- `--seed 508:D 509:D 511:D` (a powerful Duplicator chain setup in Cauldros, highly optimal for any yield type if you don't care about losing some Bonjelium output)
+- `--seed 110:D 111:D 112:D 113:D 114:D 405:D 408:D 409:D` (a very powerful Duplicator chain setup in Primordia and Sylvalium, highly optimal for optimizing Effective Mining or Storage while keeping high Precious Resource output)
+- `--seed 412:D 415:D 502:D 503:D 504:D 508:D 509:D 511:D` (a very powerful Duplicator chain setup in Cauldros, highly optimal for optimizing Storage in particular if you don't care about losing most/all Bonjelium output)
+- `--seed 312:D 315:D 321:D` (a Duplicator chain setup in Oblivia, great for optimizing any yield type while keeping high Precious Resource output; 312 may be swapped with 318, or omitted entirely to let FnSolver figure out which is better)
+- `--seed 405:D 408:D 409:D` (a powerful Duplicator chain setup in Sylvalum, useful for optimizing Effective Mining or Storage while keeping high Precious Resource output)
+- `--seed 508:D 509:D 511:D` (a very powerful Duplicator chain setup in Cauldros, highly optimal for any yield type if you don't care about losing some Bonjelium output)
 - `--seed https://frontiernav.net/wiki/xenoblade-chronicles-x/visualisations/maps/probe-guides/My%20Current%20Layout?map=101-0~102-0~103-0~104-0~105-0~106-0~107-0~108-0~109-0~110-0~111-0~112-0~113-0~114-0~115-0~116-0~117-0~118-0~119-0~120-0~121-0~201-0~202-0~203-0~204-0~205-0~206-0~207-0~208-0~209-0~210-0~211-0~212-0~213-0~214-0~215-0~216-0~217-0~218-0~219-0~220-0~221-0~222-0~223-0~224-0~225-0~301-0~302-0~303-0~304-0~305-0~306-0~307-0~308-0~309-0~310-0~311-0~312-0~313-0~314-0~315-0~316-0~317-0~318-0~319-0~320-0~321-0~322-0~401-0~402-0~403-0~404-0~405-0~406-0~407-0~408-0~409-0~410-0~411-0~412-0~413-0~414-0~415-0~416-0~417-0~418-0~419-0~420-0~501-0~502-0~503-0~504-0~505-0~506-0~507-0~508-20~509-20~510-0~511-20~512-0~513-0~514-0~515-0~516-0` (the same as above)
 
 #### `--force-seed`
