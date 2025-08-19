@@ -1,3 +1,5 @@
 /build*
 /*.toml
 CMakeUserPresets.json
+.qt/
+*.log

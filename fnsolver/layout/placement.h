@@ -5,7 +5,12 @@
 #include <fnsolver/data/probe.h>
 
 class Placement {
+  friend bool operator==(const Placement& lhs, const Placement& rhs);
+
   public:
+    /** Use with std::sort etc. to sort a list of placements by site id. */
+    static bool sort_cmp(const Placement& lhs, const Placement& rhs);
+
     Placement(const FnSite &site, const Probe &probe);
 
     Placement(const Placement &other) = default;

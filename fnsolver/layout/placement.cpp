@@ -13,3 +13,11 @@ const FnSite &Placement::get_site() const {
 const Probe &Placement::get_probe() const {
   return *probe;
 }
+
+bool operator==(const Placement& lhs, const Placement& rhs) {
+  return lhs.site == rhs.site && lhs.probe == rhs.probe;
+}
+
+bool Placement::sort_cmp(const Placement& lhs, const Placement& rhs) {
+  return lhs.site->site_id < rhs.site->site_id;
+}

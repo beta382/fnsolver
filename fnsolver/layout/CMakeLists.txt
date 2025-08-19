@@ -1,6 +1,6 @@
 set(TARGET layout)
 
-add_library(${TARGET}
+add_library(${TARGET} STATIC
     layout.cpp
     placement.cpp
     resolved_placement.cpp

@@ -24,8 +24,6 @@
 #include <vector>
 
 namespace {
-std::atomic<bool> should_stop;
-
 ScoreFunction create_constrained_score_function(const Options &options) {
   const std::vector<size_t> nonzero_precious_resource_minimum_idxs = [&]() {
     std::vector<size_t> nonzero_precious_resource_minimum_idxs;
@@ -57,7 +55,7 @@ ScoreFunction create_constrained_score_function(const Options &options) {
 
         return options.get_score_function()(layout);
       },
-      options.get_score_function().get_details_str());
+      options.get_score_function().get_name(), options.get_score_function().get_args());
 }
 
 std::vector<Placement> merge_locked_sites_and_seed(const Options &options) {
@@ -70,9 +68,7 @@ std::vector<Placement> merge_locked_sites_and_seed(const Options &options) {
       seed.cbegin(),
       seed.cend(),
       std::back_inserter(merged_seed),
-      [](const Placement &lhs, const Placement &rhs) {
-        return lhs.get_site().site_id < rhs.get_site().site_id;
-      });
+      &Placement::sort_cmp);
   return merged_seed;
 }
 } // namespace
@@ -99,10 +95,7 @@ Solver::Solver(Options options)
         return inventory;
       }()) {}
 
-Solution Solver::run(std::ostream &out) const {
-  should_stop = false;
-  std::signal(SIGINT, [](int) { should_stop = true; });
-
+Solution Solver::run(const ProgressCallback& progress_callback, const StopCallback& stop_callback) const {
   std::mt19937 mt_engine(std::random_device{}());
   std::vector<Solution> population;
   for (uint32_t i = 0; i < options.get_population_size(); ++i) {
@@ -169,31 +162,17 @@ Solution Solver::run(std::ostream &out) const {
       last_improvement_iteration = iteration;
     }
 
-    const std::string last_improvement_str = [=]() {
-      const uint32_t iterations_ago = iteration - last_improvement_iteration;
-      if (iterations_ago == 0) {
-        return std::string("This iteration");
-      } else if (iterations_ago == 1) {
-        return std::format("1 iteration ago");
-      } else {
-        return std::format("{} iterations ago", iterations_ago);
-      }
-    }();
-    out << std::format("Finished iteration {}/{}:", iteration, options.get_iterations()) << std::endl;
-    out << std::format("  Overall best score: {}", best_solution.get_score()) << std::endl;
-    out << std::format("  Solutions killed:   {}", num_killed) << std::endl;
-    out << std::format("  Last improvement:   {}", last_improvement_str) << std::endl;
-    out << std::format("  Yield for best score:") << std::endl;
-    best_solution.get_layout().output_report(out, 4, false, true, false, false);
-  } while (!should_stop
-      && (iteration < options.get_iterations()
-          || (iteration - last_improvement_iteration) < options.get_bonus_iterations()));
-
-  if (should_stop) {
-    out << "Solver terminated early by user input" << std::endl;
+    progress_callback({
+      .iteration = iteration,
+      .best_score = best_solution.get_score(),
+      .num_killed = num_killed,
+      .last_improvement = last_improvement_iteration,
+      .best_layout = best_solution.get_layout(),
+    });
   }
-
-  std::signal(SIGINT, SIG_DFL);
+  while (!stop_callback()
+    && (iteration < options.get_iterations()
+      || (iteration - last_improvement_iteration) < options.get_bonus_iterations()));
 
   return best_solution;
 }

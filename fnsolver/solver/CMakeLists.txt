@@ -1,6 +1,6 @@
 set(TARGET solver)
 
-add_library(${TARGET}
+add_library(${TARGET} STATIC
     options.cpp
     score_function.cpp
     solution.cpp

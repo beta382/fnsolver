@@ -1,0 +1,91 @@
+name: Build
+on:
+  push: ~
+  workflow_dispatch: ~
+
+env:
+  SOURCE_DIR: ${{github.workspace}}
+  QT_VERSION: 6.8
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ${{matrix.system.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        system:
+          - os: ubuntu-latest
+            cmake_preset: release
+            cpack_generator: "DEB;RPM;TGZ"
+            binary_dir: "build-release"
+          - os: windows-latest
+            cmake_preset: release-win-mingw
+            cpack_generator: "NSIS;ZIP"
+            binary_dir: "build-release-win"
+            qt_arch: win64_mingw
+            qt_tools: tools_mingw1310
+
+    steps:
+      #######################
+      # SETUP
+      #######################
+      - uses: actions/checkout@v4
+
+      - name: Install System Packages (Linux)
+        if: ${{runner.os == 'Linux'}}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install qt6-base-dev libqt6svg6-dev qt6-tools-dev libglx-dev libgl1-mesa-dev
+
+      - name: Install Qt
+        # Don't need this on Linux, as Qt will come from the system package manager above
+        if: ${{runner.os != 'Linux'}}
+        uses: jurplel/install-qt-action@v4
+        with:
+          dir: ${{github.workspace}}/.qt
+          version: ${{env.QT_VERSION}}
+          arch: ${{matrix.system.qt_arch}}
+          cache: true
+          tools: ${{matrix.system.qt_tools}}
+          add-tools-to-path: true
+
+      #######################
+      # BUILD
+      #######################
+      - name: Configure CMake
+        run: >
+          cmake
+          -G Ninja
+          -S "${{github.workspace}}"
+          -B "${{matrix.system.binary_dir}}"
+          --preset=${{matrix.system.cmake_preset}}
+          -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install_root"
+          -DBUILD_PACKAGE=On
+
+      - name: Build
+        run: cmake --build "${{matrix.system.binary_dir}}"
+
+      #######################
+      # PACKAGE
+      #######################
+      - name: Package
+        working-directory: ${{matrix.system.binary_dir}}
+        run: cpack -G "${{matrix.system.cpack_generator}}" -B "./packages"
+
+      - name: Upload failed package artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{failure()}}
+        with:
+          name: failed_package_${{runner.os}}
+          path: ${{matrix.system.binary_dir}}/packages
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages_${{runner.os}}_${{runner.arch}}
+          path: ${{matrix.system.binary_dir}}/packages/*.*
+          if-no-files-found: error

@@ -23,7 +23,9 @@ class Layout {
     Layout &operator=(const Layout &other) = default;
     Layout &operator=(Layout &&other) = default;
 
+    /** Site/Probe pairs ordered by site id */
     const std::vector<Placement> &get_placements() const;
+    /** Site yield info ordered by site id */
     const std::vector<ResolvedPlacement> &get_resolved_placements() const;
     const ResourceYield &get_resource_yield() const;
 

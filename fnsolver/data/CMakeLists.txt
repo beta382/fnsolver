@@ -1,6 +1,6 @@
 set(TARGET data)
 
-add_library(${TARGET}
+add_library(${TARGET} STATIC
     fnsite.cpp
     precious_resource.cpp
     probe.cpp

@@ -13,4 +13,17 @@ target_link_libraries(${TARGET} PRIVATE
 )
 
 target_compile_features(${TARGET} PRIVATE cxx_std_20)
+if (MINGW)
+    target_link_options(${TARGET} PRIVATE -static)
+endif ()
 
+install(
+    TARGETS ${TARGET}
+    COMPONENT cli
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(
+    FILES "$<TARGET_RUNTIME_DLLS:${TARGET}>"
+    COMPONENT cli
+    TYPE BIN
+)

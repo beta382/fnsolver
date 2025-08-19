@@ -5,9 +5,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstdint>
 #include <format>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 
@@ -25,7 +27,7 @@ const std::unordered_map<std::string, ScoreFunction::Type> ScoreFunction::type_f
 ScoreFunction ScoreFunction::create_max_mining() {
   return ScoreFunction(
       [](const Layout &layout) { return layout.get_resource_yield().get_production(); },
-      "max_mining()");
+      "max_mining");
 }
 
 // static
@@ -37,21 +39,21 @@ ScoreFunction ScoreFunction::create_max_effective_mining(double storage_factor) 
             storage_factor * resource_yield.get_production(),
             static_cast<double>(resource_yield.get_storage()));
       },
-      std::format("max_effective_mining(storage_factor = {})", storage_factor));
+      "max_effective_mining", {{"storage_factor", storage_factor}});
 }
 
 // static
 ScoreFunction ScoreFunction::create_max_revenue() {
   return ScoreFunction(
       [](const Layout &layout) { return layout.get_resource_yield().get_revenue(); },
-      "max_revenue()");
+      "max_revenue");
 }
 
 // static
 ScoreFunction ScoreFunction::create_max_storage() {
   return ScoreFunction(
       [](const Layout &layout) { return layout.get_resource_yield().get_storage(); },
-      "max_storage()");
+      "max_storage");
 }
 
 // static
@@ -85,7 +87,7 @@ ScoreFunction ScoreFunction::create_ratio(double mining_factor, double revenue_f
 
         return min * (*std::max_element(factors.cbegin(), factors.cend()));
       },
-      std::format("ratio(mining = {}, revenue = {}, storage = {})", mining_factor, revenue_factor, storage_factor));
+      "ratio", {{"mining", mining_factor},{"revenue", revenue_factor}, {"storage", storage_factor}});
 }
 
 // static
@@ -97,15 +99,76 @@ ScoreFunction ScoreFunction::create_weights(double mining_weight, double revenue
             + revenue_weight * resource_yield.get_revenue()
             + storage_weight * resource_yield.get_storage();
       },
-      std::format("weights(mining = {}, revenue = {}, storage = {})", mining_weight, revenue_weight, storage_weight));
+      "weights", {{"mining", mining_weight},{"revenue", revenue_weight}, {"storage", storage_weight}});
 }
 
-ScoreFunction::ScoreFunction(func_t score_function, std::string details_str)
+ScoreFunction::ScoreFunction(func_t score_function, std::string name, args_t args)
     : score_function(std::move(score_function)),
-      details_str(std::move(details_str)) {}
+      name(std::move(name)), args(std::move(args)) {}
 
-const std::string &ScoreFunction::get_details_str() const {
-  return details_str;
+ScoreFunction::ScoreFunction(const ScoreFunction& other) {
+  *this = other;
+}
+
+ScoreFunction& ScoreFunction::operator=(const ScoreFunction& other) {
+  return *this = from_name_and_args(other.name, other.get_args_map());
+}
+
+ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const args_map_t& args) {
+  switch (type_for_str.at(name)) {
+    case Type::max_mining:
+      return create_max_mining();
+    case Type::max_effective_mining:
+      return create_max_effective_mining(args.at("storage_factor"));
+    case Type::max_revenue:
+      return create_max_revenue();
+    case Type::max_storage:
+      return create_max_storage();
+    case Type::ratio:
+      return create_ratio(args.at("mining"), args.at("revenue"), args.at("storage"));
+    case Type::weights:
+      return create_weights(args.at("mining"), args.at("revenue"), args.at("storage"));
+  }
+  throw std::logic_error("Unknown score function type");
+}
+
+ScoreFunction ScoreFunction::from_name_and_args(const std::string& name, const std::vector<double>& args) {
+  switch (type_for_str.at(name)) {
+    case Type::max_mining:
+      return create_max_mining();
+    case Type::max_effective_mining:
+      return create_max_effective_mining(args.at(0));
+    case Type::max_revenue:
+      return create_max_revenue();
+    case Type::max_storage:
+      return create_max_storage();
+    case Type::ratio:
+      return create_ratio(args.at(0), args.at(1), args.at(2));
+    case Type::weights:
+      return create_weights(args.at(0), args.at(1), args.at(2));
+  }
+  throw std::logic_error("Unknown score function type");
+}
+
+ScoreFunction::args_map_t ScoreFunction::get_args_map() const {
+  return args_map_t(args.cbegin(), args.cend());
+}
+
+std::string ScoreFunction::get_details_str() const {
+  if (args.empty()) {
+    return std::format("{}()", name);
+  }
+
+  // Can't format ranges until C++23.
+  std::stringstream args_ss;
+  for (const auto &arg : args) {
+    args_ss << std::format("{} = {}, ", arg.first, arg.second);
+  }
+  auto args_str = args_ss.str();
+  // Remove trailing comma-space.
+  args_str.resize(args_str.size() - 2);
+
+  return std::format("{}({})", name, args_str);
 }
 
 double ScoreFunction::operator()(const Layout &layout) const {

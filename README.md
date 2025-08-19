@@ -7,12 +7,19 @@ This software is inspired by [XenoProbes](https://github.com/minneyar/xenoprobes
 This software uses the following third-party libraries; see [3rd-party-licenses](3rd-party-licenses) for their licenses:
 
 - [CLI11](https://github.com/CLIUtils/CLI11)
+- [Qt](https://www.qt.io)
+- [Toml++](https://github.com/marzer/tomlplusplus)
 
 ## Table of Contents
 
 - [Differences Between FnSolver and XenoProbes](#differences-between-fnsolver-and-xenoprobes)
-- [Running](#running)
-- [Options](#options)
+- [GUI](#gui)
+  - [Map](#map)
+  - [Inventory](#inventory)
+  - [Results](#results)
+  - [Running](#running)
+  - [Saving/Loading](#savingloading)
+- [CLI](#cli)
   - [General Options](#general-options)
     - [`--help`](#--help)
     - [`--config-file`](#--config-file)
@@ -21,7 +28,7 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
   - [Score Function](#score-function)
     - [`--score-function`](#--score-function)
     - [`--tiebreaker`](#--tiebreaker)
-  - [Inventory](#inventory)
+  - [Inventory](#inventory-1)
     - [`--inventory`](#--inventory)
   - [FrontierNav Overrides](#frontiernav-overrides)
     - [`--territories`](#--territories)
@@ -43,6 +50,8 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
     - [`--threads`](#--threads)
   - [Complete Examples](#complete-examples)
   - [Building](#building)
+    - [Linux](#linux)
+    - [Windows](#windows)
   - [FAQ](#faq)
 
 
@@ -62,13 +71,41 @@ This software uses the following third-party libraries; see [3rd-party-licenses]
   - Considers additional probes in the inventory when generating mutations (instead of a solution lineage being stuck with only the initially selected subset of the inventory)
   - More uniformly generates mutations (XenoProbes has a bias towards mutating later FrontierNav sites)
 - \+ ~60-80% faster (tested across various option combinations)
-- \- No GUI
 
+## GUI
+![Main window](/doc/img/gui-main.png)
 
+The graphical interface is broken into three sections: Map, Inventory, and Results.
 
-## Running
+### Map
 
-FnSolver is a Command Line Interface (CLI) application.
+The map shows the current probe layout. Right-click on a site to manually set its probe, or mark it as locked (i.e. undiscovered). Sites with [Unexplored Territories](https://www.xenoserieswiki.org/wiki/Unexplored_Territory) or [Scenic Viewpoints](https://www.xenoserieswiki.org/wiki/Scenic_Viewpoint) have additional options to select how many have been discovered. This number changes the efficacy of Research Probes on that site.
+
+As with the in-game map, sites that are linked together are shown with blue lines between them. If 3 or more sites have the same probe, the line will be pink and the sites that benefit from the link will be circled in red.
+
+Some quick shortcuts are available in the Layout menu to lock all sites, unlock all sites, and set all sites to basic probes.
+
+### Inventory
+
+Enter the number of probes in your inventory here. Additionally, for each probe the number used in the current layout and the number remaining are displayed. These counts are updated live as the layout is adjusted. If the number of probes used exceeds the number in inventory or available in the game, that row will be highlighted in red.
+
+The "Max" column displays the maximum number of each probe type that can be found in the game. Set the version you're playing to "Original" or "Definitive" with the menu in the toolbar.
+
+The Inventory menu has quick shortcuts to obtain all available probes in this version of the game, remove all Mining Probes, or remove all Research Probes.
+
+### Results
+
+The current layout's yields are listed here. See [here](#--precious-resources) for information on what the resource yield quantities and percentages mean.
+
+### Running
+
+Click the "play" button on the toolbar to run the simulation. In the solve dialog, adjust the parameters to your liking based on the descriptions shown for each parameter. Then, click solve. Once the results are ready, the solve dialog will close and the results will be shown on the map.
+
+### Saving/Loading
+
+Options (including current layout, inventory, and solver options) can be saved/opened as needed from the File menu. Additionally, layouts created on [frontiernav.net](https://frontiernav.net/wiki/xenoblade-chronicles-x/visualisations/maps/probe-guides) can be opened and saved from the Layout menu.
+
+## CLI
 
 If you're a Windows user who downloaded the [pre-built executable](https://github.com/beta382/fnsolver/releases) (and you aren't familiar with running CLI applications):
 
@@ -85,12 +122,6 @@ Once FnSolver concludes, it will output a report for the best FrontierNav layout
 - A [frontiernav.net](https://frontiernav.net/wiki/xenoblade-chronicles-x/visualisations/maps/probe-guides) URL linking to a visual representation of the layout
 - An overview of the resource yields for the layout
 - A table giving advanced details for each FrontierNav site in the layout
-
-
-
-## Options
-
-
 
 ### General Options
 
@@ -513,24 +544,59 @@ These examples use the pre-built Windows executable to demonstrate.
 
 ## Building
 
-FnSolver does not require any external libraries. You only need a need a C++ toolchain that supports C++20, and a relatively up-to-date version of CMake.
+FnSolver requires a C++ toolchain that supports C++20, Qt 6.4 or higher, and CMake 3.28 or higher. On platforms other than Linux, Qt 6.8 or higher is recommended.
 
-If you are building on Linux, it is recommended to configure and build from the provided CMake presets, which are:
+The CLI can be compiled without Qt. If Qt is not available on the system, only the CLI will be built.
+
+### Linux
+
+On Debian and derivatives, install dependencies with
+```bash
+sudo apt install qt6-base-dev libqt6svg6-dev qt6-tools-dev libglx-dev libgl1-mesa-dev
+```
+
+It is recommended to configure and build from the provided CMake presets, which are:
 
 - `debug` (GCC Debug build)
 - `release` (GCC Release build with optimizations)
-- `release-win` (mingw-w64 GCC cross-compile for Windows Release build with optimizations; requires mingw-w64)
 
 Run the following commands:
 
 ```bash
-> cmake --preset <preset>
-> cmake --build ./build-<preset>
+cmake --preset <preset>
+cmake --build ./build-<preset>
 ```
 
-If you are building on a different platform, or wish to use a different Generator or Toolchain (e.g., Ninja, Clang/LLVM, native MSVC for Windows, etc.), it should be fairly straightforward to define your own preset (probably just need to specify the correct compiler flags), as the build isn't doing anything fancy. But you're on your own there.
+### Windows
 
+Get Qt using either the [Qt Online Installer](https://www.qt.io/download-qt-installer-oss) or [aqtinstall](https://aqtinstall.readthedocs.io/en/latest/installation.html). The release builds use the MinGW toolchain as the executables it creates are better optimized.
 
+With aqt (easiest) from the root of this project's source directory:
+```powershell
+aqt install-qt windows desktop 6.8 win64_mingw --outputdir .qt/Qt
+aqt install-tool windows desktop tools_mingw1310 --outputdir .qt/Qt
+```
+
+With the online installer:
+- Choose "Custom Installation"
+- Check Qt > Qt 6.8.x > MinGW 13.1.0 64-bit and Qt > Build Tools > MinGW 13.1.0 64-bit
+- Edit your system PATH variable to ensure that both Qt's and MinGW's `bin` directories are in your PATH.
+
+It is recommended to configure and build from the provided CMake presets, which are:
+
+- `debug-win-mingw`(mingw-w64 GCC cross-compile for Windows Debug build; requires mingw-w64)
+- `release-win-mingw` (mingw-w64 GCC cross-compile for Windows Release build with optimizations; requires mingw-w64)
+- `debug-win-msvc` (MSVC Windows Debug build)
+- `release-win-msvc` (MSVC Windows Release build with optimizations)
+
+If you use the MinGW toolchain and installed Qt with `aqt`, the included CMake toolchain file will pick up on Qt's location automatically. Run the following commands from the root of this project's source directory:
+
+```powershell
+cmake --preset <preset>
+cmake --build ./build-<debug or release>-win
+```
+
+If you used the Qt Online Installer, you will need to add `-DCMAKE_PREFIX_PATH=<path to Qt installation>` to the first cmake command.
 
 ## FAQ
 
