@@ -4,6 +4,8 @@ FnSolver is a tool for the video games *Xenoblade Chronicles X* and *Xenoblade C
 
 This software is inspired by [XenoProbes](https://github.com/minneyar/xenoprobes/tree/main) by danielko and minneyar.
 
+Thank you to danielskeenan for contributing a Graphical User Interface (GUI).
+
 This software uses the following third-party libraries; see [3rd-party-licenses](3rd-party-licenses) for their licenses:
 
 - [CLI11](https://github.com/CLIUtils/CLI11)
