@@ -28,6 +28,7 @@
 MainWindow::MainWindow(QWidget* parent): QMainWindow(parent), solver_options_(options_loader::default_options()),
   layout_(fill_layout(solver_options_.get_seed(), solver_options_.get_locked_sites())) {
   game_ = static_cast<game::Version>(settings::get_game_version());
+  image_provider_.set_game_version(game_);
 
   update_options_seed();
   init_ui();
@@ -112,7 +113,7 @@ void MainWindow::init_ui() {
 
   // Map
   auto map_layout = new QVBoxLayout(central);
-  widgets_.mira_map = new MiraMap(&layout_, central);
+  widgets_.mira_map = new MiraMap(&layout_, image_provider_, central);
   map_layout->addWidget(widgets_.mira_map);
   // Forces recalculation of geometry, otherwise map is zoomed in a strange way at startup.
   widgets_.mira_map->show();
@@ -607,7 +608,9 @@ void MainWindow::probe_map_changed() {
 void MainWindow::selected_game_changed(game::Version game) {
   game_ = game;
   settings::set_game_version(static_cast<int>(game));
+  image_provider_.set_game_version(game);
   inventory_model_->reset();
+  widgets_.mira_map->redraw();
 }
 
 void MainWindow::options_changed(const Options& options) {

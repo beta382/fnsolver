@@ -10,9 +10,4 @@
  */
 QString probe_display_name(const Probe* probe);
 
-/**
- * Get loaded QPixmap for @p probe.
- */
-const QPixmap& probe_image(const Probe* probe);
-
 #endif //FNSOLVER_GUI_PROBE_UI_H

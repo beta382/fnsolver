@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+#include "image_provider.h"
 #include "fnsolver/data/fnsite.h"
 #include "fnsolver/data/probe.h"
 
@@ -15,7 +16,7 @@ class FnSiteWidget : public QWidget {
 public:
   static constexpr auto kSize = 64;
 
-  explicit FnSiteWidget(const FnSite* site, QWidget* parent = nullptr);
+  explicit FnSiteWidget(const FnSite* site, const ImageProvider& image_provider, QWidget* parent = nullptr);
 
 
   [[nodiscard]] const FnSite* site() const { return site_; }
@@ -37,6 +38,7 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
+  const ImageProvider& image_provider_;
   const FnSite* site_;
   bool tooltip_shown_ = false;
   const Probe* data_probe_;

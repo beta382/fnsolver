@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QProgressDialog>
 
+#include "image_provider.h"
 #include "inventory_model.h"
 #include "mira_map.h"
 #include "run_dialog.h"
@@ -61,6 +62,7 @@ private:
   Options solver_options_;
   Layout layout_;
   game::Version game_;
+  ImageProvider image_provider_;
 
   void init_ui();
   void init_actions();

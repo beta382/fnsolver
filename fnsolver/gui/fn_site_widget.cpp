@@ -9,9 +9,10 @@
 
 #include "precious_resource_ui.h"
 #include "probe_ui.h"
+#include "image_provider.h"
 
-FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent), site_(site),
-  data_probe_(&Probe::probes.at(Probe::idx_for_shorthand.at("X"))) {
+FnSiteWidget::FnSiteWidget(const FnSite* site, const ImageProvider& image_provider, QWidget* parent) : QWidget(parent),
+  image_provider_(image_provider), site_(site), data_probe_(&Probe::probes.at(Probe::idx_for_shorthand.at("X"))) {
   setFixedSize(kSize, kSize);
   setAttribute(Qt::WA_NoSystemBackground, true);
   update_tooltip_text();
@@ -42,7 +43,7 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent)
     action->setCheckable(true);
     probes_action_group->addAction(action);
     action->setChecked(data_probe_->probe_id == probe.probe_id);
-    action->setIcon(QIcon(probe_image(&probe)));
+    action->setIcon(QIcon(image_provider_.probe_image(&probe)));
     action->setText(probe_display_name(&probe));
     connect(action, &QAction::triggered, [this, &probe]() {
       set_data_probe(&probe);
@@ -69,7 +70,7 @@ void FnSiteWidget::set_num_territories(uint32_t num_territories) {
 }
 
 void FnSiteWidget::paintEvent(QPaintEvent* event) {
-  const auto image = probe_image(data_probe_);
+  const auto image = image_provider_.probe_image(data_probe_);
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setRenderHint(QPainter::SmoothPixmapTransform);

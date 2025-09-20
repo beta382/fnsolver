@@ -31,18 +31,3 @@ QString probe_display_name(const Probe* probe) {
   };
   return probe_display_names.at(probe->shorthand);
 }
-
-const QPixmap& probe_image(const Probe* probe) {
-  // This needs to be inside the function definition to ensure resources are initialized before trying to get files.
-  static const std::unordered_map<Probe::Type, QPixmap> probe_images{
-    {Probe::Type::none, QPixmap(":/probe_icons/og/notvisited.png")},
-    {Probe::Type::basic, QPixmap(":/probe_icons/og/basic.png")},
-    {Probe::Type::mining, QPixmap(":/probe_icons/og/mining.png")},
-    {Probe::Type::research, QPixmap(":/probe_icons/og/research.png")},
-    {Probe::Type::booster, QPixmap(":/probe_icons/og/booster.png")},
-    {Probe::Type::storage, QPixmap(":/probe_icons/og/storage.png")},
-    {Probe::Type::duplicator, QPixmap(":/probe_icons/og/duplicator.png")},
-    {Probe::Type::battle, QPixmap(":/probe_icons/og/battle.png")},
-  };
-  return probe_images.at(probe->probe_type);
-}

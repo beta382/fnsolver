@@ -10,7 +10,8 @@
 #include "fnsite_ui.h"
 #include "fn_site_widget.h"
 
-MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout_(layout) {
+MiraMap::MiraMap(Layout* layout, const ImageProvider& image_provider, QWidget* parent) : QGraphicsView(parent),
+  image_provider_(image_provider), layout_(layout) {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   setDragMode(ScrollHandDrag);
   setMouseTracking(true);
@@ -37,7 +38,7 @@ MiraMap::MiraMap(Layout* layout, QWidget* parent): QGraphicsView(parent), layout
 
   // Site widgets.
   for (const auto& site : FnSite::sites) {
-    auto siteWidget = new FnSiteWidget(&site);
+    auto siteWidget = new FnSiteWidget(&site, image_provider_);
     connect(siteWidget, &FnSiteWidget::data_probe_changed,
             [this, &site](const Probe* probe) {
               auto placements = layout_->get_placements();
@@ -118,6 +119,10 @@ void MiraMap::contextMenuEvent(QContextMenuEvent* event) {
   menu.exec(event->globalPos());
 
   event->accept();
+}
+
+void MiraMap::redraw() {
+  calculate_site_widgets();
 }
 
 void MiraMap::calculate_site_widgets() {
