@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    width="64"
    height="64"
@@ -12,15 +10,9 @@
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
      id="defs1" />
-  <text
+  <path
+     d="m 57.999972,16.53796 5.5,-16.03799995 h -3.322 l -3.498,12.07799995 -3.564,-12.07799995 h -3.322 l 5.412,16.03799995 z"
      id="val"
-     x="64"
-     y="16"
-     fill="#ffffff"
-     font-family="serif"
-     font-size="22px"
-     font-weight="bold"
-     stroke="#000000"
-     text-anchor="end"
-     style="stroke-width:1;stroke-dasharray:none">###</text>
+     style="font-weight:bold;font-size:22px;font-family:'Nimbus Sans';text-anchor:end;fill:#ffffff;stroke:#000000"
+     aria-label="V" />
 </svg>

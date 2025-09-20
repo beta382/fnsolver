@@ -1,21 +1,18 @@
-<?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" preserveAspectRatio="xMaxYMin" version="1.1" viewBox="0 0 64 64">
- <defs>
-  <filter id="filter514" x="-.058559" y="-.052817" width="1.1842" height="1.1607" color-interpolation-filters="sRGB">
-   <feFlood flood-color="rgb(0,0,0)" flood-opacity=".49804" result="flood" />
-   <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1" />
-   <feGaussianBlur in="composite1" result="blur" stdDeviation="0.4" />
-   <feOffset dx="1.1" dy="1" result="offset" />
-   <feComposite in="SourceGraphic" in2="offset" result="fbSourceGraphic" />
-   <feColorMatrix in="fbSourceGraphic" result="fbSourceGraphicAlpha" values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0" />
-   <feFlood flood-color="rgb(0,0,0)" flood-opacity=".49804" in="fbSourceGraphic" result="flood" />
-   <feComposite in="flood" in2="fbSourceGraphic" operator="in" result="composite1" />
-   <feGaussianBlur in="composite1" result="blur" stdDeviation="0.4" />
-   <feOffset dx="1.1" dy="1" result="offset" />
-   <feComposite in="fbSourceGraphic" in2="offset" result="composite2" />
-  </filter>
- </defs>
- <g filter="url(#filter514)">
-  <text id="val" fill="#ffffff" font-family="serif" font-size="22px" x="64" y="16" text-anchor="end">I</text>
- </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="64"
+   height="64"
+   preserveAspectRatio="xMaxYMin"
+   version="1.1"
+   viewBox="0 0 64 64"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <path
+     d="m 55.887984,16.207973 v -1.166 h 0.792 q 0.484,0 0.858,-0.264 0.396,-0.286 0.396,-1.012 V 3.0079735 q 0,-0.792 -0.396,-1.056 -0.374,-0.286 -0.858,-0.286 h -0.792 V 0.49997348 h 7.612 V 1.6659735 h -0.836 q -0.528,0 -0.88,0.286 -0.352,0.286 -0.352,1.078 V 13.743973 q 0,0.726 0.352,1.012 0.374,0.286 0.88,0.286 h 0.836 v 1.166 z"
+     id="val"
+     style="font-weight:bold;font-size:22px;font-family:serif;text-anchor:end;fill:#ffffff;stroke:#000000"
+     aria-label="I" />
 </svg>

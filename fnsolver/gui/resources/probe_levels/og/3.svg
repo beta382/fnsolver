@@ -1,21 +1,19 @@
-<?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" preserveAspectRatio="xMaxYMin" version="1.1" viewBox="0 0 64 64">
- <defs>
-  <filter id="filter514" x="-.058559" y="-.052817" width="1.1842" height="1.1607" color-interpolation-filters="sRGB">
-   <feFlood flood-color="rgb(0,0,0)" flood-opacity=".49804" result="flood" />
-   <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1" />
-   <feGaussianBlur in="composite1" result="blur" stdDeviation="0.4" />
-   <feOffset dx="1.1" dy="1" result="offset" />
-   <feComposite in="SourceGraphic" in2="offset" result="fbSourceGraphic" />
-   <feColorMatrix in="fbSourceGraphic" result="fbSourceGraphicAlpha" values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0" />
-   <feFlood flood-color="rgb(0,0,0)" flood-opacity=".49804" in="fbSourceGraphic" result="flood" />
-   <feComposite in="flood" in2="fbSourceGraphic" operator="in" result="composite1" />
-   <feGaussianBlur in="composite1" result="blur" stdDeviation="0.4" />
-   <feOffset dx="1.1" dy="1" result="offset" />
-   <feComposite in="fbSourceGraphic" in2="offset" result="composite2" />
-  </filter>
- </defs>
- <g filter="url(#filter514)">
-  <text id="val" fill="#ffffff" font-family="serif" font-size="22px" x="64" y="16" text-anchor="end">III</text>
- </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="64"
+   height="64"
+   preserveAspectRatio="xMaxYMin"
+   version="1.1"
+   viewBox="0 0 64 64"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <path
+     d="m 46.593323,14.807693 v -1.068189 h 0.725562 q 0.443399,0 0.786025,-0.241854 0.362781,-0.262008 0.362781,-0.927107 V 2.7149931 q 0,-0.725562 -0.362781,-0.967416 Q 47.762284,1.4855687 47.318885,1.4855687 H 46.593323 V 0.4173802 h 6.973457 v 1.0681885 h -0.765871 q -0.483708,0 -0.80618,0.2620084 -0.322472,0.2620085 -0.322472,0.9875705 v 9.8152414 q 0,0.665098 0.322472,0.927107 0.342626,0.262008 0.80618,0.262008 h 0.765871 v 1.068189 z m 8.081935,0 v -1.068189 h 0.725562 q 0.443399,0 0.786025,-0.241854 0.362781,-0.262008 0.362781,-0.927107 V 2.7149931 q 0,-0.725562 -0.362781,-0.967416 Q 55.844219,1.4855687 55.40082,1.4855687 H 54.675258 V 0.4173802 h 6.973457 v 1.0681885 h -0.765871 q -0.483708,0 -0.80618,0.2620084 -0.322472,0.2620085 -0.322472,0.9875705 v 9.8152414 q 0,0.665098 0.322472,0.927107 0.342626,0.262008 0.80618,0.262008 h 0.765871 v 1.068189 z m 8.081935,0 v -1.068189 h 0.725562 q 0.443399,0 0.786025,-0.241854 0.362781,-0.262008 0.362781,-0.927107 V 2.7149931 q 0,-0.725562 -0.362781,-0.967416 Q 63.926154,1.4855687 63.482755,1.4855687 H 62.757193 V 0.4173802 h 6.973457 v 1.0681885 h -0.765871 q -0.483708,0 -0.80618,0.2620084 -0.322472,0.2620085 -0.322472,0.9875705 v 9.8152414 q 0,0.665098 0.322472,0.927107 0.342626,0.262008 0.80618,0.262008 h 0.765871 v 1.068189 z"
+     id="val"
+     style="font-weight:bold;font-size:20.1545px;font-family:serif;text-anchor:end;fill:#ffffff;stroke:#000000;stroke-width:0.916115"
+     transform="scale(0.91124826,1.0973958)"
+     aria-label="III" />
 </svg>
