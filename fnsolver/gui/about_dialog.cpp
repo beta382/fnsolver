@@ -36,6 +36,14 @@ AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent) {
   connect(about_qt_label, &QLabel::linkActivated, qApp, &QApplication::aboutQt);
   layout->addWidget(about_qt_label, 0, Qt::AlignCenter);
 
+  // DE Asset Rip
+  auto* de_asset_rip = new QLabel(
+    tr(
+      "<a href=\"https://felldragon.tumblr.com/post/781458744593809408/ah-yeah-if-anyone-needs-image-assets-from\">DE Icons ripped by calico</a>"),
+    this);
+  de_asset_rip->setOpenExternalLinks(true);
+  layout->addWidget(de_asset_rip, 0, Qt::AlignCenter);
+
   // Close button
   auto* button_box = new QDialogButtonBox(QDialogButtonBox::Close, this);
   connect(button_box, &QDialogButtonBox::rejected, this, &AboutDialog::close);
