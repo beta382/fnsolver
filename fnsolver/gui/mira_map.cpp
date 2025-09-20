@@ -6,7 +6,7 @@
 #include <QMenu>
 #include <QGraphicsProxyWidget>
 #include <QHash>
-
+#include <ranges>
 #include "fnsite_ui.h"
 #include "fn_site_widget.h"
 
@@ -123,6 +123,12 @@ void MiraMap::contextMenuEvent(QContextMenuEvent* event) {
 
 void MiraMap::redraw() {
   calculate_site_widgets();
+  for (const auto& widget_item : site_widgets_ | std::views::values) {
+    auto* fn_site_widget = dynamic_cast<FnSiteWidget*>(
+      dynamic_cast<QGraphicsProxyWidget*>(widget_item.get())->widget()
+    );
+    fn_site_widget->redraw();
+  }
 }
 
 void MiraMap::calculate_site_widgets() {

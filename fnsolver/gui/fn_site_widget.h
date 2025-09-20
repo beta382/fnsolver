@@ -30,6 +30,9 @@ public:
   void set_data_probe(const Probe* probe);
   void set_num_territories(uint32_t num_territories);
 
+public Q_SLOTS:
+  void redraw();
+
 Q_SIGNALS:
   void data_probe_changed(const Probe* dataProbe);
   void territories_changed();

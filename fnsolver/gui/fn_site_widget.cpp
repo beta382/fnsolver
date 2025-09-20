@@ -6,7 +6,7 @@
 #include <QPaintEvent>
 #include <QSvgRenderer>
 #include <QActionGroup>
-
+#include <ranges>
 #include "precious_resource_ui.h"
 #include "probe_ui.h"
 #include "image_provider.h"
@@ -19,7 +19,7 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, const ImageProvider& image_provid
 
   // Discovered territories.
   if (site->max_territories > 0) {
-    QActionGroup* territories_group = new QActionGroup(this);
+    auto* territories_group = new QActionGroup(this);
     for (uint32_t num_territories = 0; num_territories <= site->max_territories; ++num_territories) {
       auto* action = territory_actions_.emplace_back(new QAction(tr("%n territories", "", num_territories), this));
       action->setCheckable(true);
@@ -67,6 +67,12 @@ void FnSiteWidget::set_num_territories(uint32_t num_territories) {
   FnSite::override_territories(site_->site_id, num_territories);
   territory_actions_.at(num_territories)->setChecked(true);
   update_tooltip_text();
+}
+
+void FnSiteWidget::redraw() {
+  for (auto [probe_id, action] : probe_actions_) {
+    action->setIcon(QIcon(image_provider_.probe_image(&Probe::probes.at(probe_id))));
+  }
 }
 
 void FnSiteWidget::paintEvent(QPaintEvent* event) {
