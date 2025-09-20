@@ -80,10 +80,8 @@ void FnSiteWidget::paintEvent(QPaintEvent* event) {
 
   // Probe level.
   if (data_probe_ != nullptr && data_probe_->probe_level > 0) {
-    QSvgRenderer svg_renderer(
-      QString(":/probe_levels/og/%1.svg").arg(data_probe_->probe_level));
-    svg_renderer.setAspectRatioMode(Qt::KeepAspectRatio);
-    svg_renderer.render(&painter);
+    auto level_renderer = image_provider_.probe_level(data_probe_);
+    level_renderer->render(&painter);
   }
 
   event->accept();
