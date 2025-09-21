@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(fnsolver
-    VERSION 1.1.0
+    VERSION 1.1.1
     DESCRIPTION "A tool for \"Xenoblade Chronicles X\" and \"Xenoblade Chronicles X: Definitive Edition\", which generates tailored solutions to FrontierNav layouts."
     LANGUAGES CXX
     HOMEPAGE_URL "https://github.com/beta382/fnsolver"
