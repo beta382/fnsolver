@@ -4,19 +4,22 @@
 #include <unordered_map>
 #include <QGraphicsView>
 #include <fnsolver/layout/layout.h>
+
+#include "image_provider.h"
 #include "QGraphicsItemDeleter.h"
 
 class MiraMap : public QGraphicsView {
   Q_OBJECT
 
 public:
-  explicit MiraMap(Layout* layout, QWidget* parent = nullptr);
+  explicit MiraMap(Layout* layout, const ImageProvider& image_provider, QWidget* parent = nullptr);
   void set_layout(Layout* layout);
 
 Q_SIGNALS:
   void site_probe_map_changed();
 
 public Q_SLOTS:
+  void redraw();
   void fit_all();
   void zoom_in();
   void zoom_out();
@@ -34,6 +37,7 @@ private:
   static constexpr auto z_combo = -5;
   static constexpr auto z_links = -10;
   static constexpr auto z_map = -100;
+  const ImageProvider& image_provider_;
   QGraphicsScene map_scene_;
   Layout* layout_;
   std::unordered_map<FnSite::id_t, GraphicsItemPtr> site_widgets_;

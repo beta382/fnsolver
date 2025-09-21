@@ -11,6 +11,8 @@ enum class Version {
   Definitive,
 };
 
+static constexpr size_t num_versions = static_cast<int>(Version::Definitive) + 1;
+
 Q_ENUM_NS(Version)
 }
 

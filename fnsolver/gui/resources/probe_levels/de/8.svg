@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="64"
+   height="64"
+   preserveAspectRatio="xMaxYMin"
+   version="1.1"
+   viewBox="0 0 64 64"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <path
+     d="M 44.023497,20.622453 47.782187,4.4154701 H 45.511938 L 43.121411,16.620728 40.68578,4.4154701 H 38.415532 L 42.114083,20.622453 Z M 51.225148,4.4154701 H 48.969934 V 20.622453 h 2.255214 z m 4.179661,0 H 53.149595 V 20.622453 h 2.255214 z m 4.179662,0 H 57.329257 V 20.622453 h 2.255214 z"
+     id="val"
+     style="font-weight:bold;font-size:18.2825px;font-family:'Nimbus Sans';text-anchor:end;fill:#ffffff;stroke:#000000;stroke-width:0.831022"
+     aria-label="VIII" />
+</svg>

@@ -34,6 +34,8 @@ qt_add_executable(${TARGET} WIN32
     game.h
     game_selector.cpp
     game_selector.h
+    image_provider.cpp
+    image_provider.h
     inventory_model.cpp
     inventory_model.h
     main.cpp

@@ -6,19 +6,20 @@
 #include <QPaintEvent>
 #include <QSvgRenderer>
 #include <QActionGroup>
-
+#include <ranges>
 #include "precious_resource_ui.h"
 #include "probe_ui.h"
+#include "image_provider.h"
 
-FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent), site_(site),
-  data_probe_(&Probe::probes.at(Probe::idx_for_shorthand.at("X"))) {
+FnSiteWidget::FnSiteWidget(const FnSite* site, const ImageProvider& image_provider, QWidget* parent) : QWidget(parent),
+  image_provider_(image_provider), site_(site), data_probe_(&Probe::probes.at(Probe::idx_for_shorthand.at("X"))) {
   setFixedSize(kSize, kSize);
   setAttribute(Qt::WA_NoSystemBackground, true);
   update_tooltip_text();
 
   // Discovered territories.
   if (site->max_territories > 0) {
-    QActionGroup* territories_group = new QActionGroup(this);
+    auto* territories_group = new QActionGroup(this);
     for (uint32_t num_territories = 0; num_territories <= site->max_territories; ++num_territories) {
       auto* action = territory_actions_.emplace_back(new QAction(tr("%n territories", "", num_territories), this));
       action->setCheckable(true);
@@ -42,7 +43,7 @@ FnSiteWidget::FnSiteWidget(const FnSite* site, QWidget* parent): QWidget(parent)
     action->setCheckable(true);
     probes_action_group->addAction(action);
     action->setChecked(data_probe_->probe_id == probe.probe_id);
-    action->setIcon(QIcon(probe_image(&probe)));
+    action->setIcon(QIcon(image_provider_.probe_image(&probe)));
     action->setText(probe_display_name(&probe));
     connect(action, &QAction::triggered, [this, &probe]() {
       set_data_probe(&probe);
@@ -68,8 +69,14 @@ void FnSiteWidget::set_num_territories(uint32_t num_territories) {
   update_tooltip_text();
 }
 
+void FnSiteWidget::redraw() {
+  for (auto [probe_id, action] : probe_actions_) {
+    action->setIcon(QIcon(image_provider_.probe_image(&Probe::probes.at(probe_id))));
+  }
+}
+
 void FnSiteWidget::paintEvent(QPaintEvent* event) {
-  const auto image = probe_image(data_probe_);
+  const auto image = image_provider_.probe_image(data_probe_);
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setRenderHint(QPainter::SmoothPixmapTransform);
@@ -79,10 +86,8 @@ void FnSiteWidget::paintEvent(QPaintEvent* event) {
 
   // Probe level.
   if (data_probe_ != nullptr && data_probe_->probe_level > 0) {
-    QSvgRenderer svg_renderer(
-      QString(":/probe_levels/%1.svg").arg(data_probe_->probe_level));
-    svg_renderer.setAspectRatioMode(Qt::KeepAspectRatio);
-    svg_renderer.render(&painter);
+    auto level_renderer = image_provider_.probe_level(data_probe_);
+    level_renderer->render(&painter);
   }
 
   event->accept();
