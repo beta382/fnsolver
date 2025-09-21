@@ -44,9 +44,7 @@ jobs:
       - name: Install System Packages (Windows)
         if: ${{runner.os == 'Windows'}}
         run: |
-          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           choco install nsis.portable -y
-          refreshenv
 
       - name: Install Qt
         # Don't need this on Linux, as Qt will come from the system package manager above
