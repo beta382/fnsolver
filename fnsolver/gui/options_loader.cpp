@@ -4,6 +4,7 @@
 #include <format>
 #include <toml++/toml.hpp>
 #include <QThread>
+#include <fstream>
 
 Options options_loader::default_options() {
   return {
