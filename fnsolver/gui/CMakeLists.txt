@@ -16,6 +16,7 @@ FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
     GIT_TAG v3.4.0
+    FIND_PACKAGE_ARGS
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
